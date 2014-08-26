@@ -35,6 +35,7 @@ class ParentScript:
         prsr_arguments.add_argument( "-b", "--bsub_queue", metavar = "BSUB_Queue", dest = "str_bsub_queue", default = None, help = "If given, each command will sequentially be ran on this queue with bsub." )
         prsr_arguments.add_argument( "-c", "--clean", dest = "f_clean", default = False, action="store_true", help = "Turns on (true) or off (false) cleaning of intermediary product files." ) 
         prsr_arguments.add_argument( "-g", "--log", metavar = "Optional_logging_file", dest = "str_log_file", default = None, help = "Optional log file, if not given logging will be to the standard out." )
+        prsr_arguments.add_argument("--left", dest="str_left_fq_filename", default="", help="left or single fq file" )
         prsr_arguments.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
         prsr_arguments.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
         prsr_arguments.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = None, help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
@@ -74,10 +75,13 @@ class ParentScript:
         # Make a default output folder based on the time if not given
         # Make default log
         if not args_call.str_file_base:
-            str_now = str( datetime.datetime.now())
-            for chr_change in [ ".", ":", " " ]:
-                str_now = str_now.replace( chr_change, "_" )
-            args_call.str_file_base = str_now
+            if args_call.str_left_fq_filename:
+                args_call.str_file_base = os.path.splitext( os.path.basename( args_call.str_left_fq_filename ) )[0]
+            else:
+                str_now = str( datetime.datetime.now())
+                for chr_change in [ ".", ":", " " ]:
+                    str_now = str_now.replace( chr_change, "_" )
+                args_call.str_file_base = str_now
 
         # Make the output directory if it does not exist
         if not os.path.isdir( args_call.str_file_base ):
@@ -102,7 +106,6 @@ class ParentScript:
         # Run commands
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, str_output_dir = args_call.str_file_base, f_clean = args_call.f_clean ):
             exit( -99 )
-        exit( 0 )
     
     
     def func_make_commands( self,  args_parsed, cur_pipeline ):
