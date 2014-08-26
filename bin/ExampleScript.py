@@ -10,8 +10,8 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 import os
-import src.Command as Command
-import src.ParentScript as ParentScript
+import sciedpiper.Command as Command
+import sciedpiper.ParentScript as ParentScript
 
 class ExampleScript( ParentScript.ParentScript ):
     
