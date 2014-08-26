@@ -38,7 +38,7 @@ class ParentScript:
         prsr_arguments.add_argument("--left", dest="str_left_fq_filename", default="", help="left or single fq file" )
         prsr_arguments.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
         prsr_arguments.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
-        prsr_arguments.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = None, help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
+        prsr_arguments.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
         prsr_arguments.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
         prsr_arguments.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
         return prsr_arguments
@@ -57,7 +57,7 @@ class ParentScript:
         pass
     
     
-    def fun_run_pipeline( self ):
+    def func_run_pipeline( self ):
         """
         Runs housekeeping code before the pipeline is ran.
         
@@ -78,14 +78,16 @@ class ParentScript:
             if args_call.str_left_fq_filename:
                 args_call.str_file_base = os.path.splitext( os.path.basename( args_call.str_left_fq_filename ) )[0]
             else:
-                str_now = str( datetime.datetime.now())
-                for chr_change in [ ".", ":", " " ]:
-                    str_now = str_now.replace( chr_change, "_" )
-                args_call.str_file_base = str_now
+                args_call.str_file_base = os.getcwd()
+#                str_now = str( datetime.datetime.now())
+#                for chr_change in [ ".", ":", " " ]:
+#                    str_now = str_now.replace( chr_change, "_" )
+#                args_call.str_file_base = str_now
 
-        # Make the output directory if it does not exist
-        if not os.path.isdir( args_call.str_file_base ):
-            os.mkdir( args_call.str_file_base )
+        if args_call.str_file_base:
+            # Make the output directory if it does not exist
+            if not os.path.isdir( args_call.str_file_base ):
+                os.mkdir( args_call.str_file_base )
 
         # Make pipeline object and indicate Log file
         pline_cur = Pipeline.Pipeline( str_name = "Custom_script", 
