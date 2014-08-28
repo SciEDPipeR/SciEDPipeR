@@ -49,16 +49,17 @@ class Commandline:
 
         i_return_code = None
         
-        # Select the shell
-        str_shell = os.path.join( "bin", "bash") if f_use_bash else None
-        
+	# Update command for bash shell
+        if f_use_bash:
+	    str_command = "".join( [ os.sep, "bin", os.sep, "bash -c \'", str_command, "\'" ] )
+
         # Do not do anything when testing
         if f_test:
             return True
 
         try:
             # Perform command and wait for completion
-            subp_cur = sp.Popen( str_command, executable=str_shell, shell = True)
+            subp_cur = sp.Popen( str_command, shell = True, cwd = os.getcwd())
             str_out, str_err = subp_cur.communicate()
 	    i_return_code = subp_cur.returncode
 
