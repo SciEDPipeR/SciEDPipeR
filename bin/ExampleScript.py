@@ -9,6 +9,7 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
+import inspect
 import os
 import sciedpiper.Command as Command
 import sciedpiper.ParentScript as ParentScript
@@ -41,7 +42,8 @@ class ExampleScript( ParentScript.ParentScript ):
         """
 
         # Have file names, using the os library to have dynamic paths
-        str_test_file_dependency = "ExampleScript.py"
+        str_test_file_dependency = os.path.abspath( inspect.getfile( inspect.currentframe() ) )
+        print( str_test_file_dependency )
         str_test_file_product = os.path.join( args_parsed.str_file_base, "ExampleScriptCopy.txt")
         
         # Make directories and check files that need to exist before beginning
