@@ -26,6 +26,7 @@ Install SciEDPipeR (Windows)
 ``setup.py install``
 
 To make a script:
+
 see the bin/ExampleScript.py:
 
 To run the example (from the directory it is in):
