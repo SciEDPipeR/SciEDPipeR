@@ -9,19 +9,27 @@ SciEDPipeR is a development environment focused on making scientific pipelines e
 
 To install:
 
-``# Download the code
-git clone https://github.com/SciEDPipeR/SciEDPipeR.git
-# Move into the downloaded directory (linux / Mac)
-cd SciEDPipeR
-# Install SciEDPipeR (linux / Mac)
-python setup.py install
-# Install SciEDPipeR (Windows)
-setup.py install``
+Download the code
+
+``git clone https://github.com/SciEDPipeR/SciEDPipeR.git``
+
+Move into the downloaded directory
+
+``cd SciEDPipeR``
+
+Install SciEDPipeR (linux / Mac)
+
+``python setup.py install``
+
+Install SciEDPipeR (Windows)
+
+``setup.py install``
 
 To make a script:
 see the bin/ExampleScript.py:
 
 To run the example (from the directory it is in):
+
 ``python ExamplePython.py``
 
 
