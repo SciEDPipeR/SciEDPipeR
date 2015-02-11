@@ -42,6 +42,61 @@ class CommandlineTester( ParentPipelineTester.ParentPipelineTester ):
         # Destroy environment
         self.func_remove_files( [ str_test_file ] )
         
+    def test_func_cmd_for_simple_command_return_zero( self ):
+        """
+        Test the case of sending a simple command and getting the return value of 0 (success)
+        """
+        
+        # Set up environment
+        str_answer = str( True )
+        str_command = "python make_return_code.py -r 0"
+        
+        cmdl_cur = Commandline.Commandline()
+        str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
+        
+        self.func_test_equals( str_answer, str_return )
+
+    def test_func_cmd_for_simple_command_return_negative( self ):
+        """
+        Test the case of sending a simple command and getting the return value of -11 (failure)
+        """
+        
+        # Set up environment
+        str_answer = str( False )
+        str_command = "python make_return_code.py -r -11"
+        
+        cmdl_cur = Commandline.Commandline()
+        str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
+        
+        self.func_test_equals( str_answer, str_return )
+        
+    def test_func_cmd_for_simple_command_return_positive( self ):
+        """
+        Test the case of sending a simple command and getting the return value of 99 (failure)
+        """
+        
+        # Set up environment
+        str_answer = str( False )
+        str_command = "python make_return_code.py -r 99"
+        
+        cmdl_cur = Commandline.Commandline()
+        str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
+        
+        self.func_test_equals( str_answer, str_return )
+        
+    def test_func_cmd_for_simple_command_return_exception( self ):
+        """
+        Test the case of sending a simple command and having an exception throw in the call (failure)
+        """
+        
+        # Set up environment
+        str_answer = str( False )
+        str_command = "python make_return_code.py -e"
+        
+        cmdl_cur = Commandline.Commandline()
+        str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
+        
+        self.func_test_equals( str_answer, str_return )
 
     def test_func_cmd_for_test_mode( self ):
         """

@@ -208,10 +208,10 @@ class Pipeline:
         # Create logger, set formatting, and add level
         hndl_logging = logging.StreamHandler( stream = sys.stdout )
         if str_log_file:
-	    str_log_folder = os.path.dirname( str_log_file )
-	    if str_log_folder:
-	        if not os.path.exists( str_log_folder ):
-		    os.makedirs( str_log_folder )
+            str_log_folder = os.path.dirname( str_log_file )
+            if str_log_folder:
+                if not os.path.exists( str_log_folder ):
+                    os.makedirs( str_log_folder )
             hndl_logging = logging.FileHandler( filename = str_log_file, mode = "w" )
         hndl_logging.setFormatter( logging.Formatter( "%(asctime)s - %(name)s - %(levelname)s - %(message)s" ) )
         logr_logger.addHandler( hndl_logging )
@@ -425,7 +425,7 @@ class Pipeline:
         This handles the deletion of a path and should be the only place in the pipeline deletion can occur.
         Deleting files and directories are both very dangerous operations.
         
-        For products, remove all products
+        For products, remove all products including ok files. This is used to delete generated files which are errors.
         For dependencies, remove dependencies of the correct cleaning level
         ( Files of the clean level Command.ALWAYS are always cleaned, Command.NEVER are never cleaned )
         Paths can be files or directories, directories are removed in total, including *_all_* contents.
@@ -438,7 +438,7 @@ class Pipeline:
         3. Be of the correct clean level or a less restrictive level ( dependencies )
         4. Be an intermediate file that is no longer needed ( dependencies unless the clean level is ALWAYS, or a product )
         5. NO dependency will be removed that has a file's clean level is NEVER
-        Also removes the ok file if needed
+        Also WILL NOT remove the ok file if one is generated unless this is in product mode
         
         * cmd_command : Command
                         Command in which all products listed will be deleted.
@@ -451,7 +451,7 @@ class Pipeline:
                              : The dependency tree for the pipeline run, indicates if a file is intermediary
         
         * f_remove_products : Boolean
-                            : True removes products, False remove dependencies
+                            : True removes products, False remove dependencies, True will remove ok files, used to delete error products.
 
         * Return : Boolean
                  : True indicates all paths were safely removed
@@ -495,18 +495,12 @@ class Pipeline:
         # 4. Is an intermediate file that is no longer needed ( dependencies unless the clean level is ALWAYS )
         # 5. NO dependency will be removed if it is of clean level NEVER ( this logic is in func_get_dependencies_to_clean_level )
         # Also removes the ok file, this is done first so if there is an error during the path removal, the
-        # Ok file will already be removed and the path will be considered invalid by the rest of the pipeline
+        # Ok file will not be removed unless in product mode
         for str_path in lstr_paths_to_remove:
-            # TODO Add back
-            # If the file does not exist, remove the ok file
+            # Checks to make sure the file exists.
+            # This is necessary because this function is used to clear out products from a
+            # command that error. Given an error is is unknown if the files actually exist
             if not os.path.exists( str_path ):
-#                self.logr_logger.error( " ".join( [ "Could not remove this path, it does not exist.",
-#                                                   "Deleting ok file ( if it exists ) and moving on."
-#                                                   "Path = ", str_path ] ) )
-#                str_ok = self.func_get_ok_file_path( str_path = str_path )
-#                if self.f_execute:
-#                    if os.path.exists( str_ok ):
-#                        os.remove( str_ok )
                 continue
 
             # If it is a dependency, if needed check if it is a dependency that is intermediate and used.
@@ -524,7 +518,7 @@ class Pipeline:
                         self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Not removing the following path, it is still needed.", str_path ] ) )
                         continue
             
-	    else:
+            else:
                 # Remove ok file first to invalidate
                 str_ok = self.func_get_ok_file_path( str_path = str_path )
 

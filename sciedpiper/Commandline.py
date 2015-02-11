@@ -49,9 +49,9 @@ class Commandline:
 
         i_return_code = None
         
-	# Update command for bash shell
+        # Update command for bash shell
         if f_use_bash:
-	    str_command = "".join( [ os.sep, "bin", os.sep, "bash -c \'", str_command, "\'" ] )
+            str_command = "".join( [ os.sep, "bin", os.sep, "bash -c \'", str_command, "\'" ] )
 
         # Do not do anything when testing
         if f_test:
@@ -61,18 +61,19 @@ class Commandline:
             # Perform command and wait for completion
             subp_cur = sp.Popen( str_command, shell = True, cwd = os.getcwd())
             str_out, str_err = subp_cur.communicate()
-	    i_return_code = subp_cur.returncode
+            i_return_code = subp_cur.returncode
 
-            # ) indicates success
-            if i_return_code > 0:
+            # 0 indicates success
+            if i_return_code == 0:
+                return True
+            else:
                 self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Received bad return code = ", str( i_return_code ) ] ) )
                 self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Command = ", str_command ] ) )
                 self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Error out= ", str( str_out ) ] ) )
-		self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Error= ", str( str_err ) ] ) )
-            else:
-                return True
+                self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Error= ", str( str_err ) ] ) )
+                return False
 
-        # Inform on errors
+        # Inform on errors:w
         except( OSError, TypeError ), e:
             self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Fatal error during command call." ] ) )
             self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Command = ", str_command ] ) )

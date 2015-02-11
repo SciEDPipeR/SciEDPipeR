@@ -84,22 +84,22 @@ class Command( object ):
         """
         Remove temporary files from a list of files.
 
-	* lstr_files : List of file paths
-	             : Paths to files
-	"""
+        * lstr_files : List of file paths
+                     : Paths to files
+        """
 
         lstr_return = lstr_files[:]
         for str_temp_dir in LSTR_TEMP_DIRECTORIES:
-	    lstr_temp = []
-	    for str_path in lstr_return:
-	        f_temp_dir_is_longer = len( str_temp_dir ) > len( str_path )
+            lstr_temp = []
+            for str_path in lstr_return:
+                f_temp_dir_is_longer = len( str_temp_dir ) > len( str_path )
                 if f_temp_dir_is_longer:
-		    lstr_temp.append( str_path )
-		else:
-	            f_temp_is_the_start = str_path[ : len( str_temp_dir ) ] == str_temp_dir
+                    lstr_temp.append( str_path )
+                else:
+                    f_temp_is_the_start = str_path[ : len( str_temp_dir ) ] == str_temp_dir
                     if not f_temp_is_the_start:
-		        lstr_temp.append( str_path )
-	    lstr_return = lstr_temp
+                        lstr_temp.append( str_path )
+            lstr_return = lstr_temp
         return lstr_return
 
     @property

@@ -10,7 +10,6 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 import argparse
-import datetime
 import os
 import Pipeline
 
@@ -99,7 +98,7 @@ class ParentScript:
 
         # Run commands
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, str_output_dir = args_call.str_file_base, f_clean = args_call.f_clean ):
-            exit( -99 )
+            exit( 99 )
     
     
     def func_make_commands( self,  args_parsed, cur_pipeline ):

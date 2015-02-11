@@ -308,7 +308,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         """ Testing being given a bad case, empty list. """
         
         lstr_input = "testing.gz"
-        lstr_answer = "['<( testing.gz )']"
+        lstr_answer = "['<( zcat testing.gz )']"
         lstr_result = Pipeline.Pipeline().func_handle_gzip( lstr_input )
         self.func_test_equals(lstr_answer, lstr_result)
         
@@ -326,7 +326,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         """ Testing being given a good case, a collection of gzed and not files. """
         
         lstr_input = ["file1.fa","file2.fa.gz","file3.fa","file4.fa.gz","file5.fa.gz","file6.fa"]
-        lstr_answer = ["file1.fa","<( file2.fa.gz )","file3.fa","<( file4.fa.gz )","<( file5.fa.gz )","file6.fa"]
+        lstr_answer = ["file1.fa","<( zcat file2.fa.gz )","file3.fa","<( zcat file4.fa.gz )","<( zcat file5.fa.gz )","file6.fa"]
         lstr_result = Pipeline.Pipeline().func_handle_gzip( lstr_input )
         self.func_test_equals( sorted( lstr_answer ), sorted( lstr_result ) )
 
@@ -617,7 +617,6 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_remove_paths
-# TODO: Future test to make sure if the ok file exists it is removed.
     def test_func_remove_paths_for_bad_case_invalid_command( self ):
         """ Bad case trying to remove one product, invalid command. """
         
@@ -796,8 +795,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                 dt_dependency_tree = dt_cur,
                                                 f_remove_products = False )
         f_removed_files = not os.path.exists( str_product_1 )
-        f_removed_files = f_removed_files and not os.path.exists( str_product_1_ok )
-        f_other_files_remain = os.path.exists( str_dependency_1 )
+        f_other_files_remain = f_removed_files and os.path.exists( str_product_1_ok )
+        f_other_files_remain = f_other_files_remain and os.path.exists( str_dependency_1 )
         f_other_files_remain = f_other_files_remain and os.path.exists( str_product_2 )
         f_other_files_remain = f_other_files_remain and os.path.exists( str_product_2_ok )
         self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok, str_product_2, str_product_2_ok ] )
@@ -805,10 +804,10 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
 
 
-    def test_func_remove_paths_for_good_case_ALWAYS( self ):
+    def test_func_remove_paths_for_good_case_ALWAYS_never_delete_input_file( self ):
         """ 
         Good case trying to remove one dependency at clean level ALWAYS, any always file is always deleted. 
-        Here the input file and intermediate file is deleted. 
+        Here the input file and intermediate file is requested to be deleted but only the intermediate file is deleted. 
         """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_good_case_ALWAYS" )
@@ -830,8 +829,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                 dt_dependency_tree = dt_cur,
                                                 f_remove_products = False )
         f_removed_files = not os.path.exists( str_product_1 )
-        f_removed_files = f_removed_files and not os.path.exists( str_product_1_ok )
-        f_other_files_remain = f_removed_files and os.path.exists( str_dependency_1 )
+        f_other_files_remain = f_removed_files and os.path.exists( str_product_1_ok )
+        f_other_files_remain = f_other_files_remain and os.path.exists( str_dependency_1 )
         f_other_files_remain = f_other_files_remain and os.path.exists( str_product_2 )
         f_other_files_remain = f_other_files_remain and os.path.exists( str_product_2_ok )
         self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok, str_product_2, str_product_2_ok ] )
@@ -868,45 +867,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                 dt_dependency_tree = dt_cur,
                                                 f_remove_products = False )
         f_removed_files = not os.path.exists( str_product_1 )
-        f_removed_files = f_removed_files and not os.path.exists( str_product_1_ok )
-        f_removed_files = f_removed_files and os.path.exists( str_dependency_1 )
-        f_other_files =  os.path.exists( str_product_2 )
-        f_other_files = f_other_files and os.path.exists( str_product_2_ok )
-        self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok, str_product_2, str_product_2_ok ] )
-        self.func_remove_dirs( [ str_env ] )
-        self.func_test_true( f_success and f_removed_files and f_other_files)
-        
-        
-    def test_func_remove_paths_for_good_case_ALWAYS_clean_all_files_not_completed( self ):
-        """ 
-        Good case trying to remove one dependency at clean level ALWAYS, any always file is always deleted. 
-        Here all files are deleted (expect for the products of cmd 2) even though the command is not complete.
-        Note, input files can not be deleted by the remove paths function.
-        """
-        
-        cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_good_case_ALWAYS_clean_all_files" )
-        str_env = os.path.join( self.str_test_directory, "test_func_remove_paths_for_good_case_ALWAYS_clean_all_files" )
-        str_dependency_1 = os.path.join( str_env, "Dependency_1.txt" )
-        str_product_1 = os.path.join( str_env, "Product_1.txt" )
-        str_product_1_ok = cur_pipe.func_get_ok_file_path( str_product_1 )
-        str_product_2 = os.path.join( str_env, "Product_2.txt" )
-        str_product_2_ok = cur_pipe.func_get_ok_file_path( str_product_2 )
-        self.func_make_dummy_dir( str_env )
-        self.func_make_dummy_files( [ str_dependency_1, str_product_1, str_product_1_ok, 
-                                     str_product_2, str_product_2_ok ] )
-        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_dependency_clean_level([ str_dependency_1, str_product_1 ] , Command.CLEAN_ALWAYS)
-        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_dependency_clean_level([ str_product_1, str_product_2 ] , Command.CLEAN_ALWAYS)
-        dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd2 ] )
-        f_success = cur_pipe.func_remove_paths( cmd_command = cur_cmd, str_output_directory = str_env,
-                                                dt_dependency_tree = dt_cur,
-                                                f_remove_products = False )
-        f_success = f_success and cur_pipe.func_remove_paths( cmd_command = cur_cmd2, str_output_directory = str_env,
-                                                dt_dependency_tree = dt_cur,
-                                                f_remove_products = False )
-        f_removed_files = not os.path.exists( str_product_1 )
-        f_removed_files = f_removed_files and not os.path.exists( str_product_1_ok )
-        f_removed_files = f_removed_files and os.path.exists( str_dependency_1 )
-        f_other_files =  os.path.exists( str_product_2 )
+        f_other_files = f_removed_files and os.path.exists( str_product_1_ok )
+        f_other_files = f_other_files and os.path.exists( str_dependency_1 )
+        f_other_files =  f_other_files and os.path.exists( str_product_2 )
         f_other_files = f_other_files and os.path.exists( str_product_2_ok )
         self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok, str_product_2, str_product_2_ok ] )
         self.func_remove_dirs( [ str_env ] )

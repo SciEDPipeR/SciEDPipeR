@@ -47,7 +47,7 @@ class ExampleScript( ParentScript.ParentScript ):
         str_test_file_product = os.path.join( args_parsed.str_file_base, "ExampleScriptCopy.txt")
         
         # Make directories and check files that need to exist before beginning
-	cur_pipeline.func_mkdirs( [ args_parsed.str_file_base ] )
+        cur_pipeline.func_mkdirs( [ args_parsed.str_file_base ] )
         cur_pipeline.func_check_files_exist( [ str_test_file_dependency ] )
         
         # Make commands
