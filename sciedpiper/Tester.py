@@ -10,7 +10,9 @@ __status__ = "Development"
 
 import CommandlineTester
 import CommandTester
+import CompressionTester
 import DependencyTreeTester
+import FunctionalTester
 import PipelineTester
 import unittest
 
@@ -19,7 +21,9 @@ import unittest
 suite = unittest.TestSuite()
 suite.addTest( CommandlineTester.suite() )
 suite.addTest( CommandTester.suite() )
+suite.addTest( CompressionTester.suite() )
 suite.addTest( DependencyTreeTester.suite() )
+suite.addTest( FunctionalTester.suite() )
 suite.addTest( PipelineTester.suite() )
 
 

@@ -99,6 +99,480 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( not f_exists )
 
+# func_copy_move
+    def test_func_copy_move_for_bad_case_move_two_files( self ):
+        """ Run copy move for bad case. Too many destinations for move (more than one, here two destinations). """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_move_two_files" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_move_two_files" )
+        lstr_destination = [ os.path.join( str_env, "destination1" ), os.path.join( str_env, "destination2" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path1 = os.path.join( os.path.join( str_env, "destination1", "archive_file.txt" ) )
+        str_new_path2 = os.path.join( os.path.join( str_env, "destination2", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        self.func_remove_files( [ str_new_path1, str_new_path1 ] )
+        f_copy = False
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path1 ) and not os.path.exists( str_new_path2 )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path1, str_new_path2 ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
+        
+    def test_func_copy_move_for_bad_case_move_to_file( self ):
+        """ Run copy move for bad case. Move to a file not a directory. """
+        
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_move_to_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_move_to_file" )
+        lstr_destination = [ os.path.join( str_env, "destination.txt" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( lstr_destination[0], "archive_file.txt" )
+        self.func_make_dummy_dirs( [ str_env ] )
+        self.func_make_dummy_files( [ str_archive ] + lstr_destination )
+        self.func_remove_files( [ str_new_path ] )
+        f_copy = False
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive ) and os.path.exists( lstr_destination[0] )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] + lstr_destination )
+        self.func_remove_dirs( [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
+        
+    def test_func_copy_move_for_move_case_move_to_nonexistant_dir( self ):
+        """ Run copy move for bad case. Move to a directory that does not exist. """
+        
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_move_case_move_to_nonexistant_dir" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_move_case_move_to_nonexistant_dir" )
+        str_dest_dir = os.path.join( str_env, "destination" )
+        lstr_destination = [ str_dest_dir ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_dest_dir, "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] )
+        self.func_make_dummy_file( str_archive )
+        self.func_remove_dirs( [ str_dest_dir ] )
+        self.func_remove_files( [ str_new_path ] )
+        f_copy = False
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
+        
+    def test_func_copy_move_for_bad_case_copy_to_empty_destination( self ):
+        """ Run copy move for bad case. Copy to an empty destination list. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_copy_to_empty_destination" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_copy_to_empty_destination" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        self.func_remove_files( [ str_new_path ] )
+        f_copy = True
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = [], str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_files_does_not_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_files_does_not_exist and not f_success )
+
+    def test_func_copy_move_for_bad_case_copy_to_nonexistant_dir( self ):
+        """ Run copy move for bad case. Copy to a directory that does not exist, with others that do. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_copy_to_nonexistant_dir" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_copy_to_nonexistant_dir" )
+        str_destination_1 = os.path.join( str_env, "destination1" )
+        str_destination_2 = os.path.join( str_env, "destination2" )
+        str_destination_3 = os.path.join( str_env, "destination3" )
+        lstr_destination = [ str_destination_1, str_destination_2 ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path_1 = os.path.join( os.path.join( str_env, "destination1", "archive_file.txt" ) )
+        str_new_path_2 = os.path.join( os.path.join( str_env, "destination2", "archive_file.txt" ) )
+        str_new_path_3 = os.path.join( os.path.join( str_env, "destination3", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        lstr_destination.append( str_destination_3 )
+        self.func_remove_dirs( [ str_destination_3 ] )
+        f_copy = True
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_destination_1 )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_destination_2 )
+        f_correct_files_do_not_exist = not os.path.exists( str_new_path_1 )
+        f_correct_files_do_not_exist = f_correct_files_do_not_exist and not os.path.exists( str_new_path_2 )
+        f_correct_files_do_not_exist = f_correct_files_do_not_exist and not os.path.exists( str_new_path_3 )
+        f_correct_files_do_not_exist = f_correct_files_do_not_exist and not os.path.exists( str_destination_3 )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path_1, str_new_path_2, str_new_path_3 ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_files_do_not_exist and not f_success )
+
+    def test_func_copy_move_for_bad_case_copy_to_file( self ):
+        """ Run copy move for bad case. Copy to a directory that is a file, with others are not. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_copy_to_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_copy_to_file" )
+        str_destination_1 = os.path.join( str_env, "destination1" )
+        str_destination_2 = os.path.join( str_env, "destination2" )
+        str_destination_3 = os.path.join( str_env, "destination3.txt" )
+        lstr_destination = [ str_destination_1, str_destination_2, str_destination_3 ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path_1 = os.path.join( os.path.join( str_env, "destination1", "archive_file.txt" ) )
+        str_new_path_2 = os.path.join( os.path.join( str_env, "destination2", "archive_file.txt" ) )
+        str_new_path_3 = os.path.join( os.path.join( str_env, "destination3.txt", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env, str_destination_1, str_destination_2 ] )
+        self.func_make_dummy_files( [ str_archive, str_destination_3 ] )
+        f_copy = True
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_destination_1 )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_destination_2 )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_destination_3 )
+        f_correct_files_do_not_exist = not os.path.exists( str_new_path_1 )
+        f_correct_files_do_not_exist = f_correct_files_do_not_exist and not os.path.exists( str_new_path_2 )
+        f_correct_files_do_not_exist = f_correct_files_do_not_exist and not os.path.exists( str_new_path_3 )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path_1, str_new_path_2, str_new_path_3, str_destination_3 ] )
+        self.func_remove_dirs( [ str_destination_1, str_destination_2, str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_files_do_not_exist and not f_success )
+        
+    def test_func_copy_move_for_bad_case_copy_to_bad_file_name( self ):
+        """ Run copy move for bad case. Copy to a directory that is a bad file name, with others that are not. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_copy_to_bad_file_name" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_copy_to_bad_file_name" )
+        str_destination_1 = os.path.join( str_env, "destination1" )
+        str_destination_2 = os.path.join( str_env, "destination2" )
+        lstr_destination = [ str_destination_1, str_destination_2 ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path_1 = os.path.join( os.path.join( str_env, "destination1", "archive_file.txt" ) )
+        str_new_path_2 = os.path.join( os.path.join( str_env, "destination2", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_files( [ str_archive ] )
+        f_copy = True
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination + [ None ], str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_destination_1 )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_destination_2 )
+        f_correct_files_do_not_exist = not os.path.exists( str_new_path_1 )
+        f_correct_files_do_not_exist = f_correct_files_do_not_exist and not os.path.exists( str_new_path_2 )
+
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path_1, str_new_path_2 ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_files_do_not_exist and not f_success )
+
+
+    def test_func_copy_move_for_test_case_copy_one_file( self ):
+        """ Run copy move for test case in copy mode for one file. During tests, files should not be moved. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_test_case_copy_one_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_test_case_copy_one_file" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        f_copy = True
+        f_test = True
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and f_success )
+
+    def test_func_copy_move_for_bad_case_copy_none_destination_file( self ):
+        """ Run copy move for bad case in copy mode for a none destination file. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_copy_none_destination_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_copy_none_destination_file" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        f_copy = True
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = None, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
+
+    def test_func_copy_move_for_test_case_move_one_file( self ):
+        """ Run copy move for test case in move mode for one file. During tests the files should not be moved. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_test_case_move_one_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_test_case_move_one_file" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_files( [ str_archive ] )
+        f_copy = False
+        f_test = True
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and f_success )
+
+    def test_func_copy_move_for_bad_case_move_none_destination_file( self ):
+        """ Run copy move for bad case in move mode for none file. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_move_none_destination_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_move_none_destination_file" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        f_copy = False
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = None, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
+        
+    def test_func_copy_move_for_bad_case_move_none_archive_file( self ):
+        """ Run copy move for bad case in move mode for none archive file. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_bad_case_move_none_archive_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_bad_case_move_none_archive_file" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        f_copy = False
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = None,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_does_not_files_exist = not os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
+
+    def test_func_copy_move_for_good_case_copy_one_file( self ):
+        """ Run copy move for good case in copy mode for one file. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_good_case_copy_one_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_good_case_copy_one_file" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        f_copy = True
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_success )
+        
+    def test_func_copy_move_for_good_case_copy_one_file_twice( self ):
+        """ Run copy move for good case in copy mode for one file copied twice. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_good_case_copy_one_file_twice" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_good_case_copy_one_file_twice" )
+        lstr_destination = [ os.path.join( str_env, "destination1" ),
+                            os.path.join( str_env, "destination2" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path_1 = os.path.join( os.path.join( str_env, "destination1", "archive_file.txt" ) )
+        str_new_path_2 = os.path.join( os.path.join( str_env, "destination2", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        f_copy = True
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_exist = os.path.exists( str_archive )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_new_path_1 )
+        f_correct_files_exist = f_correct_files_exist and os.path.exists( str_new_path_2 )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path_1, str_new_path_2 ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_success )
+        
+    def test_func_copy_move_for_good_case_move_one_file( self ):
+        """ Run copy move for good case in move mode for one file. """
+
+        # Set up
+        str_env = os.path.join( self.str_test_directory, "test_func_copy_move_for_good_case_move_one_file" )
+        cur_pipeline = Pipeline.Pipeline( "test_func_copy_move_for_good_case_move_one_file" )
+        lstr_destination = [ os.path.join( str_env, "destination" ) ]
+        str_archive = os.path.join( str_env, "archive_file.txt" )
+        str_new_path = os.path.join( os.path.join( str_env, "destination", "archive_file.txt" ) )
+        self.func_make_dummy_dirs( [ str_env ] + lstr_destination )
+        self.func_make_dummy_file( str_archive )
+        f_copy = False
+        f_test = False
+        
+        # Run test
+        f_success = cur_pipeline.func_copy_move( lstr_destination = lstr_destination, str_archive = str_archive,
+                                                 f_copy = f_copy, f_test = f_test )
+        
+        # Evaluate
+        f_correct_files_does_not_exist = not os.path.exists( str_archive )
+        f_correct_files_exist = os.path.exists( str_new_path )
+        
+        # Tear down
+        self.func_remove_files( [ str_archive, str_new_path ] )
+        self.func_remove_dirs( lstr_destination + [ str_env ] )
+        
+        # Evaluate
+        self.func_test_true( f_correct_files_exist and f_correct_files_does_not_exist and f_success )
 
 # func_paths_are_from_valid_run
     def test_func_paths_are_from_valid_run_invalid_command_1( self ):

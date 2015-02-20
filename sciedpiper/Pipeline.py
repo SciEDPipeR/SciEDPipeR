@@ -10,6 +10,7 @@ __status__ = "Development"
 
 import Command
 import Commandline
+import Compression
 import DependencyTree
 import logging
 import os
@@ -22,7 +23,16 @@ import time
 # This is a list of paths that should never be allowed to be deleted
 LSTR_INVALID_OUTPUT_DIRECTORIES = [ os.path.sep ]
 # File extensions
+## This extension is auto-detected as compressed and uncompressed if FIFO is on
 STR_GZIPPED_EXT = ".gz"
+## Valid choices for ways of handling compression
+STR_COMPRESSION_NONE = "none"
+STR_COMPRESSION_ARCHIVE = "archive"
+STR_COMPRESSION_FIRST_LEVEL_ONLY = "level1"
+STR_COMPRESSION_AS_YOU_GO = "realtime"
+LSTR_COMPRESSION_HANDLING_CHOICES = [ STR_COMPRESSION_NONE, STR_COMPRESSION_ARCHIVE, 
+                                     STR_COMPRESSION_FIRST_LEVEL_ONLY, 
+                                     STR_COMPRESSION_AS_YOU_GO ]
 
 
 class Pipeline:
@@ -63,6 +73,12 @@ class Pipeline:
         """ 
         If made true, will tell the commandline to be ran in bash (for bash specific commands).
         If true will reduce the range of OS this can be ran on, not WIndows for instance.
+        """
+        
+        self.f_archive = True
+        """
+        If made True, archiving (copying and moving the output directory is allowed if requested.
+        If made False, archiving is turned off no matter the request.
         """
 
         self.str_name = str_name
@@ -114,6 +130,107 @@ class Pipeline:
                 self.logr_logger.error( " ".join( ["Pipeline.func_check_files_exist:", str_file, "does not exist." ] ) )
         return f_success
 
+    # Tested 15 tests 2-19-2015
+    def func_copy_move( self, lstr_destination, str_archive, f_copy, f_test = False ):
+        """
+        Either moves a path to a location or copies a path to several locations.
+        
+        * lstr_destination : Absolute path(s) to copy / move location. When moving a list of 1 path should be provided.
+                           : List of strings
+        * str_archive : The absolute path that will be moved.
+                      : String
+        * f_copy : True indicates copy mode ( where the original archive will not be deleted and where multiple 
+                   destinations can be copied to ). False indicates move mode ( where the original archive will 
+                   be deleted and only one destination will be copied to ).
+                 : Boolean
+        * f_test : True indicates a test run occurs, no real copy / move action is made but the destination location
+                   will be checked to make sure it exists.
+                 : Boolean
+        * return : Indicator of success ( True, success; False, failure )
+        """
+        
+        # Check inputs
+        if not lstr_destination or not str_archive:
+            return False
+        
+        # Check to make sure the path to archive is valid.
+        if not f_test and ( not str_archive or not os.path.exists( str_archive ) ):
+            self.logr_logger.error( "Pipeline.func_copy_move: Could not move the following path, does not exist:" + str_archive )
+            return False
+
+        # Copy mode
+        if f_copy:
+
+            # Tracks success
+            f_successfully_completed = True
+
+            # Make sure there are locations to copy to
+            if len( lstr_destination ) < 1:
+                self.logr_logger.error( "Pipeline.func_copy_move: No location was provided to copy to" )
+                return False
+            
+            # Check each destination directory, if any are invalid, not existing, or not a directory, do not copy
+            f_file_check = True
+            for str_copy_path in lstr_destination:
+                # Check that destination exists
+                if not str_copy_path or not os.path.exists( str_copy_path ) or not os.path.isdir( str_copy_path ):
+                    self.logr_logger.error( "Pipeline.func_copy_move: Did not copy files. The following copy destination " +
+                                              "either did not exist or was not a directory: " + str( str_copy_path ) )
+                    f_file_check = False
+            if not f_file_check:
+                return False
+            
+            # Copy to each directory
+            for str_copy_path in lstr_destination:                
+                str_copy_file = os.path.join( str_copy_path, os.path.basename( str_archive ) )
+                if f_test:
+                    self.logr_logger.info( "Pipeline.func_copy_move: Will attempt to copy " + 
+                                           str_archive + " to " + str_copy_file )
+                else:
+                    # Copy
+                    if os.path.isdir( str_archive ):
+                        # Copy File shutil.copy( src, dst )
+                        shutil.copytree( src=str_archive , dst=str_copy_file )
+                    else:
+                        # Copy Folder shutil.copytree( src = str_output_dir, dst = os.path.join( str_move, str_output_dir ))
+                        shutil.copy( src=str_archive, dst=str_copy_file )
+                    # Log results
+                    if os.path.exists( str_copy_file ):
+                        self.logr_logger.info( "Pipeline.func_copy_move: Successfully copied file to " + str_copy_file )
+                    else:
+                        self.logr_logger.error( "Pipeline.func_copy_move: Failed to copy file to " + str_copy_file )
+                        f_successfully_completed = False
+            return f_successfully_completed
+        else:
+            if not len( lstr_destination ) == 1:
+                self.logr_logger.error( "Pipeline.func_copy_move: Expected only one move location. " + 
+                                       "If you need to move the output directory to multiple locations " +
+                                       "please use the copy argument multiple times for multiple destinations "+
+                                       " or the copy and move argument for a copy and a move." )
+                return False
+            # Make sure the target location exists
+            str_move_destination = lstr_destination[ 0 ]
+            if not str_move_destination or not os.path.exists( str_move_destination ) or not os.path.isdir( str_move_destination ):
+                # Log problem with destination path
+                self.logr_logger.error( "Pipeline.func_copy_move: Skipped the following move destination. " +
+                                              "Either did not exist or was not a directory: " + 
+                                              str_move_destination )
+                return False
+            # Move and check
+            str_move_file = os.path.join( str_move_destination, os.path.basename( str_archive ) )
+            
+            if f_test:
+                self.logr_logger.info( "Pipeline.func_copy_move: Will attempt to move " +
+                                       str_archive + " to " + str_move_file )
+                return True
+            else:
+                shutil.move( src=str_archive, dst=str_move_file )
+                if os.path.exists( str_move_file ):
+                    self.logr_logger.info( "Pipeline.func_copy_move: Moved output to: " + str_move_file )
+                    return True
+                else:
+                    self.logr_logger.error( "Pipeline.func_copy_move: Did not move output.")
+                    return False
 
     # Tested 2
     def func_do_bsub( self, str_memory = 8, str_queue = "" ):
@@ -409,7 +526,7 @@ class Pipeline:
 
         # Return false on invalid data
         if not cmd_command or not cmd_command.func_is_valid():
-            self.logr_logger.error( "Pipeline.func_paths_are_from_valid_run: Received an invalid command to check validity. Comamnd=" + str( cmd_command ) )
+            self.logr_logger.error( "Pipeline.func_paths_are_from_valid_run: Received an invalid command to check validity. Command=" + str( cmd_command ) )
             return False
         
         # Check that each dependency is valid
@@ -540,7 +657,9 @@ class Pipeline:
         return True
 
 
-    def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, str_run_name = "", li_wait = None ):
+    def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, str_run_name = "",
+                           li_wait = None, lstr_copy = None, str_move = None, str_compression_mode = None,
+                           str_compression_type = "gz" ):
         """
         Runs all commands in serial and logs the time each took.
         Will stop on error.
@@ -562,6 +681,9 @@ class Pipeline:
         
         # Keeps track of success.
         f_success = True
+        
+        # Manages compression in this run
+        cur_compression = Compression.Compression() if str_compression_mode else None
 
         # Log the beginning of the pipeline
         self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting pipeline", self.str_name ] ) )
@@ -592,11 +714,15 @@ class Pipeline:
             dt_dependencies.func_remove_wait()
         
         # Run each command until all are completed or a failure occurs.
+        # lstr_made_dependencies_to_compress tracks products that are mode which have yet to be compressed.
+        # Should be a set
+        sstr_made_dependencies_to_compress = set()
         for cmd_command in lcmd_commands:
             # Log the start
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command ) ] ) )
             # Do not execute if the products are already made.
             # We do want to clean up if they ask for it.
+            # We do want to compress if they ask for it.
             if ( self.func_paths_are_from_valid_run( cmd_command, f_dependencies = False ) ):
                 self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Skipping command, resulting file already exist from previous valid command. Current command:", cmd_command.str_command ] ) )
 
@@ -607,6 +733,29 @@ class Pipeline:
                 if f_clean:
                     self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir, 
                                         dt_dependency_tree = dt_dependencies, f_remove_products = False, f_test = not self.f_execute )
+                    
+                # Compress if requested, cleaning is going to remove some files so it is easiest to let that happen,
+                # Then if the file still exists go ahead and compress if needed.
+                # I am at this point trusting all products were made ( because func_complete_command does this )
+                # and that things missing were cleaned.
+                if str_compression_mode and str_compression_mode.lower() == STR_COMPRESSION_AS_YOU_GO.lower():
+                    # Record products made, they may have been cleaned so check that they exist
+                    for str_product in cmd_command.lstr_products:
+                        if os.path.exists( str_product ):
+                            sstr_made_dependencies_to_compress.add( str_product )
+                    # Optionally compress paths if the system is done with the path
+                    sstr_removed = set()
+                    for str_product_compress in sstr_made_dependencies_to_compress:
+                        if not dt_dependencies.func_dependency_is_needed( str_product_compress ):
+                            self.logr_logger.info( "Pipeline.func_run_commands: Compressing " + str_product_compress )
+                            str_compression_success = cur_compression.func_compress( str_file_path=str_product_compress,
+                                                           str_output_directory = str_output_dir,
+                                                           str_compression_type=str_compression_type,
+                                                           str_compression_mode=STR_COMPRESSION_ARCHIVE.lower(),
+                                                           f_test = not self.f_execute )
+                            sstr_removed.add( str_product_compress )
+                            f_success = not str_compression_success is None
+                    sstr_made_dependencies_to_compress = sstr_made_dependencies_to_compress - sstr_removed
                 continue
             
             # Attempt a command.
@@ -628,7 +777,7 @@ class Pipeline:
                     self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Updated dependencies.", str( f_success ) ] ) )
 
                 # Update the products so the pipeline knows they are from valid command calls
-                # Make sure that the products area indicated to be complete
+                # Make sure that the products are indicated to be complete
                 if f_success and self.f_execute:
                     if not self.func_update_products_validity_status( cmd_command = cmd_command, dt_tree = dt_dependencies ):
                         self.logr_logger.error( "Pipeline.func_run_commands: Could not indicate to future commands that a product is valid" )
@@ -648,7 +797,27 @@ class Pipeline:
                     # Remove products
                     self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir,
                                             dt_dependency_tree = dt_dependencies, f_remove_products = True, f_test = not self.f_execute )
-                
+
+                if f_success and str_compression_mode and str_compression_mode.lower() == STR_COMPRESSION_AS_YOU_GO.lower():
+                    # Compress if requested, cleaning is going to remove some files so it is easiest to let that happen,
+                    # Then if the file still exists go ahead and compress if needed.
+                    # I am at this point trusting all products were made ( because func_complete_command does this )
+                    # and that things missing were cleaned.
+                    # Record products made, they may have been cleaned so check that they exist
+                    for str_product in cmd_command.lstr_products:
+                        if os.path.exists( str_product ):
+                            sstr_made_dependencies_to_compress.add( str_product )
+                    sstr_removed = set()
+                    for str_product_compress in sstr_made_dependencies_to_compress:
+                        if not dt_dependencies.func_dependency_is_needed( str_product_compress ):
+                            str_compression_success = cur_compression.func_compress( str_file_path = str_product_compress,
+                                                                                     str_output_directory = str_output_dir,
+                                                                                     str_compression_type = str_compression_type,
+                                                                                     str_compression_mode = STR_COMPRESSION_ARCHIVE.lower(),
+                                                                                     f_test = not self.f_execute )
+                            sstr_removed.add( str_product_compress )
+                            f_success = not str_compression_success is None
+                    sstr_made_dependencies_to_compress = sstr_made_dependencies_to_compress - sstr_removed
             if self.f_execute:
                 self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Time::", str( round( time.time() - d_start ) ) ] ) )
             
@@ -657,7 +826,7 @@ class Pipeline:
                 self.logr_logger.error( "Pipeline.func_run_commands: The last command was not successful. Pipeline run failed." )
                 return f_success
        
-        # Log successful completion and return success.
+        # Log successful completion
         if f_success:
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Successfully ended pipeline", self.str_name ] ) )
             if f_clean:
@@ -671,6 +840,37 @@ class Pipeline:
                 self.logr_logger.info("Pipeline.func_run_commands: Cleaning was not turned on. All files should be available.")
         else:
             self.logr_logger.error( "Pipeline.func_run_commands: The pipeline completed but was unsuccessful. Pipeline run failed." )
+
+        # Compress output directory
+        # Archive
+        if f_success:
+            str_target_output_directory = str_output_dir
+            if str_compression_mode and ( str_compression_mode.lower() in [ STR_COMPRESSION_ARCHIVE.lower(), STR_COMPRESSION_FIRST_LEVEL_ONLY.lower() ] ):
+                str_target_output_directory = cur_compression.func_compress( str_file_path=str_output_dir,
+                                                                             str_output_directory = str_output_dir,
+                                                                             str_compression_type = str_compression_type, 
+                                                                             str_compression_mode = str_compression_mode.lower(),
+                                                                             f_test = not self.f_execute )
+            # Move or copy output directory if indicated
+            if str_target_output_directory:
+                if lstr_copy:
+                    if not self.f_archive:
+                        self.logr_logger.error("Pipeline.func_run_commands: Could not copy the output, archiving turned off.")
+                        f_success = False
+                    else:
+                        f_success = f_success and self.func_copy_move( lstr_destination=lstr_copy,
+                                                           str_archive=str_target_output_directory,
+                                                           f_copy=True, f_test = not self.f_execute )
+                if str_move:
+                    if not self.f_archive:
+                        self.logr_logger.error("Pipeline.func_run_commands: Could not move the output, archiving turned off.")
+                        f_success = False
+                    else:
+                        f_success = f_success and self.func_copy_move( lstr_destination=[ str_move ],
+                                                           str_archive=str_target_output_directory,
+                                                           f_copy=False, f_test = not self.f_execute )
+
+        # Return success
         return f_success
 
 
