@@ -51,7 +51,12 @@ To run the example (from the directory it is in):
 * **Reduces storage foot-prints**
   * Automated deletion of intermediary files which are no longer needed in analysis (optional).
   * Products from commands be individually set be to deleted as intermediary files, as always, or as never.
-
+  * After completion of a command, intermediary files no longer needed in analysis that are not cleaned can be compressed (zip, gz, bz2)
+  * After completion of the pipeline, the resulting output directory can be compressed (several modes available)
+* **Manages output directory**
+  * The resulting output directory (which is optionally compressed) can be copied to mutltiple locations.
+  * The resulting output directory can also be moved to a location (to free up space in your working directory).
+    * Multiple copy commands and a move command can be combined on uncompressed or compressed modes.
 
 ## What happens __behind-the-scenes__ when I give the SciedPiper a list of commands (run mode not test mode)?
 
@@ -71,3 +76,7 @@ SciedPiper attempts to perform the follow when executing commands (in this order
       * If the command ran without error. Store that it finished successfully and log.
         * Clean up files if cleaning is turned on (dependent on command line).
     * Update internal state tracking dependencies and products.
+  * Compress any files no longer in use that were not cleaned (optional).
+* Compress the output directory (optional)
+* Copy output directory to one or more locations.
+* Move output directory to a location.
