@@ -13,18 +13,20 @@ import CommandTester
 import CompressionTester
 import DependencyTreeTester
 import FunctionalTester
+import JSONManagerTester
 import PipelineTester
 import unittest
 
 
 # Calls all unit tests as a regression suite.
 suite = unittest.TestSuite()
-suite.addTest( CommandlineTester.suite() )
-suite.addTest( CommandTester.suite() )
-suite.addTest( CompressionTester.suite() )
-suite.addTest( DependencyTreeTester.suite() )
-suite.addTest( FunctionalTester.suite() )
-suite.addTest( PipelineTester.suite() )
+#suite.addTest( CommandlineTester.suite() )
+#suite.addTest( CommandTester.suite() )
+#suite.addTest( CompressionTester.suite() )
+#suite.addTest( DependencyTreeTester.suite() )
+#suite.addTest( FunctionalTester.suite() )
+suite.addTest( JSONManagerTester.suite() )
+#suite.addTest( PipelineTester.suite() )
 
 
 runner = unittest.TextTestRunner()

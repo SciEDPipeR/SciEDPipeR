@@ -17,6 +17,14 @@ CLEAN_ALWAYS = 3
 CLEAN_DEFAULT = CLEAN_AS_TEMP
 LSTR_CLEAN_LEVELS = [ CLEAN_NEVER, CLEAN_AS_TEMP, CLEAN_ALWAYS ]
 
+# JSON related
+STR_CLEAN_NEVER = "NEVER CLEAN"
+STR_CLEAN_ALWAYS = "ALWAYS CLEAN"
+CLEAN_AS_TEMP = 2
+STR_COMMAND_JSON = "COMMAND"
+STR_DEPENDENCIES_JSON = "NEEDS"
+STR_PRODUCTS_JSON = "MAKES"
+
 # List of folders which are temporary and can not be dependencies
 LSTR_TEMP_DIRECTORIES = [ os.sep+"dev" ]
 
@@ -292,6 +300,23 @@ class Command( object ):
             for str_path in lstr_paths:
                 lstr_return_list.append( os.path.abspath( str_path ) )
         return lstr_return_list
+
+
+    def func_to_dict( self ):
+        """
+        Translate command to dict
+        """
+
+        dict_key = { CLEAN_NEVER:STR_CLEAN_NEVER, CLEAN_ALWAYS:STR_CLEAN_ALWAYS }
+       
+        dict_cur = {}
+        dict_cur[ STR_COMMAND_JSON ] = self.str_command
+        dict_cur[ STR_DEPENDENCIES_JSON ] = self.lstr_dependencies
+        dict_cur[ STR_PRODUCTS_JSON ] = self.lstr_products
+
+        for i_key in self.dict_clean_level.keys():
+            dict_cur[ dict_key[ i_key ] ] = self.dict_clean_level[ i_key ]
+        return( dict_cur )
 
 
     def __str__( self ):
