@@ -319,6 +319,16 @@ class Command( object ):
         return( dict_cur )
 
 
+    @classmethod
+    def func_dict_to_command( dict_convert )
+        """
+        Change a dict of information to a command.
+        """
+
+
+
+        return( )
+
     def __str__( self ):
         """
         String representation of the command.

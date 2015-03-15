@@ -11,6 +11,9 @@ import Command
 import json
 
 
+ARGUMENTS = "arguments"
+COMMANDS = "commands"
+
 class JSONManager( object ):
   """
   Takes a list of commands and converts them to JSON representation or takes a JSON repsresentation and converts it to a list of commands.
@@ -24,8 +27,12 @@ class JSONManager( object ):
     * str_json : String which represents a json object
                : String
     * return : Both a list of commands and a dict of global settings if provided.
-             : dictionary { commands:[], settings:[] }
+             : dictionary { JSONManager.ARGUMENTS:[], JSONManager.COMMANDS:[] }
     """
+
+    # Hold arguments and command seperately
+    dict_arguments = {}
+    list_commands = []
 
     # Check value of str_json
     if not str_json:
@@ -35,13 +42,19 @@ class JSONManager( object ):
     json_read_data = json.loads( str_json )
 
     # Pull out global configuration
+    for str_key in json_read_data:
+        if not JSONManager.COMMANDS:
+            dict_arguments[ str_key ] = json_read_data[ str_key ]
 
     # Iterate through commands
+    for dict_command in json_read_data[ JSONManager.COMMANDS ]:
+         list_commands.append( Command.Command.func_dict_to_Command() )
 
-    return 
+    return { JSONManager.COMMANDS: list_commands, JSONManager.ARGUMENTS: dict_arguments }
+
 
   @classmethod
-  def func_pipeline_to_json( self, lcmd_commands, dict_args, str_file ):
+  def func_pipeline_to_json( self, lcmd_commands, dict_args, str_file = None ):
     """
     Change a list of commands to a JSON object
 
@@ -66,12 +79,12 @@ class JSONManager( object ):
       if not cmd_cur:
         continue
       ldict_cmds.append( cmd_cur.func_to_dict() )
-    dict_json[ "commands" ] = ldict_cmds
+    dict_json[ JSONManager.COMMANDS ] = ldict_cmds
 
     # Make string nd return.
     # Write to file it requested.
     str_json = json.dumps( dict_json )
-    if str_File:
+    if str_file:
         with open( str_file, "w" ) as hndl_out:
             hndl_out.write( str_json )
     return json.dumps( dict_json )
