@@ -35,6 +35,7 @@ class ParentScript:
         prsr_arguments.add_argument( "-c", "--clean", dest = "f_clean", default = False, action="store_true", help = "Turns on (true) or off (false) cleaning of intermediary product files." ) 
         prsr_arguments.add_argument( "--copy", metavar = "Copy_location", dest = "lstr_copy", default = None, action="append", help="Paths to copy the output directory after the pipeline is completed. Output directory must be specified; can be used more than once for multiple copy locations.")
         prsr_arguments.add_argument( "-g", "--log", metavar = "Optional_logging_file", dest = "str_log_file", default = None, help = "Optional log file, if not given logging will be to the standard out." )
+        prsr_arguments.add_argument( "--json_out", metavar = "Write the sript as a json file", dest = "str_json_file_out", default = None, help = "Write script to a JSON file." )
         prsr_arguments.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
         prsr_arguments.add_argument( "--move", metavar = "Move_location", dest = "str_move_dir", default = None, help = "The path where to move the output directory after the pipeline ends. Can be used with the copy argument if both copying to one location(s) and moving to another is needed. Must specify output directory." )
         prsr_arguments.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
@@ -105,6 +106,9 @@ class ParentScript:
 
         # Run the user based pipeline
         lcmd_commands = self.func_make_commands( args_parsed = args_call, cur_pipeline = pline_cur )
+
+        # Write JSON file
+        if not args_call.str_json_file_out
 
         # Run commands
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, 

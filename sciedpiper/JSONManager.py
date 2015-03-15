@@ -41,7 +41,7 @@ class JSONManager( object ):
     return 
 
   @classmethod
-  def func_pipeline_to_json( self, lcmd_commands, dict_args ):
+  def func_pipeline_to_json( self, lcmd_commands, dict_args, str_file ):
     """
     Change a list of commands to a JSON object
 
@@ -49,7 +49,9 @@ class JSONManager( object ):
                     : List
     * dict_args : The parsed arguments for the pipeline
                 : Dictionary
-    * returns : JSON represenation of pipeline as a string
+    * str_file : File to output the JSON string if given, either way the string is returned.
+               : File path
+    * returns : JSON representation of pipeline as a string
               : String
     """
 
@@ -66,4 +68,10 @@ class JSONManager( object ):
       ldict_cmds.append( cmd_cur.func_to_dict() )
     dict_json[ "commands" ] = ldict_cmds
 
+    # Make string nd return.
+    # Write to file it requested.
+    str_json = json.dumps( dict_json )
+    if str_File:
+        with open( str_file, "w" ) as hndl_out:
+            hndl_out.write( str_json )
     return json.dumps( dict_json )
