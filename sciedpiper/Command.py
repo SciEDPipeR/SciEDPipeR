@@ -18,12 +18,12 @@ CLEAN_DEFAULT = CLEAN_AS_TEMP
 LSTR_CLEAN_LEVELS = [ CLEAN_NEVER, CLEAN_AS_TEMP, CLEAN_ALWAYS ]
 
 # JSON related
-STR_CLEAN_NEVER = "NEVER CLEAN"
-STR_CLEAN_ALWAYS = "ALWAYS CLEAN"
-CLEAN_AS_TEMP = 2
+STR_CLEAN_NEVER = "NEVER_CLEAN"
+STR_CLEAN_ALWAYS = "ALWAYS_CLEAN"
 STR_COMMAND_JSON = "COMMAND"
 STR_DEPENDENCIES_JSON = "NEEDS"
 STR_PRODUCTS_JSON = "MAKES"
+LSTR_JSON_KEYS = [ STR_COMMAND_JSON, STR_DEPENDENCIES_JSON, STR_PRODUCTS_JSON ]
 
 # List of folders which are temporary and can not be dependencies
 LSTR_TEMP_DIRECTORIES = [ os.sep+"dev" ]
@@ -54,7 +54,9 @@ class Command( object ):
         self.str_command = str_cur_command if str_cur_command else ""
         self.lstr_dependencies = lstr_cur_dependencies
         self.lstr_products = lstr_cur_products
-        
+
+        # Cleaning levels
+        # { Cleaning_level: [ str_file, str_file, str_file ] }
         self.dict_clean_level = {}
 
 
@@ -68,6 +70,7 @@ class Command( object ):
         """
 
         return self.__lstr_dependencies
+
 
     @lstr_dependencies.setter
     def lstr_dependencies( self, lstr_paths ):
@@ -86,6 +89,7 @@ class Command( object ):
         self.__lstr_dependencies = lstr_paths if lstr_paths else []
         self.__lstr_dependencies = [ self.func_make_paths_absolute( str_path )[ 0 ] for str_path in self.__lstr_dependencies if str_path ]
         self.__lstr_dependencies = self.func_remove_temp_files( self.__lstr_dependencies )
+
 
     @classmethod
     def func_remove_temp_files( self, lstr_files ):
@@ -109,6 +113,7 @@ class Command( object ):
                         lstr_temp.append( str_path )
             lstr_return = lstr_temp
         return lstr_return
+
 
     @property
     def lstr_products( self ):
@@ -304,7 +309,7 @@ class Command( object ):
 
     def func_to_dict( self ):
         """
-        Translate command to dict
+        Translate the command to a dict representation.
         """
 
         dict_key = { CLEAN_NEVER:STR_CLEAN_NEVER, CLEAN_ALWAYS:STR_CLEAN_ALWAYS }
@@ -314,8 +319,10 @@ class Command( object ):
         dict_cur[ STR_DEPENDENCIES_JSON ] = self.lstr_dependencies
         dict_cur[ STR_PRODUCTS_JSON ] = self.lstr_products
 
-        for i_key in self.dict_clean_level.keys():
-            dict_cur[ dict_key[ i_key ] ] = self.dict_clean_level[ i_key ]
+        # Store the clean levels but use the human readable str representation of the clean level not the int.
+        for i_key, str_item in self.dict_clean_level.items():
+            if not i_key == CLEAN_AS_TEMP:
+                dict_cur[ str_item ] = LSTR_CLEAN_LEVELS[ i_key ] 
         return( dict_cur )
 
 
@@ -325,9 +332,13 @@ class Command( object ):
         Change a dict of information to a command.
         """
 
-
-
-        return( )
+        cmd_cur = Command.Command( str_cur_command=dict_convert[ STR_COMMAND_JSON ], lstr_cur_dependencies=dict_convert[ STR_DEPENDENCIES_JSON ], lstr_cur_products=dict_convert[ STR_PRODUCTS_JSON ] )
+        
+        for str_key, str_clean in dict_convert.items():
+            if not str_key.lower() in LSTR_JSON_KEYS and str_clean in LSTR_CLEAN_LEVELS:
+                i_clean_level = LSTR_CLEAN_LEVELS.index( str_clean )
+                cmd_cur.func_set_dependency_clean_level( lstr_file=str_key, i_level=i_clean_level )
+        return( cmd_cur )
 
     def __str__( self ):
         """

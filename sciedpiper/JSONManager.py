@@ -10,7 +10,6 @@ __status__ = "Development"
 import Command
 import json
 
-
 ARGUMENTS = "arguments"
 COMMANDS = "commands"
 
@@ -20,7 +19,7 @@ class JSONManager( object ):
   """
     
   @classmethod
-  def func_json_to_command( self, str_json ):
+  def func_json_to_commands( self, str_json ):
     """
     Change a json file to a list of commands.
 
