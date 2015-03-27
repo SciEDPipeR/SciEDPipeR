@@ -29,6 +29,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         str_answer = "{\"commands\": []}"
         self.func_test_equals( str_answer, str_result )
 
+
     def test_func_pipeline_to_json_for_no_command( self ):
         """
         Test creating a pipeline with no command, capturing commandline parameters.
@@ -38,6 +39,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
         str_answer = "{\"count\": 1, \"commands\": [], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
         self.func_test_equals( str_answer, str_result )
+
 
     def test_func_pipeline_to_json_for_one_command_no_arguments( self ):
         """
@@ -50,6 +52,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
         str_answer = "{\"commands\": [{\"MAKES\": [\"/file/two.txt\", \"/file/three.txt\"], \"NEEDS\": [\"/file/one.txt\"], \"COMMAND\": \"This is the test command\"}]}"
         self.func_test_equals( str_answer, str_result )
+
         
     def test_func_pipeline_to_json_for_one_command_and_arguments( self ):
         """
@@ -62,6 +65,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
         str_answer = "{\"count\": 1, \"commands\": [{\"MAKES\": [\"/file/two.txt\", \"/file/three.txt\"], \"NEEDS\": [\"/file/one.txt\"], \"COMMAND\": \"This is the test command\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
         self.func_test_equals( str_answer, str_result )
+
 
     def test_func_pipeline_to_json_for_two_commands_and_arguments( self ):
         """
@@ -78,6 +82,117 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         str_answer = "{\"count\": 1, \"commands\": [{\"MAKES\": [\"/file/two.txt\", \"/file/three.txt\"], \"NEEDS\": [\"/file/one.txt\"], \"COMMAND\": \"This is the test command 1\"}, {\"MAKES\": [\"/file/four.txt\", \"/file/five.txt\"], \"NEEDS\": [\"/file/three.txt\"], \"COMMAND\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
         self.func_test_equals( str_answer, str_result )
 
+
+    def test_func_pipeline_to_json_for_two_commands_and_arguments_write_to_file( self ):
+        """
+        Test creating a pipeline with two commands, and commandline parameters.
+        This tests that a write to file occurs and the correct json string is written.
+        """
+
+        # Create test environment
+        str_env = os.path.join( self.str_test_directory, "test_func_pipeline_to_json_for_two_commands_and_arguments_write_to_file" )
+        str_result_file = os.path.join( str_env, "test_func_pipeline_to_json_for_two_commands_and_arguments_write_to_file.txt" )
+        self.func_make_dummy_dir( str_env )
+
+        lstr_commands = [ Command.Command( str_cur_command = "This is the test command 1",
+                                           lstr_cur_dependencies = ["/file/one.txt"],
+                                           lstr_cur_products = ["/file/two.txt","/file/three.txt"] ),
+                          Command.Command( str_cur_command = "This is the test command 2",
+                                           lstr_cur_dependencies = ["/file/three.txt"],
+                                           lstr_cur_products = ["/file/four.txt","/file/five.txt"] ) ]
+        dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
+        JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, str_file=str_result_file )
+        str_answer = "{\"count\": 1, \"commands\": [{\"MAKES\": [\"/file/two.txt\", \"/file/three.txt\"], \"NEEDS\": [\"/file/one.txt\"], \"COMMAND\": \"This is the test command 1\"}, {\"MAKES\": [\"/file/four.txt\", \"/file/five.txt\"], \"NEEDS\": [\"/file/three.txt\"], \"COMMAND\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        
+        # Evaluate
+        str_result = ""
+        with open( str_result_file, "r" ) as hndl_result:
+          str_result = hndl_result.read()
+        self.func_test_equals( str_answer, str_result )
+
+        # Destroy environment
+        self.func_remove_files( [ str_result_file ] )
+        self.func_remove_dirs( [ str_env ] )
+
+
+    def test_func_json_to_commands_None_string( self ):
+        """
+        Test making command and argument objects from a None json string.
+        """
+        # Create test environment
+        str_json = None
+        str_answer = "{}"
+
+        # Get Results
+        dict_pipeline_info = JSONManager.JSONManager.func_json_to_commands( str_json )
+
+        # Evaluate Results
+        self.func_test_equals( str( dict_pipeline_info ), str_answer )
+
+
+    def test_func_json_to_commands_blank_string( self ):
+        """
+        Test making command and argument objects from a None json string.
+        """
+
+        # Create test environment
+        str_json = ""
+        str_answer = "{}"
+
+        # Get Results
+        dict_pipeline_info = JSONManager.JSONManager.func_json_to_commands( str_json )
+
+        # Evaluate Results
+        self.func_test_equals( str( dict_pipeline_info ), str_answer )
+
+
+    def test_func_json_to_commands_arguments_only_string( self ):
+        """
+        Test making command and argument objects from a json string. Only arguments given here.
+        """
+        # Create test environment
+        str_answer = "{\'commands\': [], \'arguments\': {argument1: 1, argument2: str2, argument3: False, argument4: /a/b/c/d/argument4.txt, argument5: [u'hello', 1, 1.2]}}"
+        str_json = "{ \"argument1\" : 1, \"argument2\" : \"str2\", \"argument3\" : false, \"argument4\" : \"/a/b/c/d/argument4.txt\", \"argument5\" : [\"hello\",1,1.2] }"
+        # Get Results
+        dict_pipeline_info = JSONManager.JSONManager.func_json_to_commands( str_json )
+        list_commands_pipe = dict_pipeline_info[ JSONManager.JSONManager.COMMANDS ]
+        dict_commands_pipe = dict_pipeline_info[ JSONManager.JSONManager.ARGUMENTS ]
+        str_result = "{\'"+JSONManager.JSONManager.COMMANDS+"\': " + str( list_commands_pipe ) + ", \'"+JSONManager.JSONManager.ARGUMENTS+"\': "+self.func_dict_to_string( dict_commands_pipe ) + "}"
+        # Evaluate Results
+        self.func_test_equals( str_answer, str_result )
+
+
+    def test_func_json_to_commands_commands_only_string( self ):
+        """
+        Test making command and argument objects from a json string. Only commands given here.
+        """
+        # Create test environment
+        str_answer = "{\'commands\': [], \'arguments\': {}}"
+        str_json = "{\"commands\": [{\"MAKES\": [\"file1.txt\"], \"NEEDS\": [\"file2.txt\",\""+os.path.sep+"file3.txt\"], \"COMMAND\": \"commmand.sh\"}]}"
+        # Get Results
+        print( str_json )
+        dict_pipeline_info = JSONManager.JSONManager.func_json_to_commands( str_json )
+        list_commands_pipe = dict_pipeline_info[ JSONManager.JSONManager.COMMANDS ]
+        dict_commands_pipe = dict_pipeline_info[ JSONManager.JSONManager.ARGUMENTS ]
+        str_result = "{\'"+JSONManager.JSONManager.COMMANDS+"\': " + str( [ cur_cmd.func_detail() for cur_cmd in list_commands_pipe ] ) + ", \'"+JSONManager.JSONManager.ARGUMENTS+"\': "+self.func_dict_to_string( dict_commands_pipe ) + "}"
+        # Evaluate Results
+        self.func_test_equals( str_answer, str_result )
+
+
+    def test_func_json_to_commands_arguments_and_arguments_string( self ):
+        """
+        Test making command and argument objects from a json string. Commands and arguments given here.
+        """
+        # Create test environment
+        str_answer = "{\'commands\': [], \'arguments\': {argument1: 1, argument2: str2, argument3: False, argument4: /a/b/c/d/argument4.txt, argument5: [u'hello', 1, 1.2]}}"
+        str_json = "{ \"commands\": [{\"MAKES\": [\"file1.txt\"], \"NEEDS\": [\"file2.txt\",\""+os.path.sep+"file3.txt\"], \"COMMAND\": \"commmand.sh\"}], \"argument1\" : 1, \"argument2\" : \"str2\", \"argument3\" : false, \"argument4\" : \"/a/b/c/d/argument4.txt\", \"argument5\" : [\"hello\",1,1.2] }"
+        # Get Results
+        dict_pipeline_info = JSONManager.JSONManager.func_json_to_commands( str_json )
+        list_commands_pipe = dict_pipeline_info[ JSONManager.JSONManager.COMMANDS ]
+        dict_commands_pipe = dict_pipeline_info[ JSONManager.JSONManager.ARGUMENTS ]
+        str_result = "{\'"+JSONManager.JSONManager.COMMANDS+"\': " + str( [ cur_cmd.func_detail() for cur_cmd in list_commands_pipe ] ) + ", \'"+JSONManager.JSONManager.ARGUMENTS+"\': "+self.func_dict_to_string( dict_commands_pipe ) + "}"
+        # Evaluate Results
+        self.func_test_equals( str_answer, str_result )
 #Creates a suite of tests
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase( JSONManagerTester )              

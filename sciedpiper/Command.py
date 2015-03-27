@@ -21,8 +21,11 @@ LSTR_CLEAN_LEVELS = [ CLEAN_NEVER, CLEAN_AS_TEMP, CLEAN_ALWAYS ]
 STR_CLEAN_NEVER = "NEVER_CLEAN"
 STR_CLEAN_ALWAYS = "ALWAYS_CLEAN"
 STR_COMMAND_JSON = "COMMAND"
+USTR_COMMAND_JSON = u'COMMAND'
 STR_DEPENDENCIES_JSON = "NEEDS"
+USTR_DEPENDENCIES_JSON = u'NEEDS'
 STR_PRODUCTS_JSON = "MAKES"
+USTR_PRODUCTS_JSON = u'MAKES'
 LSTR_JSON_KEYS = [ STR_COMMAND_JSON, STR_DEPENDENCIES_JSON, STR_PRODUCTS_JSON ]
 
 # List of folders which are temporary and can not be dependencies
@@ -327,18 +330,41 @@ class Command( object ):
 
 
     @classmethod
-    def func_dict_to_command( dict_convert )
+    def func_dict_to_command( self, dict_convert ):
         """
         Change a dict of information to a command.
         """
 
-        cmd_cur = Command.Command( str_cur_command=dict_convert[ STR_COMMAND_JSON ], lstr_cur_dependencies=dict_convert[ STR_DEPENDENCIES_JSON ], lstr_cur_products=dict_convert[ STR_PRODUCTS_JSON ] )
+        # If there is no command in the command object, disreguard, unimportant
+        if not USTR_COMMAND_JSON in dict_convert:
+          return None
+
+        # Make command
+        str_cur_command = dict_convert[ USTR_COMMAND_JSON ]
+        lstr_dependencies = dict_convert[ USTR_DEPENDENCIES_JSON ] if USTR_DEPENDENCIES_JSON in dict_convert else []
+        lstr_products = dict_convert[ USTR_PRODUCTS_JSON ] if USTR_PRODUCTS_JSON in dict_convert else []
+        cmd_cur = Command( str_cur_command=str_cur_command, lstr_cur_dependencies=lstr_dependencies, lstr_cur_products=lstr_products )
         
         for str_key, str_clean in dict_convert.items():
             if not str_key.lower() in LSTR_JSON_KEYS and str_clean in LSTR_CLEAN_LEVELS:
                 i_clean_level = LSTR_CLEAN_LEVELS.index( str_clean )
                 cmd_cur.func_set_dependency_clean_level( lstr_file=str_key, i_level=i_clean_level )
         return( cmd_cur )
+
+
+    def func_detail( self ):
+        """
+        Give a detailed and standardized view of the command. Mainly for detailed testing.
+        """
+
+        str_command = "Command: " + self.str_command
+        str_dependencies = "Dependencies: " + ",".join( sorted ( self.lstr_dependencies ) )
+        str_products = "Products:" + ",".join( sorted ( self.lstr_products ) )
+        lstr_cleaning = []
+        for str_key in sorted( self.dict_clean_level.keys() ):
+            lstr_cleaning.append( str_key + ": " + ", ".join( [ str_file for str_file in self.dict_clean_level[ str_key ] ] ) )
+        str_cleaning = "Cleaning: " + ", ".join( lstr_cleaning )
+        return( "; ".join( [ str_command, str_dependencies, str_products, str_cleaning ] ) )
 
     def __str__( self ):
         """

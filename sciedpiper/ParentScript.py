@@ -10,6 +10,7 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 import argparse
+import JSONManager
 import os
 import Pipeline
 

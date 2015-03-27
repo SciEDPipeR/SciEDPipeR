@@ -8,15 +8,28 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 import Command
+import unicodedata
 import json
+import unicodedata
 
-ARGUMENTS = "arguments"
-COMMANDS = "commands"
+class Struct:
+  """
+  Using this to turn a dict to a class.
+  Nice solution given by Eli
+  http://stackoverflow.com/questions/1305532/convert-python-dict-to-object
+  """
+
+  def __init__( self, **args ):
+    self.__dict__.update( args )
+
 
 class JSONManager( object ):
   """
   Takes a list of commands and converts them to JSON representation or takes a JSON repsresentation and converts it to a list of commands.
   """
+
+  ARGUMENTS = "arguments"
+  COMMANDS = "commands"
     
   @classmethod
   def func_json_to_commands( self, str_json ):
@@ -39,17 +52,17 @@ class JSONManager( object ):
 
     # Read in the json object
     json_read_data = json.loads( str_json )
-
     # Pull out global configuration
     for str_key in json_read_data:
-        if not JSONManager.COMMANDS:
-            dict_arguments[ str_key ] = json_read_data[ str_key ]
+        if not str_key == JSONManager.COMMANDS:
+            dict_arguments[ unicodedata.normalize( "NFKD", str_key ).encode("ascii","ignore") ] = json_read_data[ str_key ]
 
     # Iterate through commands
-    for dict_command in json_read_data[ JSONManager.COMMANDS ]:
-         list_commands.append( Command.Command.func_dict_to_Command() )
+    if JSONManager.COMMANDS in json_read_data:
+        for dict_command in json_read_data[ JSONManager.COMMANDS ]:
+            list_commands.append( Command.Command.func_dict_to_command( dict_command ) )
 
-    return { JSONManager.COMMANDS: list_commands, JSONManager.ARGUMENTS: dict_arguments }
+    return { JSONManager.COMMANDS: list_commands, JSONManager.ARGUMENTS: Struct( **dict_arguments ) }
 
 
   @classmethod

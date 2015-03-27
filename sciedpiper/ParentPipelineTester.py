@@ -23,6 +23,24 @@ class ParentPipelineTester(unittest.TestCase):
     str_test_directory = os.path.join( str_current_dir, "test")
     """ Test directory """
 
+    def func_dict_to_string( self, dict_cur ):
+        """
+        Takes a dict and returns a string with the internal items alphanumerically sorted by key.
+
+        * dict_cur : Dict to get a standardized representation of the internal state.
+                     Dict
+
+        * return : String representation of the dict, sorted alphanumerically by keys
+                 : String
+        """
+
+        # On a null and bad value return empty dict
+        if not dict_cur:
+            return str({})
+
+        # Sort keys and make string
+        return( "{" + ", ".join([ ": ".join([ str( str_key ), str( dict_cur[ str_key ])]) for str_key in sorted(dict_cur.keys()) ]) + "}" )
+        
 
     def func_are_files_equivalent( self, str_file_path_1, str_file_path_2 ):
         """
