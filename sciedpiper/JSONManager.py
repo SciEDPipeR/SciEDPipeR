@@ -8,10 +8,13 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 import Command
-import unicodedata
 import json
 import unicodedata
 
+# Constants
+ARGUMENTS = "arguments"
+COMMANDS = "commands"
+    
 class Struct:
   """
   Using this to turn a dict to a class.
@@ -22,15 +25,24 @@ class Struct:
   def __init__( self, **args ):
     self.__dict__.update( args )
 
+  def __str__( self ):
+     """
+     Returns a string with the internal items alphanumerically sorted by name.
+ 
+     * return : String representation of the internal dict, sorted alphanumerically by keys
+              : String
+     """
+
+     # Sort keys and make string
+     return( "{" + ", ".join([ ": ".join([ str( str_key ), str( self.__dict__[ str_key ])]) for str_key in sorted(self.__dict__.keys()) ]) + "}" )
+
 
 class JSONManager( object ):
   """
   Takes a list of commands and converts them to JSON representation or takes a JSON repsresentation and converts it to a list of commands.
   """
 
-  ARGUMENTS = "arguments"
-  COMMANDS = "commands"
-    
+  # Tested
   @classmethod
   def func_json_to_commands( self, str_json ):
     """
@@ -51,20 +63,22 @@ class JSONManager( object ):
       return {}
 
     # Read in the json object
+    # Unicode is left in the strings as is, argument names are normalized because they will eventually be variable names.
     json_read_data = json.loads( str_json )
     # Pull out global configuration
     for str_key in json_read_data:
-        if not str_key == JSONManager.COMMANDS:
+        if not str_key == COMMANDS:
             dict_arguments[ unicodedata.normalize( "NFKD", str_key ).encode("ascii","ignore") ] = json_read_data[ str_key ]
 
     # Iterate through commands
-    if JSONManager.COMMANDS in json_read_data:
-        for dict_command in json_read_data[ JSONManager.COMMANDS ]:
+    if COMMANDS in json_read_data:
+        for dict_command in json_read_data[ COMMANDS ]:
             list_commands.append( Command.Command.func_dict_to_command( dict_command ) )
 
-    return { JSONManager.COMMANDS: list_commands, JSONManager.ARGUMENTS: Struct( **dict_arguments ) }
+    return { COMMANDS: list_commands, ARGUMENTS: Struct( **dict_arguments ) }
 
 
+  #Tested
   @classmethod
   def func_pipeline_to_json( self, lcmd_commands, dict_args, str_file = None ):
     """
@@ -91,7 +105,7 @@ class JSONManager( object ):
       if not cmd_cur:
         continue
       ldict_cmds.append( cmd_cur.func_to_dict() )
-    dict_json[ JSONManager.COMMANDS ] = ldict_cmds
+    dict_json[ COMMANDS ] = ldict_cmds
 
     # Make string nd return.
     # Write to file it requested.

@@ -67,8 +67,9 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dir( str_env )
         
         # Call Example script
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_vanilla_base_run --out_dir "+ str_env
+        print( str_command )
         Commandline.Commandline().func_CMD( str_command )
         
         # Check test environment for results
@@ -96,7 +97,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Call Example script
         str_compression = "none"
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_run_with_no_compression --out_dir "+ str_env +" --compress " + str_compression
         Commandline.Commandline().func_CMD( str_command )
         
@@ -125,7 +126,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Call Example script
         str_compression = Pipeline.STR_COMPRESSION_ARCHIVE
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_run_with_compression_archive --out_dir "+ str_env +" --compress " + str_compression
         Commandline.Commandline().func_CMD( str_command )
         
@@ -159,7 +160,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Call Example script
         str_compression = Pipeline.STR_COMPRESSION_FIRST_LEVEL_ONLY
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_run_with_compression_first_level --out_dir "+ str_env +" --compress " + str_compression
         Commandline.Commandline().func_CMD( str_command )
         
@@ -214,7 +215,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Call Example script
         str_compression = Pipeline.STR_COMPRESSION_AS_YOU_GO
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_run_with_compression_intermediary --out_dir "+ str_env +" --compress " + str_compression
         Commandline.Commandline().func_CMD( str_command )
         
@@ -247,7 +248,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dirs( [ str_env, str_env_move ] )
         
         # Call Example script
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_run_with_archiving_move --out_dir "+ str_env + " --move " + str_env_move
         Commandline.Commandline().func_CMD( str_command )
         
@@ -281,7 +282,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dirs( [ str_env, str_env_copy_2, str_env_copy_3 ] )
         
         # Call Example script
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = " ".join( [ "python", str_script, "--example test_app_for_run_with_archiving_move --out_dir",
                             str_env,"--copy", str_env_copy_2, "--copy", str_env_copy_3 ] )
         Commandline.Commandline().func_CMD( str_command )
@@ -324,7 +325,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dirs( [ str_env, str_env_move, str_env_copy ] )
         
         # Call Example script
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = " ".join( ["python", str_script, "--example test_app_for_run_with_archiving_copy_move",
                                  "--out_dir", str_env, "--move", str_env_move, "--copy", str_env_copy ] )
         Commandline.Commandline().func_CMD( str_command )
@@ -371,7 +372,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dirs( [ str_env, str_env_move, str_env_copy ] )
         
         # Call Example script
-        str_script = os.path.join( "..", "bin", "ExampleScript.py" )
+        str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = " ".join( ["python", str_script, "--example test_app_for_run_with_archiving_copy_move",
                                  "--out_dir", str_env, "--move", str_env_move, "--copy", str_env_copy,
                                  "--compress", Pipeline.STR_COMPRESSION_ARCHIVE ] )

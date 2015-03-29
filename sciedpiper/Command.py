@@ -359,7 +359,7 @@ class Command( object ):
 
         str_command = "Command: " + self.str_command
         str_dependencies = "Dependencies: " + ",".join( sorted ( self.lstr_dependencies ) )
-        str_products = "Products:" + ",".join( sorted ( self.lstr_products ) )
+        str_products = "Products: " + ",".join( sorted ( self.lstr_products ) )
         lstr_cleaning = []
         for str_key in sorted( self.dict_clean_level.keys() ):
             lstr_cleaning.append( str_key + ": " + ", ".join( [ str_file for str_file in self.dict_clean_level[ str_key ] ] ) )

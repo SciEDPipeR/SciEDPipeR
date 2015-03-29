@@ -49,7 +49,7 @@ class CommandlineTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Set up environment
         str_answer = str( True )
-        str_command = "python make_return_code.py -r 0"
+        str_command = "python sciedpiper/make_return_code.py -r 0"
         
         cmdl_cur = Commandline.Commandline()
         str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
@@ -63,7 +63,7 @@ class CommandlineTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Set up environment
         str_answer = str( False )
-        str_command = "python make_return_code.py -r -11"
+        str_command = "python sciedpiper/make_return_code.py -r -11"
         
         cmdl_cur = Commandline.Commandline()
         str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
@@ -77,7 +77,7 @@ class CommandlineTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Set up environment
         str_answer = str( False )
-        str_command = "python make_return_code.py -r 99"
+        str_command = "python sciedpiper/make_return_code.py -r 99"
         
         cmdl_cur = Commandline.Commandline()
         str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
@@ -91,7 +91,7 @@ class CommandlineTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Set up environment
         str_answer = str( False )
-        str_command = "python make_return_code.py -e"
+        str_command = "python sciedpiper/make_return_code.py -e"
         
         cmdl_cur = Commandline.Commandline()
         str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )

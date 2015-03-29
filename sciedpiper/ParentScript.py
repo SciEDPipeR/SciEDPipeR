@@ -36,7 +36,6 @@ class ParentScript:
         prsr_arguments.add_argument( "-c", "--clean", dest = "f_clean", default = False, action="store_true", help = "Turns on (true) or off (false) cleaning of intermediary product files." ) 
         prsr_arguments.add_argument( "--copy", metavar = "Copy_location", dest = "lstr_copy", default = None, action="append", help="Paths to copy the output directory after the pipeline is completed. Output directory must be specified; can be used more than once for multiple copy locations.")
         prsr_arguments.add_argument( "-g", "--log", metavar = "Optional_logging_file", dest = "str_log_file", default = None, help = "Optional log file, if not given logging will be to the standard out." )
-        prsr_arguments.add_argument( "--json_in", metavar = "JSON_in", dest = "str_json_file_in", default = None, help = "Read script from a JSON file to run pipeline." )
         prsr_arguments.add_argument( "--json_out", metavar = "JSON_out", dest = "str_json_file_out", default = None, help = "Write script to a JSON file." )
         prsr_arguments.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
         prsr_arguments.add_argument( "--move", metavar = "Move_location", dest = "str_move_dir", default = None, help = "The path where to move the output directory after the pipeline ends. Can be used with the copy argument if both copying to one location(s) and moving to another is needed. Must specify output directory." )
@@ -76,13 +75,6 @@ class ParentScript:
 
         # Holds the commands to run
         lcmd_commands = []
-
-        # If reading JSON is enabled, read from JSON file and replace the args and commands
-        if args_call.str_json_file_in:
-            with open( args_call.str_json_file_in, "r" ) as hndle_json:
-                dict_json_parsed = JSONManager.func_json_to_command( hndle_json.read() )
-                args_call = dict_json_parsed[ JSONManager.ARGUMENTS ]
-                lcmd_commands = dict_json_parsed[ JSONManager.COMMANDS ]
 
         ## Output dir related
         # If the output dir is not specified then move and copy functions are disabled
@@ -124,8 +116,8 @@ class ParentScript:
             lcmd_commands = self.func_make_commands( args_parsed = args_call, cur_pipeline = pline_cur )
 
         # Write JSON file
-        if not args_call.str_json_file_out:
-            JSONManager.func_pipeline_to_json( lcmd_commands = , dict_args = , str_file = args_call.str_json_file_out )
+        if args_call.str_json_file_out:
+            JSONManager.func_pipeline_to_json( lcmd_commands=lcmd_commands , dict_args=args_call , str_file=args_call.str_json_file_out )
 
         # Run commands
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, 
