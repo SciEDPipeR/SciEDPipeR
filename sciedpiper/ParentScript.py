@@ -117,7 +117,9 @@ class ParentScript:
 
         # Write JSON file
         if args_call.str_json_file_out:
-            JSONManager.func_pipeline_to_json( lcmd_commands=lcmd_commands , dict_args=args_call , str_file=args_call.str_json_file_out )
+            JSONManager.JSONManager.func_pipeline_to_json( lcmd_commands=lcmd_commands , dict_args=vars(args_call), str_file=args_call.str_json_file_out, f_pretty=True )
+            if args_call.str_json_file_out:
+                pline_cur.logr_logger.info( "Writing JSON file to: " + args_call.str_json_file_out )
 
         # Run commands
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, 

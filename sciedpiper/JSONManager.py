@@ -80,7 +80,7 @@ class JSONManager( object ):
 
   #Tested
   @classmethod
-  def func_pipeline_to_json( self, lcmd_commands, dict_args, str_file = None ):
+  def func_pipeline_to_json( self, lcmd_commands, dict_args, str_file = None, f_pretty=False ):
     """
     Change a list of commands to a JSON object
 
@@ -96,7 +96,7 @@ class JSONManager( object ):
 
     # Dict for the object
     # Capture global settings
-    dict_json = dict( dict_args )
+    dict_json = dict_args
 
     # Go through the list and capture the json per command
     ldict_cmds = []
@@ -109,8 +109,8 @@ class JSONManager( object ):
 
     # Make string nd return.
     # Write to file it requested.
-    str_json = json.dumps( dict_json )
+    str_json = json.dumps( dict_json, sort_keys=True, indent=2 ) if f_pretty else json.dumps( dict_json )
     if str_file:
         with open( str_file, "w" ) as hndl_out:
             hndl_out.write( str_json )
-    return json.dumps( dict_json )
+    return str_json
