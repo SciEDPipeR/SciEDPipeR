@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
 __credits__ = [ "Timothy Tickle", "Brian Haas" ]
@@ -21,7 +20,7 @@ INDEX_FILE = "out_file"
 INDEX_FOLDER = "align_folder"
 
 class ParentScript:
-    
+
     def func_create_arguments( self ):
         """
         Create arguments.
@@ -68,10 +67,14 @@ class ParentScript:
 
         # Allow child object to update arguments
         prsr_arguments = self.func_create_arguments()
-        self.func_update_arguments( prsr_arguments )
+        # If a prsr is returned, write over the old one.
+        # Otherwise do not because it was updated in the function
+        prsr_return = self.func_update_arguments( prsr_arguments )
+        if prsr_return:
+            prsr_arguments = prsr_return
 
         # Parse arguments from command line
-        args_call = prsr_arguments.parse_args()
+        ns_arguments = prsr_arguments.parse_args()
 
         # Holds the commands to run
         lcmd_commands = []
@@ -81,53 +84,61 @@ class ParentScript:
         f_archive = True
         # Make a default output folder based on the time if not given
         # Make default log
-        if not args_call.str_file_base:
+        if not hasattr( ns_arguments, "str_file_base"):
             f_archive = False
-            args_call.str_file_base = os.getcwd()
+            ns_arguments.str_file_base = os.getcwd()
 
         # If an output / project folder is indicated.
-        if args_call.str_file_base:
+        if hasattr( ns_arguments, "str_file_base" ):
             # Make the output directory if it does not exist
-            if not os.path.isdir( args_call.str_file_base ):
-                os.mkdir( args_call.str_file_base )
+            if not os.path.isdir( ns_arguments.str_file_base ):
+                os.mkdir( ns_arguments.str_file_base )
 
         # Make pipeline object and indicate Log file
         pline_cur = Pipeline.Pipeline( str_name = "Custom_script", 
-                                       str_log_to_file = args_call.str_log_file, 
-                                       str_update_source_path = args_call.str_update_classpath if hasattr( args_call, "str_update_classpath" ) else None )
+                                       str_log_to_file = ns_arguments.str_log_file if hasattr( ns_arguments, "str_log_file" ) else os.path.join( ns_arguments.str_file_base, "custom_log.txt"), 
+                                       str_update_source_path = ns_arguments.str_update_classpath if hasattr( ns_arguments, "str_update_classpath" ) else None )
 
         # Put pipeline in test mode if needed.
-        if args_call.f_Test:
+        if hasattr( ns_arguments, "f_Test" ) and ns_arguments.f_Test:
             pline_cur.func_test_mode()
             
         # Turn off archiving if output directory was not given
-        if not f_archive:
+        if hasattr( ns_arguments, "f_archive" ) and not f_archive:
             pline_cur.logr_logger.warning( "ParentScript.func_run_pipeline: Turning off archiving, please specify an output directory if you want this feature enabled.")
             pline_cur.f_archive = False
     
         # Make commands bsub if indicated
-        if args_call.str_bsub_queue:
-            pline_cur.func_do_bsub( str_memory = args_call.str_max_memory, str_queue = args_call.str_bsub_queue )
+        if hasattr( ns_arguments, "str_bsub_gueue" ) and ns_arguments.str_bsub_queue:
+            pline_cur.func_do_bsub( str_memory = ns_arguments.str_max_memory, str_queue = ns_arguments.str_bsub_queue )
 
         # Run the user based pipeline
         # If the commands are not existent ( parsed from JSON )
         # then build them from script
-        if not lcmd_commands:
-            lcmd_commands = self.func_make_commands( args_parsed = args_call, cur_pipeline = pline_cur )
-
+        lcmd_commands = self.func_make_commands( args_parsed = ns_arguments, cur_pipeline = pline_cur )
+        print("****")
+        print( ns_arguments )
+        print( lcmd_commands )
         # Write JSON file
-        if args_call.str_json_file_out:
-            JSONManager.JSONManager.func_pipeline_to_json( lcmd_commands=lcmd_commands , dict_args=vars(args_call), str_file=args_call.str_json_file_out, f_pretty=True )
-            if args_call.str_json_file_out:
-                pline_cur.logr_logger.info( "Writing JSON file to: " + args_call.str_json_file_out )
+        if hasattr( ns_arguments, "str_json_file_out" ) and ns_arguments.str_json_file_out:
+            JSONManager.JSONManager.func_pipeline_to_json( lcmd_commands=lcmd_commands , dict_args=vars( ns_arguments ), str_file=ns_arguments.str_json_file_out, f_pretty=True )
+            pline_cur.logr_logger.info( "Writing JSON file to: " + ns_arguments.str_json_file_out )
 
         # Run commands
+        if not hasattr( ns_arguments, "lstr_copy" ):
+            setattr( ns_arguments, "lstr_copy", None )
+        if not hasattr( ns_arguments, "str_move_dir" ):
+            setattr( ns_arguments, "str_move_dir", None )
+        if not hasattr( ns_arguments, "str_compress" ):
+            setattr( ns_arguments, "str_compress",  "none" )
+        if not hasattr( ns_arguments, "f_clean" ):
+            setattr( ns_arguments, "f_clean", False )
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, 
-                                            str_output_dir = args_call.str_file_base,
-                                            lstr_copy = args_call.lstr_copy if args_call.lstr_copy else None,
-                                            str_move = args_call.str_move_dir if args_call.str_move_dir else None,
-                                            str_compression_mode = args_call.str_compress,
-                                            f_clean = args_call.f_clean ):
+                                            str_output_dir = ns_arguments.str_file_base,
+                                            lstr_copy = ns_arguments.lstr_copy if ns_arguments.lstr_copy else None,
+                                            str_move = ns_arguments.str_move_dir if ns_arguments.str_move_dir else None,
+                                            str_compression_mode = ns_arguments.str_compress,
+                                            f_clean = ns_arguments.f_clean ):
             exit( 99 )
     
     
