@@ -18,7 +18,6 @@ import shutil
 import sys
 import time
 
-
 # Constants
 # This is a list of paths that should never be allowed to be deleted
 LSTR_INVALID_OUTPUT_DIRECTORIES = [ os.path.sep ]
@@ -473,6 +472,19 @@ class Pipeline:
         
         return True
 
+    def func_make_all_needed_dirs( self, lstr_paths ):
+        """
+        Makes all dirs needed for products.
+
+        * lstr_paths : Paths for which all dirs will be made.
+                     : List of paths
+        """
+
+        for str_file in lstr_paths:
+            try:
+                os.makedirs( str_file )
+            except OSError:
+                pass
 
     # Tested
     def func_mkdirs( self, lstr_directory_paths ):
@@ -699,6 +711,10 @@ class Pipeline:
         for cmd_command in lcmd_commands:
             # Update the command with a path if needed.
             self.func_update_command_path( cmd_command, self.dict_update_path )
+
+            # Make all the directories needed for the commands
+            print( cmd_command.func_detail() )
+            self.func_make_all_needed_dirs( cmd_command.lstr_products )
 
         # Load up the commands and build the dependency tree
         # This skips special commands
