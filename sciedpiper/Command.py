@@ -78,6 +78,8 @@ class Command( object ):
         self.__lstr_dependencies = lstr_paths if lstr_paths else []
         self.__lstr_dependencies = [ self.func_make_paths_absolute( str_path )[ 0 ] for str_path in self.__lstr_dependencies if str_path ]
         self.__lstr_dependencies = self.func_remove_temp_files( self.__lstr_dependencies )
+        # Make sure dependencies are unique
+        self.__lstr_dependencies = list( set( self.__lstr_dependencies ) )
 
     @classmethod
     def func_remove_temp_files( self, lstr_files ):
@@ -130,7 +132,8 @@ class Command( object ):
 
         self.__lstr_products = lstr_paths if lstr_paths else []
         self.__lstr_products = [ self.func_make_paths_absolute( str_path )[ 0 ] for str_path in self.__lstr_products if str_path ]
-
+        # Make sure products are unique
+        self.__lstr_products = list( set( self.__lstr_products ) )
 
     # Tested
     def func_set_dependency_clean_level( self, lstr_file, i_level ):
