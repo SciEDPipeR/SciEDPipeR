@@ -1025,6 +1025,44 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) ) 
 
 
+# func_make_all_needed_dirs
+    def test_func_make_all_needed_dirs_for_none( self ):
+        """
+        Test for the case of a none list.
+        """
+        str_test_dir = "test_func_make_all_needed_dirs_for_none"
+        lstr_paths = None
+        pipe_cur = Pipeline.Pipeline( str_name = str_test_dir )
+        pipe_cur.func_make_all_needed_dirs( lstr_paths )
+        self.func_test_true( True )
+
+    def test_func_make_all_needed_dirs_for_list_none( self ):
+        """
+        Test for the case of a list of none.
+        """
+        str_test_dir = "test_func_make_all_needed_dirs_for_list_none"
+        lstr_paths = [ None, None ]
+        pipe_cur = Pipeline.Pipeline( str_name = str_test_dir )
+        pipe_cur.func_make_all_needed_dirs( lstr_paths )
+        self.func_test_true( True )
+
+    def test_func_make_all_needed_dirs_for_good_case( self ):
+        """
+        Test for the case of a good list.
+        """
+        str_test_dir = "test_func_make_all_needed_dirs_for_good_case"
+        str_file_1 = os.path.join( str_test_dir, "file.1" )
+        str_file_2 = os.path.join( str_test_dir, str_test_dir, "file.2" )
+        lstr_paths = [ str_file_1, str_file_2 ]
+        pipe_cur = Pipeline.Pipeline( str_name = str_test_dir )
+        pipe_cur.func_make_all_needed_dirs( lstr_paths )
+        f_success = os.path.exists( str_test_dir ) and os.path.isdir( str_test_dir )
+        f_success = os.path.exists( os.path.dirname( str_file_2) ) and os.path.isdir( os.path.dirname( str_file_2 )) and f_success
+        self.func_remove_files( [ str_file_1, str_file_2 ] )
+        self.func_remove_dirs( [ os.path.dirname( str_file_2 ) ] )
+        self.func_remove_dirs( [ os.path.dirname( str_file_1 ) ] )
+        self.func_test_true( f_success )
+
 # func_mkdirs
     def test_func_mkdirs_for_terminal_dir( self ):
         """

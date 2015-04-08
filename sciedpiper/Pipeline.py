@@ -472,6 +472,7 @@ class Pipeline:
         
         return True
 
+    # 3 tests
     def func_make_all_needed_dirs( self, lstr_paths ):
         """
         Makes all dirs needed for products.
@@ -480,9 +481,14 @@ class Pipeline:
                      : List of paths
         """
 
+        if not lstr_paths:
+            return
+
         for str_file in lstr_paths:
+            if not str_file:
+                continue
             try:
-                os.makedirs( str_file )
+                os.makedirs( os.path.dirname( str_file ) )
             except OSError:
                 pass
 
@@ -568,7 +574,7 @@ class Pipeline:
         4. Be an intermediate file that is no longer needed ( dependencies unless the clean level is ALWAYS, or a product )
         5. NO dependency will be removed that has a file's clean level is NEVER
         Also WILL NOT remove the ok file if one is generated unless this is in product mode
-        
+
         * cmd_command : Command
                         Command in which all products listed will be deleted.
                         
@@ -655,13 +661,14 @@ class Pipeline:
                     self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Removing the ok file:", str_ok ] ) )
                     if self.f_execute:
                         os.remove( str_ok )
-            
+
             # Remove path
             if os.path.isfile( str_path ):
                 self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Removing the file:", str_path ] ) )
                 if self.f_execute:
                     os.remove( str_path )
             else:
+                # If the path is a dir
                 self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Removing the directory:", str_path ] ) )
                 if self.f_execute:
                     shutil.rmtree( str_path )
@@ -713,7 +720,6 @@ class Pipeline:
             self.func_update_command_path( cmd_command, self.dict_update_path )
 
             # Make all the directories needed for the commands
-            print( cmd_command.func_detail() )
             self.func_make_all_needed_dirs( cmd_command.lstr_products )
 
         # Load up the commands and build the dependency tree

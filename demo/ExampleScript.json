@@ -1,0 +1,66 @@
+{
+  "commands": [
+    {
+      "COMMAND": "touch /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/file1.txt", 
+      "MAKES": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/file1.txt"
+      ]
+    }, 
+    {
+      "COMMAND": "touch /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file5.txt", 
+      "MAKES": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file5.txt"
+      ]
+    }, 
+    {
+      "COMMAND": "cat /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/file1.txt > /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file2.txt", 
+      "MAKES": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file2.txt"
+      ], 
+      "NEEDS": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/file1.txt"
+      ]
+    }, 
+    {
+      "COMMAND": "cat /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file2.txt > /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file3.txt", 
+      "MAKES": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file3.txt"
+      ], 
+      "NEEDS": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file2.txt"
+      ]
+    }, 
+    {
+      "COMMAND": "cat /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file5.txt > /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file6.txt", 
+      "MAKES": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file6.txt"
+      ], 
+      "NEEDS": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file5.txt"
+      ]
+    }, 
+    {
+      "COMMAND": "cat /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file3.txt > /Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file7.txt", 
+      "MAKES": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file7.txt"
+      ], 
+      "NEEDS": [
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir1/dir4/file3.txt", 
+        "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR/dir3/file6.txt"
+      ]
+    }
+  ], 
+  "f_Test": false, 
+  "f_clean": false, 
+  "i_number_threads": 1, 
+  "lstr_copy": null, 
+  "str_bsub_queue": null, 
+  "str_compress": "none", 
+  "str_file_base": "/Users/ttickle/Documents/dev/git/KCO/SOFTWARE/SciEDPipeR", 
+  "str_json_file_out": "help.json", 
+  "str_log_file": null, 
+  "str_max_memory": "8", 
+  "str_move_dir": null, 
+  "str_new_variable_to_play_with": "Hello", 
+  "str_update_classpath": null
+}
