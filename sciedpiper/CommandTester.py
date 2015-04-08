@@ -144,7 +144,7 @@ class CommandTester( ParentPipelineTester.ParentPipelineTester ):
         lstr_prods_answer = [ os.path.join( os.getcwd(), str_path_two ), str_path_four, str_path_six ]
         cmd_test = Command.Command( str_command, lstr_deps, lstr_prods )
         str_result = str( [ cmd_test.lstr_dependencies, cmd_test.lstr_products ] )
-        str_answer = str( [ lstr_deps_answer, lstr_prods_answer ] )
+        str_answer = str( [ sorted( lstr_deps_answer ), sorted( lstr_prods_answer )  ] )
         
         self.func_test_equals(str_answer, str_result)
 

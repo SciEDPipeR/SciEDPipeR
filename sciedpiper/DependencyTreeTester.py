@@ -24,7 +24,7 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
         """ Test initialization with no commands """
         
         dt_tree = DependencyTree.DependencyTree()
-        self.func_test_equals( dt_tree, "" )
+        self.func_test_equals( "", dt_tree )
         
     
     def test_init_for_one_command( self ):
@@ -40,7 +40,7 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
                                                                     os.path.join( str_env, "Dependency_2" ) ],
                                            lstr_cur_products = [ os.path.join( str_env, "Product_1" ) ] ) ]
         dt_tree = DependencyTree.DependencyTree( lcmd_commands )
-        self.func_test_equals( dt_tree, str_answer )
+        self.func_test_equals( str_answer, dt_tree )
         
 
     def test_init_for_three_duplicate_commands( self ):
@@ -57,7 +57,7 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_products = [ os.path.join( str_env, "Product_1" ) ] )
         lcmd_commands = [ cmd_cur, cmd_cur, cmd_cur ]
         dt_tree = DependencyTree.DependencyTree( lcmd_commands )
-        self.func_test_equals( dt_tree, str_answer )
+        self.func_test_equals( str_answer, dt_tree )
 
 
     def test_init_for_three_commands( self ):
@@ -91,7 +91,7 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_dependencies = [ os.path.join( str_env, "Dependency_1" ) ],
                                            lstr_cur_products = [ os.path.join( str_env, "Product_1" ) ] ) ]
         dt_tree = DependencyTree.DependencyTree( lcmd_commands )
-        self.func_test_equals( dt_tree, str_answer )
+        self.func_test_equals( str_answer, dt_tree )
 
 
 # func_add_command

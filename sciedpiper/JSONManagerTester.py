@@ -50,7 +50,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_products = ["/file/two.txt","/file/three.txt"] ) ]
         dict_arguments = {}
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
-        str_answer = "{\"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/two.txt\", \"/file/three.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command\"}]}"
+        str_answer = "{\"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command\"}]}"
         self.func_test_equals( str_answer, str_result )
 
         
@@ -63,7 +63,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_products = ["/file/two.txt","/file/three.txt"] ) ]
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
-        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/two.txt\", \"/file/three.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
         self.func_test_equals( str_answer, str_result )
 
 
@@ -79,7 +79,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_products = ["/file/four.txt","/file/five.txt"] ) ]
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
-        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/two.txt\", \"/file/three.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 1\"}, {\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/four.txt\", \"/file/five.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/three.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 1\"}, {\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/five.txt\", \"/file/four.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/three.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
         self.func_test_equals( str_answer, str_result )
 
 
@@ -102,7 +102,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_products = ["/file/four.txt","/file/five.txt"] ) ]
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
         JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, str_file=str_result_file )
-        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/two.txt\", \"/file/three.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 1\"}, {\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/four.txt\", \"/file/five.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/three.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 1\"}, {\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/five.txt\", \"/file/four.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/three.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
         
         # Evaluate
         str_result = ""
