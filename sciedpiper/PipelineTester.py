@@ -2100,16 +2100,50 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_update_command_path
+    def test_func_update_command_path_for_no_update_case( self ):
+        """ Tst updating a command when there is no need for an update."""
+        pipe_cur = Pipeline.Pipeline( "test_func_update_command_path_for_good_case" )
+        str_answer = "java update.jar -xmf 30 -f -g craziness.txt"
+        cmd_cur = Command.Command( "java update.jar -xmf 30 -f -g craziness.txt", [ "str_depend" ], [ "str_product" ]  )
+        dict_update_cur = { "no_update.jar": os.path.join( "prefix", "path","to" ) }
+        pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
+        self.func_test_equals( str_answer, cmd_cur.str_command )
+
     def test_func_update_command_path_for_good_case( self ):
         """ Update a command with a prefix good case."""
-
         pipe_cur = Pipeline.Pipeline( "test_func_update_command_path_for_good_case" )
         str_answer = "java prefix/path/to/update.jar -xmf 30 -f -g craziness.txt"
         cmd_cur = Command.Command( "java update.jar -xmf 30 -f -g craziness.txt", [ "str_depend" ], [ "str_product" ]  )
         dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
         self.func_test_equals( str_answer, cmd_cur.str_command )
-        
+
+    def test_func_update_command_path_for_good_case_no_args( self ):
+        """ Update a command with a prefix good case."""
+        pipe_cur = Pipeline.Pipeline( "test_func_update_command_path_for_good_case" )
+        str_answer = "java prefix/path/to/update.jar craziness.txt"
+        cmd_cur = Command.Command( "java update.jar craziness.txt", [ "str_depend" ], [ "str_product" ]  )
+        dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ) }
+        pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
+        self.func_test_equals( str_answer, cmd_cur.str_command )
+
+    def test_func_update_command_path_for_good_case_no_updating_argument( self ):
+        """ Test updating a command when the arguments match ( but should not update )."""
+        pipe_cur = Pipeline.Pipeline( "test_func_update_command_path_for_good_case" )
+        str_answer = "java update.jar -xmf 30 -f -g craziness.txt"
+        cmd_cur = Command.Command( "java update.jar -xmf 30 -f -g craziness.txt", [ "str_depend" ], [ "str_product" ]  )
+        dict_update_cur = { "craziness.txt": os.path.join( "prefix", "path","to" ) }
+        pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
+        self.func_test_equals( str_answer, cmd_cur.str_command )
+
+    def test_func_update_command_path_for_updating_command_and_no_updating_argument( self ):
+        """ Test updating a command when the arguments match ( but should not update ) but the command should be updated."""
+        pipe_cur = Pipeline.Pipeline( "test_func_update_command_path_for_good_case" )
+        str_answer = "java prefix/path/to/update.jar -xmf 30 -f -g craziness.txt"
+        cmd_cur = Command.Command( "java update.jar -xmf 30 -f -g craziness.txt", [ "str_depend" ], [ "str_product" ]  )
+        dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ), "craziness.txt": os.path.join( "prefix", "path","to" ) }
+        pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
+        self.func_test_equals( str_answer, cmd_cur.str_command )
 
 # func_update_products_validity_status
     def test_func_update_products_validity_status_for_bad_case_bad_command( self ):
