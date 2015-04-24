@@ -712,12 +712,13 @@ class Pipeline:
         # Identified that the input files are in the output directory
         str_current_path_for_abs_paths = os.getcwd()
         if not str_output_dir[ 0 ] == os.path.sep:
-                str_output_dir = os.path.join( str_current_path_for_abs_paths, str_output_dir )
+            str_output_dir = os.path.join( str_current_path_for_abs_paths, str_output_dir )
 
         # Update the paths of commands before the dependency tree is made, otherwise they will not match the current state of the commands
         for cmd_command in lcmd_commands:
             # Update the command with a path if needed.
-            self.func_update_command_path( cmd_command, self.dict_update_path )
+            if cmd_command.f_update:
+                self.func_update_command_path( cmd_command, self.dict_update_path )
 
             # Make all the directories needed for the commands
             self.func_make_all_needed_dirs( cmd_command.lstr_products )
@@ -911,7 +912,7 @@ class Pipeline:
             for str_cmd, str_path in dict_update_cur.iteritems():
                 if str_cmd in cmd_cur.str_command:
                     cmd_cur.str_command = cmd_cur.str_command.replace( str_cmd, os.path.join( str_path, str_cmd ) )
-                    
+
 
     # Tested
     def func_update_products_validity_status( self, cmd_command, dt_tree ):

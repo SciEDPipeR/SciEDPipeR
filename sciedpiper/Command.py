@@ -57,6 +57,7 @@ class Command( object ):
         self.str_command = str_cur_command if str_cur_command else ""
         self.lstr_dependencies = lstr_cur_dependencies
         self.lstr_products = lstr_cur_products
+        self.f_update = True
 
         # Cleaning levels
         # { Cleaning_level: [ str_file, str_file, str_file ] }
