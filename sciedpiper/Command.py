@@ -58,6 +58,10 @@ class Command( object ):
         self.lstr_dependencies = lstr_cur_dependencies
         self.lstr_products = lstr_cur_products
 
+        # Controls updating the commandlines pas flags
+        # This often needs to be true when adding a sciedpiper script with an update command.
+        self.f_stop_update_at_flags = False
+
         # Cleaning levels
         # { Cleaning_level: [ str_file, str_file, str_file ] }
         self.dict_clean_level = {}

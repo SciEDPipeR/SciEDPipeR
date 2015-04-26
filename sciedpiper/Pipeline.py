@@ -914,7 +914,13 @@ class Pipeline:
             for str_cmd, str_path in dict_update_cur.iteritems():
                 if str_cmd in cmd_cur.str_command:
                     str_command_with_replacement = str_command_with_replacement.replace( str_cmd, os.path.join( str_path, str_cmd ) )
-            # Only perform the update on the command until you get to a argument, then stop
+
+            # Set and return the command as is if allowing updates to the command after flags
+            if not cmd_cur.f_stop_update_at_flags:
+                cmd_cur.str_command = str_command_with_replacement
+                return
+
+            # Only perform the update on the command until you get to an argument, then stop
             i_first_argument_index = str_command_with_replacement.index(" -") if " -" in str_command_with_replacement else len( str_command_with_replacement )
             str_command_with_replacement = str_command_with_replacement[ 0 : i_first_argument_index ]
             i_first_argument_index = cmd_cur.str_command.index(" -") if " -" in cmd_cur.str_command else None
