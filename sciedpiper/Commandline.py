@@ -32,16 +32,18 @@ class Commandline:
 
 
     # Tested
-    def func_CMD( self, str_command, f_use_bash = False, f_test = False ):
+    def func_CMD( self, str_command, f_use_bash = False, f_test = False, f_stdout = False ):
         """
 	    Runs the given command.
 	    
 	    * f_test : Boolean
 	               If made true, the commands will not run but will be logged as if a run.
 
-        * f_use_bash : Boolean
-                     : If true, sends the command through using BASH not SH (Bourne ) or default shell (windows)
-                     : Although the False is _I believe_ is not specific to an OS, True is.
+      * f_use_bash : Boolean
+                   : If true, sends the command through using BASH not SH (Bourne ) or default shell (windows)
+                   : Although the False is _I believe_ is not specific to an OS, True is.
+      * f_stdout : Boolean
+                 : If true, stdout will be given instead of True. On a fail False (boolean) will still be given.
 
 	    * Return : Boolean
 	               True indicates success
@@ -63,8 +65,15 @@ class Commandline:
             str_out, str_err = subp_cur.communicate()
             i_return_code = subp_cur.returncode
 
+            # Change str_out to a true value incase it is returned.
+            if str_out == "":
+                str_out = " "
+
             # 0 indicates success
+            # On Stdout == true return a true string (stdout or 1 blank space) on true
             if i_return_code == 0:
+                if f_stdout:
+                    return str_out
                 return True
             else:
                 self.logr_cur.error( "".join( [ self.__class__.__name__, "::Error:: Received bad return code = ", str( i_return_code ) ] ) )
