@@ -61,7 +61,7 @@ class Commandline:
 
         try:
             # Perform command and wait for completion
-            subp_cur = sp.Popen( str_command, shell = True, cwd = os.getcwd())
+            subp_cur = sp.Popen( str_command, shell = True, cwd = os.getcwd(), stdout = sp.PIPE ) if f_stdout else sp.Popen( str_command, shell = True, cwd = os.getcwd())
             str_out, str_err = subp_cur.communicate()
             i_return_code = subp_cur.returncode
 
