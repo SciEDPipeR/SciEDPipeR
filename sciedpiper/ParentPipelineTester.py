@@ -40,7 +40,6 @@ class ParentPipelineTester(unittest.TestCase):
 
         # Sort keys and make string
         return( "{" + ", ".join([ ": ".join([ str( str_key ), str( dict_cur[ str_key ])]) for str_key in sorted(dict_cur.keys()) ]) + "}" )
-        
 
     def func_are_files_equivalent( self, str_file_path_1, str_file_path_2 ):
         """

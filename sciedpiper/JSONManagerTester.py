@@ -9,9 +9,11 @@ __status__ = "Development"
 
 
 import Command
+import json
 import JSONManager
 import os
 import ParentPipelineTester
+import Resource
 import unittest
 
 class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
@@ -36,8 +38,9 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         """
         lstr_commands = []
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
-        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
-        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, f_pretty=True )
+        str_answer = json.dumps( { "count": 1, JSONManager.COMMANDS: [], "right": "right.fasta", "outputs": ["file.txt", "file2.txt", "file3.txt"], "setting": 2.3, "left": "left.fasta"}, sort_keys=True, indent=2 )
+
         self.func_test_equals( str_answer, str_result )
 
 
@@ -49,11 +52,10 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_dependencies = ["/file/one.txt"],
                                            lstr_cur_products = ["/file/two.txt","/file/three.txt"] ) ]
         dict_arguments = {}
-        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
-        str_answer = "{\"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command\"}]}"
+        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, f_pretty=True )
+        str_answer = json.dumps( { JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_PATH_JSON: "/file/two.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]},{Command.STR_PATH_JSON: "/file/three.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_DEPENDENCIES_JSON: [ { Command.STR_PATH_JSON: "/file/one.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_COMMAND_JSON: "This is the test command" } ] }, sort_keys=True, indent=2 )
         self.func_test_equals( str_answer, str_result )
 
-        
     def test_func_pipeline_to_json_for_one_command_and_arguments( self ):
         """
         Test creating a pipeline with one command, and commandline parameters.
@@ -62,8 +64,8 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_dependencies = ["/file/one.txt"],
                                            lstr_cur_products = ["/file/two.txt","/file/three.txt"] ) ]
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
-        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
-        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, f_pretty=True )
+        str_answer = json.dumps( { "count": 1, JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/two.txt" }, { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/three.txt" } ], Command.STR_DEPENDENCIES_JSON: [ { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/one.txt" } ], Command.STR_COMMAND_JSON: "This is the test command" } ], "right": "right.fasta", "outputs": [ "file.txt", "file2.txt", "file3.txt" ], "setting": 2.3, "left": "left.fasta" }, sort_keys=True, indent=2 )
         self.func_test_equals( str_answer, str_result )
 
 
@@ -78,8 +80,19 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_dependencies = ["/file/three.txt"],
                                            lstr_cur_products = ["/file/four.txt","/file/five.txt"] ) ]
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
-        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments )
-        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 1\"}, {\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/five.txt\", \"/file/four.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/three.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, f_pretty=True )
+        str_answer = json.dumps( { "count": 1,
+                                   JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_PATH_JSON:"/file/two.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}, 
+                                                                                          { Command.STR_PATH_JSON:"/file/three.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}], 
+                                                             Command.STR_DEPENDENCIES_JSON:[{Command.STR_PATH_JSON:"/file/one.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]} ], 
+                                                             Command.STR_COMMAND_JSON: "This is the test command 1" }, 
+                                                           { Command.STR_PRODUCTS_JSON:[{Command.STR_PATH_JSON:"/file/four.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]},
+                                                                                        {Command.STR_PATH_JSON:"/file/five.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}], 
+                                                             Command.STR_DEPENDENCIES_JSON:[{Command.STR_PATH_JSON:"/file/three.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}], 
+                                                             Command.STR_COMMAND_JSON: "This is the test command 2" } ], 
+                                   "right": "right.fasta", 
+                                   "outputs": [ "file.txt", "file2.txt", "file3.txt" ], 
+                                   "setting": 2.3, "left": "left.fasta" }, sort_keys=True, indent=2 )
         self.func_test_equals( str_answer, str_result )
 
 
@@ -101,8 +114,20 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_dependencies = ["/file/three.txt"],
                                            lstr_cur_products = ["/file/four.txt","/file/five.txt"] ) ]
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
-        JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, str_file=str_result_file )
-        str_answer = "{\"count\": 1, \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/three.txt\", \"/file/two.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/one.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 1\"}, {\""+Command.STR_PRODUCTS_JSON+"\": [\"/file/five.txt\", \"/file/four.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\"/file/three.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"This is the test command 2\"}], \"right\": \"right.fasta\", \"outputs\": [\"file.txt\", \"file2.txt\", \"file3.txt\"], \"setting\": 2.3, \"left\": \"left.fasta\"}"
+        JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, str_file=str_result_file, f_pretty=True )
+        str_answer = json.dumps( { "count": 1,
+                                   JSONManager.COMMANDS:[{Command.STR_PRODUCTS_JSON:[{Command.STR_PATH_JSON:"/file/two.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]},
+                                                                                     {Command.STR_PATH_JSON:"/file/three.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}],
+                                                          Command.STR_DEPENDENCIES_JSON:[{Command.STR_PATH_JSON:"/file/one.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}], 
+                                                          Command.STR_COMMAND_JSON: "This is the test command 1" },
+                                                         {Command.STR_PRODUCTS_JSON:[{Command.STR_PATH_JSON:"/file/four.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]},
+                                                                                     {Command.STR_PATH_JSON:"/file/five.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}],
+                                                          Command.STR_DEPENDENCIES_JSON:[{Command.STR_PATH_JSON:"/file/three.txt", Command.STR_CLEAN_JSON:Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]}], 
+                                                          Command.STR_COMMAND_JSON: "This is the test command 2"}], 
+                                   "right": "right.fasta",
+                                   "outputs": [ "file.txt", "file2.txt", "file3.txt" ], 
+                                   "setting": 2.3,
+                                   "left": "left.fasta" }, sort_keys=True, indent=2 )
         
         # Evaluate
         str_result = ""
@@ -132,7 +157,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
 
     def test_func_json_to_commands_blank_string( self ):
         """
-        Test making command and argument objects from a None json string.
+        Test making command and argument objects from a blank json string.
         """
 
         # Create test environment
@@ -167,31 +192,155 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         Test making command and argument objects from a json string. Only commands given here.
         """
         # Create test environment
-        str_answer = "{\'" + JSONManager.COMMANDS + "\': [u'Command: command.sh; Dependencies: /file2.txt,/file3.txt; Products: /file1.txt; Cleaning: '], \'" + JSONManager.ARGUMENTS + "\': {}}"
-        str_json = "{\"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\""+os.path.sep+"file1.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\""+os.path.sep+"file2.txt\",\""+os.path.sep+"file3.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"command.sh\"}]}"
+        str_json = "".join(["{\"",JSONManager.COMMANDS,
+                              "\":[{\"",
+                              Command.STR_PRODUCTS_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/two.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"},",
+                              "{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/three.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}],\"",
+                              Command.STR_DEPENDENCIES_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/one.txt\",\"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}],\"", 
+                              Command.STR_COMMAND_JSON,
+                              "\": \"This is the test command 1\" },",
+                              "{\"",
+                              Command.STR_PRODUCTS_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/four.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"},",
+                              "{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/five.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}],\"",
+                              Command.STR_DEPENDENCIES_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/three.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}]",
+                              ",\"",
+                              Command.STR_COMMAND_JSON,
+                              "\": \"This is the test command 2\"}]}"])
         # Get Results
         dict_pipeline_info = JSONManager.JSONManager.func_json_to_commands( str_json )
-        list_commands_pipe = dict_pipeline_info[ JSONManager.COMMANDS ]
-        dict_commands_pipe = dict_pipeline_info[ JSONManager.ARGUMENTS ]
-        str_result = "{\'"+JSONManager.COMMANDS+"\': " + str( [ cur_cmd.func_detail() for cur_cmd in list_commands_pipe ] ) + ", \'" + JSONManager.ARGUMENTS+"\': " + str( dict_commands_pipe ) + "}"
+        str_results = str( dict_pipeline_info[ JSONManager.ARGUMENTS ] )
+        for cmd_return in dict_pipeline_info[ JSONManager.COMMANDS ]:
+            str_results += "\n" + cmd_return.func_detail()
         # Evaluate Results
-        self.func_test_equals( str_answer, str_result )
+        str_answer = "".join([ "{}\n",
+                               "Command: This is the test command 1; Dependencies: PATH: /file/one.txt, CLEAN: 2, Dependency PARENTS: [] CHILDREN: ",
+                               "['This is the test command 1']; Products: PATH: /file/three.txt, CLEAN: 2, Product PARENTS: ",
+                               "['This is the test command 1'] CHILDREN: [],PATH: /file/two.txt, CLEAN: 2, Product PARENTS: ['This is the test command 1'] CHILDREN: []\n",
+                               "Command: This is the test command 2; Dependencies: PATH: /file/three.txt, CLEAN: 2, Dependency PARENTS: [] CHILDREN: ",
+                               "['This is the test command 2']; Products: PATH: /file/five.txt, CLEAN: 2, Product PARENTS: ['This is the test command 2'] CHILDREN: [],",
+                               "PATH: /file/four.txt, CLEAN: 2, Product PARENTS: ['This is the test command 2'] CHILDREN: []" ])
+        self.func_test_equals( str_answer, str_results )
 
 
-    def test_func_json_to_commands_arguments_and_arguments_string( self ):
+    def test_func_json_to_commands_commands_only_string( self ):
         """
         Test making command and argument objects from a json string. Commands and arguments given here.
         """
         # Create test environment
-        str_answer = "{\'" + JSONManager.COMMANDS + "\': [u'Command: command.sh; Dependencies: /file2.txt,/file3.txt; Products: /file1.txt; Cleaning: '], \'" + JSONManager.ARGUMENTS + "\': {argument1: 1, argument2: str2, argument3: False, argument4: /a/b/c/d/argument4.txt, argument5: [u'hello', 1, 1.2]}}"
-        str_json = "{ \"" + JSONManager.COMMANDS + "\": [{\""+Command.STR_PRODUCTS_JSON+"\": [\""+os.path.sep+"file1.txt\"], \"" + Command.STR_DEPENDENCIES_JSON + "\": [\""+os.path.sep+"file2.txt\",\""+os.path.sep+"file3.txt\"], \"" + Command.STR_COMMAND_JSON + "\": \"command.sh\"}], \"argument1\" : 1, \"argument2\" : \"str2\", \"argument3\" : false, \"argument4\" : \"/a/b/c/d/argument4.txt\", \"argument5\" : [\"hello\",1,1.2] }"
+        str_json = "".join(["{ \"count\": 1,\"",
+                              JSONManager.COMMANDS,
+                              "\":[{\"",
+                              Command.STR_PRODUCTS_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/two.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"},",
+                              "{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/three.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}],\"",
+                              Command.STR_DEPENDENCIES_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/one.txt\",\"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}],\"", 
+                              Command.STR_COMMAND_JSON,
+                              "\": \"This is the test command 1\" },",
+                              "{\"",
+                              Command.STR_PRODUCTS_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/four.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"},",
+                              "{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/five.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}],\"",
+                              Command.STR_DEPENDENCIES_JSON,
+                              "\":[{\"",
+                              Command.STR_PATH_JSON,
+                              "\":\"/file/three.txt\", \"",
+                              Command.STR_CLEAN_JSON,
+                              "\":\"",
+                              Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT],
+                              "\"}]",
+                              ",\"",
+                              Command.STR_COMMAND_JSON,
+                              "\": \"This is the test command 2\"}]",
+                              ",", 
+                              "\"right\": \"right.fasta\",",
+                              "\"outputs\": [ \"file.txt\", \"file.txt\", \"file3.txt\" ],",
+                              "\"setting\": 2.3,",
+                              "\"left\": \"left.fasta\" }"])
         # Get Results
         dict_pipeline_info = JSONManager.JSONManager.func_json_to_commands( str_json )
-        list_commands_pipe = dict_pipeline_info[ JSONManager.COMMANDS ]
-        dict_commands_pipe = dict_pipeline_info[ JSONManager.ARGUMENTS ]
-        str_result = "{\'"+JSONManager.COMMANDS+"\': " + str( [ cur_cmd.func_detail() for cur_cmd in list_commands_pipe ] ) + ", \'" + JSONManager.ARGUMENTS+"\': " + str( dict_commands_pipe ) + "}"
+        str_results = str( dict_pipeline_info[ JSONManager.ARGUMENTS ] )
+        for cmd_return in dict_pipeline_info[ JSONManager.COMMANDS ]:
+            str_results += "\n" + cmd_return.func_detail()
         # Evaluate Results
-        self.func_test_equals( str_answer, str_result )
+        str_answer = "".join([ "{count: 1, left: left.fasta, outputs: [u'file.txt', u'file.txt', u'file3.txt'], right: right.fasta, setting: 2.3}\n",
+                               "Command: This is the test command 1; Dependencies: PATH: /file/one.txt, CLEAN: 2, Dependency PARENTS: [] CHILDREN: ",
+                               "['This is the test command 1']; Products: PATH: /file/three.txt, CLEAN: 2, Product PARENTS: ",
+                               "['This is the test command 1'] CHILDREN: [],PATH: /file/two.txt, CLEAN: 2, Product PARENTS: ['This is the test command 1'] CHILDREN: []\n",
+                               "Command: This is the test command 2; Dependencies: PATH: /file/three.txt, CLEAN: 2, Dependency PARENTS: [] CHILDREN: ",
+                               "['This is the test command 2']; Products: PATH: /file/five.txt, CLEAN: 2, Product PARENTS: ['This is the test command 2'] CHILDREN: [],",
+                               "PATH: /file/four.txt, CLEAN: 2, Product PARENTS: ['This is the test command 2'] CHILDREN: []" ])
+        self.func_test_equals( str_answer, str_results )
 
 #Creates a suite of tests
 def suite():

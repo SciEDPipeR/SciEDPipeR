@@ -67,7 +67,7 @@ class JSONManager( object ):
     json_read_data = json.loads( str_json )
     # Pull out global configuration
     for str_key in json_read_data:
-        if not str_key == COMMANDS:
+       if not str_key == COMMANDS:
             dict_arguments[ unicodedata.normalize( "NFKD", str_key ).encode("ascii","ignore") ] = json_read_data[ str_key ]
 
     # Iterate through commands
@@ -106,8 +106,7 @@ class JSONManager( object ):
         continue
       ldict_cmds.append( cmd_cur.func_to_dict() )
     dict_json[ COMMANDS ] = ldict_cmds
-
-    # Make string nd return.
+    # Make string and return.
     # Write to file it requested.
     str_json = json.dumps( dict_json, sort_keys=True, indent=2 ) if f_pretty else json.dumps( dict_json )
     if str_file:
