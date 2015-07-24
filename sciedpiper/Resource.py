@@ -20,6 +20,11 @@ LSTR_CLEAN_LEVELS = [ CLEAN_NEVER, CLEAN_AS_TEMP, CLEAN_ALWAYS ]
 # List of folders which are temporary and can not be dependencies
 LSTR_TEMP_DIRECTORIES = [ os.sep+"dev" ]
 
+STR_TYPE = "RESOURCE"
+STR_NOT_MADE = "NOT"
+STR_MADE = "MADE"
+STR_ERROR = "ERROR"
+
 class Resource( Graph.Vertex ):
     """
     Represents a file input or output to a command.
@@ -35,6 +40,8 @@ class Resource( Graph.Vertex ):
         self.f_is_product = f_is_product
         self.f_is_generated = False
         self.i_clean = i_clean
+        self.str_type = STR_TYPE
+        self.str_status = STR_NOT_MADE
 
     # Tested
     def __str__( self ):

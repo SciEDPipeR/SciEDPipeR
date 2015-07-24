@@ -29,6 +29,13 @@ STR_PRODUCTS_JSON = "MAKES"
 USTR_PRODUCTS_JSON = u'MAKES'
 LSTR_JSON_KEYS = [ STR_COMMAND_JSON, STR_DEPENDENCIES_JSON, STR_PRODUCTS_JSON ]
 
+STR_TYPE = "COMMAND"
+
+STR_NOT_RUN = "NOT"
+STR_RUNNING = "RUN"
+STR_COMPLETE = "DONE"
+STR_ERROR = "ERROR"
+
 class Command( Graph.Vertex ):
     """
     Represents a command line call. Keeps together command, dependency, and products information.
@@ -54,6 +61,8 @@ class Command( Graph.Vertex ):
 
         # Set there id for the parent vertex
         Graph.Vertex.__init__( self,str_cur_command )
+        self.str_type = STR_TYPE
+        self.str_status = STR_NOT_RUN
         for str_dependency in lstr_cur_dependencies:
             rsc_dep = Resource.Resource( str_dependency, f_is_product=False )
             self.func_add_parent( rsc_dep )
