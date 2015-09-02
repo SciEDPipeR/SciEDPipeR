@@ -52,31 +52,11 @@ class DependencyTree:
         # Load any initial commands
         if lcmd_inital_commands:
             for cmd_cur in lcmd_inital_commands:
-                self.func_add_command( cmd_cur )
+                self.__func_add_command( cmd_cur )
  
         self.li_waits_for_products = [ 5, 15, 40 ]
 
-        self.lstr_products = self.graph_commands.func_get_products()
-        """ History of products added to the pipeline. """
-        self.dict_dependencies = self.graph_commands.func_get_dependencies()
-        """ History of the dependencies add to the pipeline """
-        self.__lstr_inputs = self.graph_commands.func_get_input_files()
-        """ A list of input files. """
-
-        self.__lstr_terminal_products = self.graph_commands.func_get_terminal_vertices()
-        """ A list of terminal products for the pipeline ( should never be deleted ). """
-        
-    # Used in tests
-    @property
-    def lstr_inputs( self ):
-        """
-        Calculate input files.
-        """
-        
-        if self.__lstr_inputs is None:
-            # Remake inputs
-            self.__lstr_inputs = [ cmd_cur for cmd_cur in self.graph_commands.func_get_input_files() ]
-        return self.__lstr_inputs
+        self.__func_update_state_to_start()
 
     # Used in tests
     @property
@@ -109,11 +89,44 @@ class DependencyTree:
         if self.__lstr_terminal_products is None:
             self.__lstr_terminal_products = [ cmd_cur for cmd_cur in self.graph_commands.func_get_terminal_products() ]
         return self.__lstr_terminal_products
+
+    def __func_update_state_to_start( self ):
+        """
+        Updates the internal state of the Dependency Tree and types of files being tracked
+        ( eg. Input files, terminal products, intemediaries ) to the underlying graph.
+        """
+
+        self.lstr_products = self.graph_commands.func_get_products()
+        """ History of products added to the pipeline. """
+        self.dict_dependencies = self.graph_commands.func_get_dependencies()
+        """ History of the dependencies add to the pipeline """
+        self.__lstr_inputs = self.graph_commands.func_get_input_files()
+        """ A list of input files. """
+        self.__lstr_terminal_products = self.graph_commands.func_get_terminal_vertices()
+        """ A list of terminal products for the pipeline ( should never be deleted ). """
         
+    # Used in tests
+    @property
+    def lstr_inputs( self ):
+        """
+        Calculate input files.
+        """
+        
+        if self.__lstr_inputs is None:
+            # Remake inputs
+            self.__lstr_inputs = [ cmd_cur for cmd_cur in self.graph_commands.func_get_input_files() ]
+        return self.__lstr_inputs
+        
+ 
     # Tested 
-    def func_add_command( self, cmd_cur ):
+    def __func_add_command( self, cmd_cur ):
         """
         Adds a command and outputs to the dependency tree.
+        Resets the state of the Dependency tree based on the new underlying graph
+        assuming the Tree has not yet been traversed ( updates the iternal state so it is ready to be traversed ).
+        DO NOT add during processing through the Tree, add all commands before starting.
+        It is best to give commands through the init in a list, adding is taken care of
+        automatically in this manner before the Tree is traversed.
         
         * cmd_cur : Command
                     Command to add to the dependency tree.
@@ -141,6 +154,8 @@ class DependencyTree:
             self.__dict_dependencies = None
             self.__lstr_products = None
             self.__lstr_inputs = None
+
+            self.__func_update_state_to_start()
             return True
         return False
 
