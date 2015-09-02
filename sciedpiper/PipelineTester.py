@@ -13,6 +13,7 @@ import DependencyTree
 import Pipeline
 import os
 import ParentPipelineTester
+import Resource
 import unittest
 
 
@@ -582,11 +583,11 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not Pipeline.Pipeline("test_func_paths_are_from_valid_run_invalid_command_1").func_paths_are_from_valid_run( cmd_cur, f_dependencies = True ))
  
  
-    def test_func_paths_are_from_valid_run_invalid_command_2( self ):
-        """ Test for an invalid command, Invalid command object"""
-        
-        cmd_cur = Command.Command( None, None, None )
-        self.func_test_true( not Pipeline.Pipeline("test_func_paths_are_from_valid_run_invalid_command_2").func_paths_are_from_valid_run( cmd_cur, f_dependencies = True ))
+#    def test_func_paths_are_from_valid_run_invalid_command_2( self ):
+#        """ Test for an invalid command, Invalid command object"""
+#        
+#        cmd_cur = Command.Command( None, None, None )
+#        self.func_test_true( not Pipeline.Pipeline("test_func_paths_are_from_valid_run_invalid_command_2").func_paths_are_from_valid_run( cmd_cur, f_dependencies = True ))
 
 
     def test_func_paths_are_from_valid_run_good_case_one_dependency( self ):
@@ -1129,28 +1130,28 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_remove_paths
-    def test_func_remove_paths_for_bad_case_invalid_command( self ):
-        """ Bad case trying to remove one product, invalid command. """
-        
-        cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_bad_case_invalid_command" )
-        str_env = os.path.join( self.str_test_directory, "test_func_remove_paths_for_bad_case_invalid_command" )
-        str_dependency_1 = os.path.join( str_env, "Dependency_1.txt" )
-        str_product_1 = os.path.join( str_env, "Product_1.txt" )
-        str_product_1_ok = cur_pipe.func_get_ok_file_path( str_product_1 )
-        self.func_make_dummy_dir( str_env )
-        self.func_make_dummy_file( str_dependency_1 )
-        self.func_make_dummy_file( str_product_1 )
-        self.func_make_dummy_file( str_product_1_ok )
-        cur_cmd = Command.Command( None, None, None )
-        f_success = cur_pipe.func_remove_paths( cmd_command = cur_cmd, str_output_directory = str_env,
-                                                dt_dependency_tree = DependencyTree.DependencyTree(),
-                                                f_remove_products = True )
-        f_not_removed_files = os.path.exists( str_product_1 )
-        f_not_removed_files = f_not_removed_files and os.path.exists( str_product_1_ok )
-        f_other_files_remain = os.path.exists( str_dependency_1 )
-        self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok ] )
-        self.func_remove_dirs( [ str_env ] )
-        self.func_test_true( not f_success and f_not_removed_files and f_other_files_remain )
+#    def test_func_remove_paths_for_bad_case_invalid_command( self ):
+#        """ Bad case trying to remove one product, invalid command. """
+#        
+#        cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_bad_case_invalid_command" )
+#        str_env = os.path.join( self.str_test_directory, "test_func_remove_paths_for_bad_case_invalid_command" )
+#        str_dependency_1 = os.path.join( str_env, "Dependency_1.txt" )
+#        str_product_1 = os.path.join( str_env, "Product_1.txt" )
+#        str_product_1_ok = cur_pipe.func_get_ok_file_path( str_product_1 )
+#        self.func_make_dummy_dir( str_env )
+#        self.func_make_dummy_file( str_dependency_1 )
+#        self.func_make_dummy_file( str_product_1 )
+#        self.func_make_dummy_file( str_product_1_ok )
+#        cur_cmd = Command.Command( None, None, None )
+#        f_success = cur_pipe.func_remove_paths( cmd_command = cur_cmd, str_output_directory = str_env,
+#                                                dt_dependency_tree = DependencyTree.DependencyTree(),
+#                                                f_remove_products = True )
+#        f_not_removed_files = os.path.exists( str_product_1 )
+#        f_not_removed_files = f_not_removed_files and os.path.exists( str_product_1_ok )
+#        f_other_files_remain = os.path.exists( str_dependency_1 )
+#        self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok ] )
+#        self.func_remove_dirs( [ str_env ] )
+#        self.func_test_true( not f_success and f_not_removed_files and f_other_files_remain )
         
         
     def test_func_remove_paths_for_bad_case_none_command( self ):
@@ -1266,8 +1267,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_files( [ str_dependency_1, str_product_1, str_product_1_ok, 
                                      str_product_2, str_product_2_ok ] )
-        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_dependency_clean_level([ str_dependency_1, str_product_1 ] , Command.CLEAN_NEVER)
-        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_dependency_clean_level([ str_product_1, str_product_2 ] , Command.CLEAN_NEVER)
+        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_resource_clean_level([ str_dependency_1, str_product_1 ] , Resource.CLEAN_NEVER)
+        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_resource_clean_level([ str_product_1, str_product_2 ] , Resource.CLEAN_NEVER)
         dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd2 ] )
         dt_cur.func_complete_command( cur_cmd )
         dt_cur.func_complete_command( cur_cmd2 )
@@ -1298,8 +1299,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_files( [ str_dependency_1, str_product_1, str_product_1_ok, 
                                      str_product_2, str_product_2_ok ] )
-        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_dependency_clean_level([ str_dependency_1, str_product_1 ] , Command.CLEAN_AS_TEMP)
-        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_dependency_clean_level([ str_product_1, str_product_2 ] , Command.CLEAN_AS_TEMP)
+        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_resource_clean_level([ str_dependency_1, str_product_1 ] , Resource.CLEAN_AS_TEMP)
+        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_resource_clean_level([ str_product_1, str_product_2 ] , Resource.CLEAN_AS_TEMP)
         dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd2 ] )
         dt_cur.func_complete_command( cur_cmd )
         dt_cur.func_complete_command( cur_cmd2 )
@@ -1332,8 +1333,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_files( [ str_dependency_1, str_product_1, str_product_1_ok, 
                                      str_product_2, str_product_2_ok ] )
-        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_dependency_clean_level([ str_dependency_1, str_product_1 ] , Command.CLEAN_ALWAYS)
-        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_dependency_clean_level([ str_product_1 ] , Command.CLEAN_ALWAYS)
+        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_resource_clean_level([ str_dependency_1, str_product_1 ] , Resource.CLEAN_ALWAYS)
+        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_resource_clean_level([ str_product_1 ] , Resource.CLEAN_ALWAYS)
         dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd2 ] )
         dt_cur.func_complete_command( cur_cmd )
         dt_cur.func_complete_command( cur_cmd2 )
@@ -1367,8 +1368,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_files( [ str_dependency_1, str_product_1, str_product_1_ok, 
                                      str_product_2, str_product_2_ok ] )
-        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_dependency_clean_level([ str_dependency_1, str_product_1 ] , Command.CLEAN_ALWAYS)
-        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_dependency_clean_level([ str_product_1, str_product_2 ] , Command.CLEAN_ALWAYS)
+        cur_cmd = Command.Command( "Command 1", [ str_dependency_1 ], [ str_product_1 ] ).func_set_resource_clean_level([ str_dependency_1, str_product_1 ] , Resource.CLEAN_ALWAYS)
+        cur_cmd2 = Command.Command( "Command 2", [ str_product_1 ], [ str_product_2 ] ).func_set_resource_clean_level([ str_product_1, str_product_2 ] , Resource.CLEAN_ALWAYS)
         dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd2 ] )
         dt_cur.func_complete_command( cur_cmd )
         dt_cur.func_complete_command( cur_cmd2 )
@@ -1380,7 +1381,6 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                 f_remove_products = False )
         f_removed_files = not os.path.exists( str_product_1 )
         f_other_files = f_removed_files and os.path.exists( str_product_1_ok )
-        f_other_files = f_other_files and os.path.exists( str_dependency_1 )
         f_other_files =  f_other_files and os.path.exists( str_product_2 )
         f_other_files = f_other_files and os.path.exists( str_product_2_ok )
         self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok, str_product_2, str_product_2_ok ] )
@@ -1722,7 +1722,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                      [ str_file_2 ])
         cur_cmd_2 = Command.Command( " ".join( [ "cat", str_file_2, ">", str_file_3 ] ),
                                      [ str_file_2 ],
-                                     [ str_file_3 ]).func_set_dependency_clean_level( [ str_file_2 ], Command.CLEAN_AS_TEMP )
+                                     [ str_file_3 ]).func_set_resource_clean_level( [ str_file_2 ], Resource.CLEAN_AS_TEMP )
         cur_pipe.func_run_commands( [ cur_cmd_1, cur_cmd_2 ], str_env, f_clean = True, li_wait = [0,0,0] )
         f_files_equal = self.func_are_files_equivalent( str_file_1, str_file_3 )
         f_clean = not os.path.exists( str_file_2 )
@@ -1751,7 +1751,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                      [ str_file_2 ])
         cur_cmd_2 = Command.Command( " ".join( [ "cat", str_file_2, ">", str_file_3 ] ),
                                      [ str_file_2 ],
-                                     [ str_file_3 ]).func_set_dependency_clean_level( [ str_file_2 ], Command.CLEAN_AS_TEMP )
+                                     [ str_file_3 ]).func_set_resource_clean_level( [ str_file_2 ], Resource.CLEAN_AS_TEMP )
         cur_pipe.func_run_commands( [ cur_cmd_1, cur_cmd_2 ], str_env, f_clean = False, li_wait = [0,0,0] )
         f_files_equal = self.func_are_files_equivalent( str_file_1, str_file_3 )
         f_clean = os.path.exists( str_file_1 ) and os.path.exists( str_file_2 ) and os.path.exists( str_file_3 )
@@ -1839,8 +1839,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         So they also should not be cleaned.
         """
 
-        cur_pipe = Pipeline.Pipeline( str_name = "not_test_func_run_commands_for_two_commands_stale_clean" )
-        str_env = os.path.join( self.str_test_directory, "not_test_func_run_commands_for_two_commands_stale_clean" )
+        cur_pipe = Pipeline.Pipeline( str_name = "test_func_run_commands_for_two_commands_stale_clean" )
+        str_env = os.path.join( self.str_test_directory, "test_func_run_commands_for_two_commands_stale_clean" )
         str_file_1 = os.path.join( str_env, "test_func_run_commands_file_1.txt" )
         str_file_2 = os.path.join( str_env, "test_func_run_commands_file_2.txt" )
         str_file_3 = os.path.join( str_env, "test_func_run_commands_file_3.txt" )
@@ -1855,7 +1855,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                      [ str_file_2 ])
         cur_cmd_2 = Command.Command( " ".join( [ "cat", str_file_2, ">", str_file_3 ] ),
                                      [ str_file_2 ],
-                                     [ str_file_3 ]).func_set_dependency_clean_level( [ str_file_2 ], Command.CLEAN_AS_TEMP )
+                                     [ str_file_3 ]).func_set_resource_clean_level( [ str_file_2 ], Resource.CLEAN_AS_TEMP )
         cur_pipe.func_run_commands( [ cur_cmd_1, cur_cmd_2 ], str_env, f_clean = True, li_wait = [0,0,0] )
         f_files_equal = not self.func_are_files_equivalent( str_file_1, str_file_3 )
         f_clean = os.path.exists( str_file_1 )
@@ -2108,27 +2108,27 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur = Command.Command( "java update.jar -xmf 30 -f -g craziness.txt", [ "str_depend" ], [ "str_product" ]  )
         dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
         
 
 # func_update_products_validity_status
-    def test_func_update_products_validity_status_for_bad_case_bad_command( self ):
-        """ A false should be returned on an invalid command. """
-
-        str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_bad_case_bad_command" )
-        pipe_cur = Pipeline.Pipeline( "test_func_update_products_validity_status_for_bad_case_bad_command" )
-        str_product = os.path.join( str_env, "product_1.txt")
-        str_product_ok = pipe_cur.func_get_ok_file_path( str_product )
-        self.func_make_dummy_dir( str_env )
-        self.func_make_dummy_file( str_product )
-        cur_command = Command.Command( None, None, None )
-        cur_dt = DependencyTree.DependencyTree()
-        cur_dt.func_remove_wait()
-        f_update = pipe_cur.func_update_products_validity_status( cmd_command = cur_command, dt_tree = cur_dt )
-        f_ok_file_made = os.path.exists( str_product_ok )
-        self.func_remove_files( [ str_product , str_product_ok ] )
-        self.func_remove_dirs( [ str_env ] )
-        self.func_test_true( not f_update and not f_ok_file_made )
+#    def test_func_update_products_validity_status_for_bad_case_bad_command( self ):
+#        """ A false should be returned on an invalid command. """
+#
+#        str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_bad_case_bad_command" )
+#        pipe_cur = Pipeline.Pipeline( "test_func_update_products_validity_status_for_bad_case_bad_command" )
+#        str_product = os.path.join( str_env, "product_1.txt")
+#        str_product_ok = pipe_cur.func_get_ok_file_path( str_product )
+#        self.func_make_dummy_dir( str_env )
+#        self.func_make_dummy_file( str_product )
+#        cur_command = Command.Command( None, None, None )
+#        cur_dt = DependencyTree.DependencyTree()
+#        cur_dt.func_remove_wait()
+#        f_update = pipe_cur.func_update_products_validity_status( cmd_command = cur_command, dt_tree = cur_dt )
+#        f_ok_file_made = os.path.exists( str_product_ok )
+#        self.func_remove_files( [ str_product , str_product_ok ] )
+#        self.func_remove_dirs( [ str_env ] )
+#        self.func_test_true( not f_update and not f_ok_file_made )
         
         
     def test_func_update_products_validity_status_for_bad_case_none_command( self ):
@@ -2182,7 +2182,6 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( not f_update and not f_ok_file_made )
         
-        
     def test_func_update_products_validity_status_for_bad_case_mult_products_one_missing( self ):
         """ A false should be returned if one of the products of the command is false. """
 
@@ -2218,7 +2217,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_product_ok = pipe_cur.func_get_ok_file_path( str_product )
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_product )
-        cur_command = Command.Command( "Command", "dependency", str_product )
+        cur_command = Command.Command( "Command", [ "dependency" ], [ str_product ] )
         cur_dt = DependencyTree.DependencyTree()
         cur_dt.func_remove_wait()
         f_update = pipe_cur.func_update_products_validity_status( cmd_command = cur_command, dt_tree = cur_dt )
@@ -2231,8 +2230,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
     def test_func_update_products_validity_status_for_good_case_mult_products( self ):
         """ A true should be returned on a good case and the ok file should be made for each product. """
 
-        str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_good_case" )
-        pipe_cur = Pipeline.Pipeline( "test_func_update_products_validity_status_for_good_case" )
+        str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_good_case_mult_products" )
+        pipe_cur = Pipeline.Pipeline( "test_func_update_products_validity_status_for_good_case_mult_products" )
         str_product_1 = os.path.join( str_env, "product_1.txt")
         str_product_2 = os.path.join( str_env, "product_2.txt")
         str_product_3 = os.path.join( str_env, "product_3.txt")
@@ -2243,7 +2242,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_product_1 )
         self.func_make_dummy_file( str_product_2 )
         self.func_make_dummy_file( str_product_3 )
-        cur_command = Command.Command( "Command", "dependency", [ str_product_1, str_product_2, str_product_3 ] )
+        cur_command = Command.Command( "Command", [ "dependency" ], [ str_product_1, str_product_2, str_product_3 ] )
         cur_dt = DependencyTree.DependencyTree()
         cur_dt.func_remove_wait()
         f_update = pipe_cur.func_update_products_validity_status( cmd_command = cur_command, dt_tree = cur_dt )
