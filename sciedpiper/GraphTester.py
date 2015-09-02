@@ -295,12 +295,12 @@ class GraphTester( ParentPipelineTester.ParentPipelineTester ):
     def test_get_parent_for_multiple_parents(self):
         """ Testing get parent with a vertex with multiple parents. """
          
-        str_answer = "[\'Parent09\', \'Parent01\', \'Parent10\']"
+        str_answer = str( sorted( [ 'Parent09', 'Parent01', 'Parent10'] ) )
         cur_vertex = Graph.Vertex( "ID" )
         cur_vertex.func_add_parent( Graph.Vertex( "Parent09" ) )
         cur_vertex.func_add_parent( Graph.Vertex( "Parent01" ) )
         cur_vertex.func_add_parent( Graph.Vertex( "Parent10" ) )
-        str_result = str( [ vtx_parent.str_id for vtx_parent in cur_vertex.func_get_parents() ] )
+        str_result = str( sorted( [ vtx_parent.str_id for vtx_parent in cur_vertex.func_get_parents() ] ) )
         self.func_test_equals( str_answer, str_result )
 
 # func get children
@@ -324,12 +324,12 @@ class GraphTester( ParentPipelineTester.ParentPipelineTester ):
     def test_get_children_for_multiple_children(self):
         """ Testing get children with a vertex with multiple children. """
          
-        str_answer = "[\'Child09\', \'Child01\', \'Child10\']"
+        str_answer = str( sorted( ['Child09', 'Child01', 'Child10'] ) )
         cur_vertex = Graph.Vertex( "ID" )
         cur_vertex.func_add_child( Graph.Vertex( "Child09" ) )
         cur_vertex.func_add_child( Graph.Vertex( "Child01" ) )
         cur_vertex.func_add_child( Graph.Vertex( "Child10" ) )
-        str_result = str( [ vtx_child.str_id for vtx_child in cur_vertex.func_get_children() ] )
+        str_result = str( sorted( [ vtx_child.str_id for vtx_child in cur_vertex.func_get_children() ] ) )
         self.func_test_equals( str_answer, str_result )
 
 # func_add_child
@@ -545,16 +545,16 @@ class GraphTester( ParentPipelineTester.ParentPipelineTester ):
       Iter should give a breadth first traversal across all graphs.
       """
  
-      str_answer = "\n".join( [ "VERTEX{ ID=_i_am_Groot_;Parents=[];Children=[21];Type=VERTEX }",
+      str_answer = "\n".join( sorted( [ "VERTEX{ ID=_i_am_Groot_;Parents=[];Children=[21];Type=VERTEX }",
                               "VERTEX{ ID=21;Parents=['_i_am_Groot_'];Children=[22, 23];Type=VERTEX }",
                               "VERTEX{ ID=22;Parents=[21];Children=[24];Type=VERTEX }",
                               "VERTEX{ ID=23;Parents=[21];Children=[24];Type=VERTEX }",
-                              "VERTEX{ ID=24;Parents=[22, 23];Children=[];Type=VERTEX }" ] )
+                              "VERTEX{ ID=24;Parents=[22, 23];Children=[];Type=VERTEX }" ] ) )
       cur_graph = self.func_make_one_cycle_graph()
       lstr_traversal = []
       for vtx_node in cur_graph:
         lstr_traversal.append( vtx_node.func_detail() )
-      str_result = "\n".join( lstr_traversal )
+      str_result = "\n".join( sorted( lstr_traversal ) )
       self.func_test_equals( str_answer, str_result )
 
 # _str_
@@ -755,14 +755,14 @@ class GraphTester( ParentPipelineTester.ParentPipelineTester ):
       """
       Test delete vertices in a 4 vertex graph deleting 1 vtx
       """
-      str_answer = "\n".join([ "VERTEX{ ID=_i_am_Groot_;Parents=[];Children=[21];Type=VERTEX }",
+      str_answer = "\n".join( sorted( [ "VERTEX{ ID=_i_am_Groot_;Parents=[];Children=[21];Type=VERTEX }",
                                "VERTEX{ ID=21;Parents=['_i_am_Groot_'];Children=[22, 23];Type=VERTEX }",
                                "VERTEX{ ID=22;Parents=[21];Children=[];Type=VERTEX }",
-                               "VERTEX{ ID=23;Parents=[21];Children=[];Type=VERTEX }" ])
+                               "VERTEX{ ID=23;Parents=[21];Children=[];Type=VERTEX }" ] ) )
       cur_graph = self.func_make_one_cycle_graph()
       cur_vtx = cur_graph.func_get_vertex( 24 )
       cur_graph.func_delete_vertex( cur_vtx )
-      str_result = "\n".join([ vtx_root.func_detail() for vtx_root in cur_graph ])
+      str_result = "\n".join( sorted( [ vtx_root.func_detail() for vtx_root in cur_graph ] ) )
       self.func_test_equals( str_answer, str_result )
 
     def test_delete_vertices_in_4_vertex_graph_2_del( self ):
