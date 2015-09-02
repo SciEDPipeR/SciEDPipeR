@@ -62,7 +62,13 @@ class Graph:
 
   # Tested
   def func_add_edge( self, vtx_parent, vtx_child ):
-    """ Both parents must be valid nodes, if they are not in the graph they will be added. """
+    """ 
+
+    Both parents must be valid nodes, if they are not in the graph they will be added.
+    
+    Adds parent and child vertices if they are not in the graph.
+    If they are in the graph, uses the existing vertices with the vertices ID to make the edges.
+    """
 
     # Deny invalid nodes
     if not vtx_parent or not vtx_child:
@@ -116,6 +122,11 @@ class Graph:
 
   # Tested
   def func_merge_vertex( self, vtx_merge ):
+    """
+    
+    If the vertex is not in the graph, it is added.
+    
+    """
 
     # Avoid null data
     if not vtx_merge:
@@ -127,9 +138,6 @@ class Graph:
     # If the vertex is not in the graph, add it
     if vtx_merge not in self:
       self.func_add_vertex( vtx_merge )
-    else:
-      # Delete vertex
-      self.func_delete_vertex( vtx_merge )
 
     # Give that dependency the links from this dependency and then del this vtx
     # Get existing vertex
