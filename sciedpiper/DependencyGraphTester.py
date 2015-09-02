@@ -189,15 +189,16 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
     def test_get_dependencies_for_simple_graph( self ):
         """ Test get dependencies for an empty DependencyGraph """
         str_answer = "[\"VERTEX{ ID=/R1;Parents=['_i_am_Groot_'];Children=[2, 3, 4];Type=RESOURCE }\"]" 
+        str_answer = "[\'/R1\']"
         graph_dep = self.func_make_simple_graph()
-        str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_dependencies() if vtx_cur] ) )
+        str_result = str( sorted( [ vtx_cur for vtx_cur in graph_dep.func_get_dependencies() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
     def test_get_dependencies_for_complex_graph( self ):# R1, R9, R12, R15, R16
         """ Test get dependencies for a complex DependencyGraph """
-        str_answer = "[\"VERTEX{ ID=/R12;Parents=['_i_am_Groot_'];Children=[13, 14];Type=RESOURCE }\", 'VERTEX{ ID=/R15;Parents=[13];Children=[17];Type=RESOURCE }', 'VERTEX{ ID=/R16;Parents=[14];Children=[17];Type=RESOURCE }', \"VERTEX{ ID=/R1;Parents=['_i_am_Groot_'];Children=[2, 3, 4];Type=RESOURCE }\", \"VERTEX{ ID=/R9;Parents=['_i_am_Groot_'];Children=[10];Type=RESOURCE }\"]" 
         graph_dep = self.func_make_complex_graph()
-        str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_dependencies() if vtx_cur] ) )
+        str_result = str( sorted( [ vtx_cur for vtx_cur in graph_dep.func_get_dependencies() if vtx_cur] ) )
+        str_answer = "[\'/R1\', \'/R12\', \'/R15\', \'/R16\', \'/R9\']"
         self.func_test_equals( str_answer, str_result )
 
 # Get products
