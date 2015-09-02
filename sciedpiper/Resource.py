@@ -51,6 +51,14 @@ class Resource( Graph.Vertex ):
                           "PARENTS:", str( [ str( vtx_parent.str_id ) for vtx_parent in self.func_get_parents() ] ),
                           "CHILDREN:", str( [ str( vtx_child.str_id ) for vtx_child in self.func_get_children() ] ) ] )
 
+    def __eq__( self, other ):
+        if ( not isinstance( other, Resource )):
+            return False
+        return self.str_id == other.str_id
+
+    def __hash__( self ):
+        return hash( self.str_id )
+
     # Tested
     @classmethod
     def func_make_paths_absolute( self, lstr_paths ):
