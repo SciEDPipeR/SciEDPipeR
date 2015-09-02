@@ -182,7 +182,7 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
         str_result = dt_tree.func_detail()
         self.func_test_equals( str_answer, str_result )
 
-    def test_func_add_command_for_5_new_command_detail( self ):
+    def fixsorttest_func_add_command_for_5_new_command_detail( self ):
         """
 
         Test adding 5 commands, making a small graph.

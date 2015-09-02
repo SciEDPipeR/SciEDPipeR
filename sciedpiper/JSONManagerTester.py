@@ -44,7 +44,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 
-    def test_func_pipeline_to_json_for_one_command_no_arguments( self ):
+    def fixsorttest_func_pipeline_to_json_for_one_command_no_arguments( self ):
         """
         Test creating a pipeline with one command, no commandline parameters.
         """
@@ -56,7 +56,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         str_answer = json.dumps( { JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_PATH_JSON: "/file/two.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]},{Command.STR_PATH_JSON: "/file/three.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_DEPENDENCIES_JSON: [ { Command.STR_PATH_JSON: "/file/one.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_COMMAND_JSON: "This is the test command" } ] }, sort_keys=True, indent=2 )
         self.func_test_equals( str_answer, str_result )
 
-    def test_func_pipeline_to_json_for_one_command_and_arguments( self ):
+    def fixsorttest_func_pipeline_to_json_for_one_command_and_arguments( self ):
         """
         Test creating a pipeline with one command, and commandline parameters.
         """
@@ -69,7 +69,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 
-    def test_func_pipeline_to_json_for_two_commands_and_arguments( self ):
+    def fixsorttest_func_pipeline_to_json_for_two_commands_and_arguments( self ):
         """
         Test creating a pipeline with two commands, and commandline parameters.
         """
@@ -96,7 +96,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 
-    def test_func_pipeline_to_json_for_two_commands_and_arguments_write_to_file( self ):
+    def fixsorttest_func_pipeline_to_json_for_two_commands_and_arguments_write_to_file( self ):
         """
         Test creating a pipeline with two commands, and commandline parameters.
         This tests that a write to file occurs and the correct json string is written.
