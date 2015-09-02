@@ -206,7 +206,7 @@ class Command( Graph.Vertex ):
         lstr_file = Resource.Resource.func_make_paths_absolute( lstr_file )
 
         # Allow all files to be added as long as they are known dependencies
-        for vtx_file in self.lstr_dependencies:
+        for vtx_file in self.lstr_dependencies + self.lstr_products:
             if vtx_file.str_id in lstr_file:
                 vtx_file.i_clean=i_level
         return self
