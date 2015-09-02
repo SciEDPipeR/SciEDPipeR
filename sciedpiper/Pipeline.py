@@ -828,12 +828,12 @@ class Pipeline:
                     # and that things missing were cleaned.
                     # Record products made, they may have been cleaned so check that they exist
                     for str_product in cmd_command.lstr_products:
-                        if os.path.exists( str_product ):
+                        if os.path.exists( str_product.str_id ):
                             sstr_made_dependencies_to_compress.add( str_product )
                     sstr_removed = set()
                     for str_product_compress in sstr_made_dependencies_to_compress:
                         if not dt_dependencies.func_dependency_is_needed( str_product_compress ):
-                            str_compression_success = cur_compression.func_compress( str_file_path = str_product_compress,
+                            str_compression_success = cur_compression.func_compress( str_file_path = str_product_compress.str_id,
                                                                                      str_output_directory = str_output_dir,
                                                                                      str_compression_type = str_compression_type,
                                                                                      str_compression_mode = STR_COMPRESSION_ARCHIVE.lower(),
