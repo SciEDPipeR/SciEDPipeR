@@ -49,11 +49,10 @@ class CommandlineTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Set up environment
         str_answer = str( True )
-        str_command = "python sciedpiper/make_return_code.py -r 0"
+        str_command = "python sciedpiper" + os.path.sep + "make_return_code.py -r 0"
         
         cmdl_cur = Commandline.Commandline()
         str_return = str( cmdl_cur.func_CMD( str_command = str_command ) )
-        
         self.func_test_equals( str_answer, str_return )
 
     def test_func_cmd_for_simple_command_return_negative( self ):
