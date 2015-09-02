@@ -36,6 +36,13 @@ STR_RUNNING = "RUN"
 STR_COMPLETE = "DONE"
 STR_ERROR = "ERROR"
 
+# Clean levels, here for backwards compatability
+CLEAN_NEVER = Resource.CLEAN_NEVER
+CLEAN_AS_TEMP = Resource.CLEAN_AS_TEMP
+CLEAN_ALWAYS = Resource.CLEAN_ALWAYS
+CLEAN_DEFAULT = Resource.CLEAN_DEFAULT
+LSTR_CLEAN_LEVELS = Resource.LSTR_CLEAN_LEVELS
+
 class Command( Graph.Vertex ):
     """
     Represents a command line call. Keeps together command, dependency, and products information.
@@ -179,6 +186,12 @@ class Command( Graph.Vertex ):
         return( vtx_cmd_cur )
 
     # Tested
+    def func_set_dependency_level( self, lstr_file, i_level ):
+        """
+        Depricated, please use func_set_resource_clean_level().
+        """
+        return self.func_set_resource_clean_level( lstr_file, i_level )
+
     def func_set_resource_clean_level( self, lstr_file, i_level ):
         """
         Add a cleaning level for a list of files that are resources.
