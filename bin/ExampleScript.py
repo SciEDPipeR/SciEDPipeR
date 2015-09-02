@@ -68,10 +68,6 @@ class ExampleScript( ParentScript.ParentScript ):
         To know the variables available from command line look in the ParentScript in func_create_arguments.
         """
 
-        # Have file names, using the os library to have dynamic paths
-#        str_test_file_dependency = os.path.abspath( inspect.getfile( inspect.currentframe() ) )
-#        str_test_file_product = os.path.join( args_parsed.str_file_base, "ExampleScriptCopy.txt")
-        
         # Make directories and check files that need to exist before beginning
         str_dir_1 = os.path.join( args_parsed.str_file_base, "dir1" )
         str_dir_2 = os.path.join( args_parsed.str_file_base, "dir2" )
@@ -80,7 +76,6 @@ class ExampleScript( ParentScript.ParentScript ):
         str_dir_5 = os.path.join( str_dir_1, "dir5" )
         str_dir_6 = os.path.join( str_dir_2, "dir6" )
         cur_pipeline.func_mkdirs( [ args_parsed.str_file_base, str_dir_1, str_dir_2, str_dir_3, str_dir_4, str_dir_5, str_dir_6 ] )
-#        cur_pipeline.func_check_files_exist( [ str_test_file_dependency ] )
         
         #Make file names and input files
         str_file_1 = os.path.join( str_dir_1, "file1.txt" )

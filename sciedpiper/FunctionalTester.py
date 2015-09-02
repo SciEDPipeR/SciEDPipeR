@@ -17,7 +17,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
     """
     End-to_end tests for the App. Starting at command line.
     """
-    
+   
     def func_clean_up_example_script( self, str_output_dir ):
         """
         Cleans up the directories and files made by the example script.
@@ -61,7 +61,6 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         """
         Test the scenario where the example script is ran on all defaults.
         """
-        
         # Create test environment
         str_env = os.path.join( self.str_test_directory, "test_app_for_vanilla_base_run" )
         self.func_make_dummy_dir( str_env )
@@ -77,14 +76,13 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         f_success = sum( [ os.path.exists( str_path ) 
                           for str_path in dict_env["files"] + dict_env["directories"] ] 
                         ) == len( dict_env["files"] + dict_env["directories"] )
-
         # Destroy environment
         self.func_clean_up_example_script( str_env )
         self.func_remove_dirs( [ str_env ] )
-        
         # Evaluate
         self.func_test_true( f_success )
 
+    
 
     def test_app_for_run_with_no_compression( self ):
         """
@@ -182,12 +180,57 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Evaluate
         self.func_test_true( f_success )
+
+    def test_app_for_run_clean_with_intermediary( self ):
+        """
+        Test the scenario where the example script is ran with clean intermediary mode.
+        """
+        # Create test environment
+        str_env = os.path.join( self.str_test_directory, "test_app_for_run_clean_with_intermediary" )
+        str_dir_1 = os.path.join( str_env, "dir1" )
+        str_dir_2 = os.path.join( str_env, "dir2" )
+        str_dir_3 = os.path.join( str_env, "dir3" )
+        str_dir_4 = os.path.join( str_dir_1, "dir4" )
+        str_dir_5 = os.path.join( str_dir_1, "dir5" )
+        str_dir_6 = os.path.join( str_dir_2, "dir6" )
+        str_file_1 = os.path.join( str_dir_1, "file1.txt" )
+        str_file_2 = os.path.join( str_dir_4, "file2.txt" )
+        str_file_2_ok = os.path.join( str_dir_4, ".file2.txt.ok" )
+        str_file_3 = os.path.join( str_dir_4, "file3.txt" )
+        str_file_3_ok = os.path.join( str_dir_4, ".file3.txt.ok" )
+        str_file_4 = os.path.join( str_dir_6, "file4.txt" )
+        str_file_5 = os.path.join( str_dir_3, "file5.txt" )
+        str_file_6 = os.path.join( str_dir_3, "file6.txt" )
+        str_file_6_ok = os.path.join( str_dir_3, ".file6.txt.ok" )
+        str_file_7 = os.path.join( str_dir_3, "file7.txt" )
+        str_file_7_ok = os.path.join( str_dir_3, ".file7.txt.ok" )
+        self.func_make_dummy_dir( str_env )
+
+        # Call Example script
+        str_script = os.path.join( "bin", "ExampleScript.py" )
+        str_command = "python " + str_script + " --example test_app_for_run_clean_with_intermediary --out_dir "+ str_env +" --clean"
+        Commandline.Commandline().func_CMD( str_command )
+
+        # Check test environment for results
+        lstr_files_should_exist = [ str_file_1, str_file_2_ok,
+                                    str_file_3_ok,  str_file_4, 
+                                    str_file_5, str_file_6_ok,
+                                    str_file_7, str_file_7_ok ]
+        lstr_files_should_not_exist = [ str_file_2, str_file_3, str_file_6 ]
+        f_success = sum( [ os.path.exists( str_path ) for str_path in lstr_files_should_exist ] ) == len( lstr_files_should_exist )
+        f_success = f_success and sum( [ not os.path.exists( str_path ) for str_path in lstr_files_should_not_exist ] ) == len( lstr_files_should_not_exist )
+
+        # Destroy environment
+        self.func_clean_up_example_script( str_env )
+        self.func_remove_dirs( [ str_env ] )
+
+        # Evaluate
+        self.func_test_true( f_success )
  
     def test_app_for_run_with_compression_intermediary( self ):
         """
         Test the scenario where the example script is ran with compression, intermediary mode.
         """
-
         # Create test environment
         str_env = os.path.join( self.str_test_directory, "test_app_for_run_with_compression_intermediary" )
         str_dir_1 = os.path.join( str_env, "dir1" )
@@ -212,20 +255,19 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         str_file_7 = os.path.join( str_dir_3, "file7.txt" )
         str_file_7_ok = os.path.join( str_dir_3, ".file7.txt.ok" )
         self.func_make_dummy_dir( str_env )
-        
+
         # Call Example script
         str_compression = Pipeline.STR_COMPRESSION_AS_YOU_GO
         str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_run_with_compression_intermediary --out_dir "+ str_env +" --compress " + str_compression
         Commandline.Commandline().func_CMD( str_command )
-        
+
         # Check test environment for results
         lstr_files_should_exist = [ str_file_1, str_file_2_gz, str_file_2_ok,
                                     str_file_3_gz, str_file_3_ok,
                                     str_file_4, str_file_5, str_file_6_gz, str_file_6_ok,
                                     str_file_7_gz, str_file_7_ok ]
         lstr_files_should_not_exist = [ str_file_2, str_file_3, str_file_6, str_file_7 ]
-
         f_success = sum( [ os.path.exists( str_path ) for str_path in lstr_files_should_exist ] ) == len( lstr_files_should_exist )
         f_success = f_success and sum( [ not os.path.exists( str_path ) for str_path in lstr_files_should_not_exist ] ) == len( lstr_files_should_not_exist )
 
@@ -233,7 +275,7 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_remove_files( [ str_file_2_gz, str_file_3_gz, str_file_6_gz, str_file_7_gz ] )
         self.func_clean_up_example_script( str_env )
         self.func_remove_dirs( [ str_env ] )
-        
+
         # Evaluate
         self.func_test_true( f_success )
 
