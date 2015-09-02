@@ -15,6 +15,7 @@ import DependencyTree
 import logging
 import os
 import shutil
+import Resource
 import sys
 import time
 
@@ -264,13 +265,13 @@ class Pipeline:
                  For example, in test mode, the command will be logged but not executed.
         """
 
-        str_cmd = cmd_cur.str_command.split(" ")[0].lower()
+        str_cmd = cmd_cur.str_id.split(" ")[0].lower()
         
         # Handle cd
         if str_cmd == "cd":
             if f_test:
                 return True
-            str_path = cmd_cur.str_command.split(" ")[ 1 ]
+            str_path = cmd_cur.str_id.split(" ")[ 1 ]
             
             # Handle relative paths
             if not str_path[ 0 ] == os.path.sep:
@@ -418,7 +419,7 @@ class Pipeline:
                  True indicates the command needs special handling
         """
         
-        return cmd_cur.str_command.split(" ")[0].lower() in Pipeline.c_lstr_special_commands
+        return cmd_cur.str_id.split(" ")[0].lower() in Pipeline.c_lstr_special_commands
 
 
     # Tested
@@ -548,8 +549,8 @@ class Pipeline:
             return False
         
         # Check that each dependency is valid
-        for str_dependency in cmd_command.lstr_dependencies if f_dependencies else cmd_command.lstr_products:
-            if not os.path.exists( self.func_get_ok_file_path( str_dependency ) ):
+        for rsc_dependency in cmd_command.lstr_dependencies if f_dependencies else cmd_command.lstr_products:
+            if not os.path.exists( self.func_get_ok_file_path( rsc_dependency.str_id ) ):
                 return False
         return True
 
@@ -603,7 +604,8 @@ class Pipeline:
 
         # Check first if each product is valid to be removed
         # We want to fail together so nothing is removed if one is a problem
-        lstr_paths_to_remove = cmd_command.lstr_products if f_remove_products else cmd_command.func_get_dependencies_to_clean_level( Command.CLEAN_NEVER )
+        lstr_paths_to_remove = cmd_command.lstr_products if f_remove_products else cmd_command.func_get_dependencies_to_clean_level( Resource.CLEAN_NEVER )
+        lstr_paths_to_remove = [ rsc_remove.str_id for rsc_remove in lstr_paths_to_remove ]
         # Remove any input file
         lstr_paths_to_remove = list( set( lstr_paths_to_remove ) - set( dt_dependency_tree.lstr_inputs ) )
         
@@ -612,12 +614,12 @@ class Pipeline:
             self.logr_logger.info( "".join( [ "In test mode, would have deleted the following paths: ",",".join( lstr_paths_to_remove ) ] ) )
             return True
 
-        for str_path in lstr_paths_to_remove:
+        for str_rsc in lstr_paths_to_remove:
             # Make sure paths are valid first, no playing in directories we are not supposed to be in
-            if not self.func_is_valid_path_for_removal(str_path = str_path, str_output_directory = str_output_directory):
+            if not self.func_is_valid_path_for_removal(str_path = str_rsc, str_output_directory = str_output_directory):
                 self.logr_logger.error( " ".join( [ "Pipeline.func_remove_paths: Could not remove this path, it is not valid to remove.",
                                                   "You should only be deleting from the output directory of the pipeline.",
-                                                  "Output directory =", str_output_directory,". Path =", str_path ] ) )
+                                                  "Output directory =", str_output_directory,". Path =", str_rsc ] ) )
                 return False
 
         # Handle removing paths
@@ -642,14 +644,14 @@ class Pipeline:
             # If it is still needed, skip over it unless it is indicated
             # To always be deleted...should not set a file to ALWAYS unless you mean it
             if not f_remove_products:
-
-                i_clean_level = cmd_command.func_get_clean_level( str_file_path = str_path )
+                cur_vertex = dt_dependency_tree.graph_commands.func_get_vertex( str_path )
+                i_clean_level = cur_vertex.i_clean
 #                 if i_clean_level is None:
 #                     self.logr_logger.error( " ".join( [ "Pipeline.func_remove_paths: Could not find the clean level for this file so could not delete. File =", str_path ] ) )
 #                     continue
 
-                if i_clean_level == Command.CLEAN_AS_TEMP:
-                    if not dt_dependency_tree.func_is_used_intermediate_file( str_path ):
+                if i_clean_level == Resource.CLEAN_AS_TEMP:
+                    if not dt_dependency_tree.func_is_used_intermediate_file( cur_vertex ):
                         self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Not removing the following path, it is still needed.", str_path ] ) )
                         continue
             
@@ -712,7 +714,7 @@ class Pipeline:
         # Identified that the input files are in the output directory
         str_current_path_for_abs_paths = os.getcwd()
         if not str_output_dir[ 0 ] == os.path.sep:
-                str_output_dir = os.path.join( str_current_path_for_abs_paths, str_output_dir )
+            str_output_dir = os.path.join( str_current_path_for_abs_paths, str_output_dir )
 
         # Update the paths of commands before the dependency tree is made, otherwise they will not match the current state of the commands
         for cmd_command in lcmd_commands:
@@ -720,7 +722,7 @@ class Pipeline:
             self.func_update_command_path( cmd_command, self.dict_update_path )
 
             # Make all the directories needed for the commands
-            self.func_make_all_needed_dirs( cmd_command.lstr_products )
+            self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
 
         # Load up the commands and build the dependency tree
         # This skips special commands
@@ -740,13 +742,14 @@ class Pipeline:
         # Should be a set
         sstr_made_dependencies_to_compress = set()
         for cmd_command in lcmd_commands:
+
             # Log the start
-            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command ) ] ) )
+            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
             # Do not execute if the products are already made.
             # We do want to clean up if they ask for it.
             # We do want to compress if they ask for it.
             if ( self.func_paths_are_from_valid_run( cmd_command, f_dependencies = False ) ):
-                self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Skipping command, resulting file already exist from previous valid command. Current command:", cmd_command.str_command ] ) )
+                self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Skipping command, resulting file already exist from previous valid command. Current command:", cmd_command.str_id ] ) )
 
                 # Complete the command in case it was not
                 dt_dependencies.func_complete_command( cmd_command, f_wait = False, f_test = not self.f_execute )
@@ -789,15 +792,14 @@ class Pipeline:
                 f_success = self.func_do_special_command( cmd_command, f_test = not self.f_execute )
             else:
                 # Add bsub prefix if needed to the command.
-                str_executed_command = "".join( [ self.str_prefix_command, cmd_command.str_command ] )
-                self.logr_logger.info( "".join( [ "Pipeline.func_run_commands: executing ", str_executed_command ] ) )
+                str_executed_command = "".join( [ self.str_prefix_command, cmd_command.str_id ] )
+                self.logr_logger.info( "".join( [ "Pipeline.func_run_commands: start command line: ", str_executed_command ] ) )
                 f_success = f_success and self.cmdl_execute.func_CMD( str_executed_command, f_use_bash = self.f_use_bash, f_test = not self.f_execute )
-                self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Successfully executed." ] ) )
+                self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: end commandline." ] ) )
                 # If the command is successful, indicate it is complete and potentially clean up stale dependencies
                 if f_success:
                     f_success = f_success and dt_dependencies.func_complete_command( cmd_command, f_test = not self.f_execute )
                     self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Updated dependencies.", str( f_success ) ] ) )
-
                 # Update the products so the pipeline knows they are from valid command calls
                 # Make sure that the products are indicated to be complete
                 if f_success and self.f_execute:
@@ -806,7 +808,6 @@ class Pipeline:
                         self.logr_logger.error( " ".join([ "Pipeline.func_run_commands: The following files are invalid and should be removed if they exist,",
                                                           "an attempt was made to remove them." ] + cmd_command.lstr_products ) )
                         f_success = False
-                        
                 # Add cleaning dependencies if executing and cleaning
                 if f_success and f_clean:
                     f_success = f_success and self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir, 
@@ -854,9 +855,9 @@ class Pipeline:
             if f_clean:
                 self.logr_logger.info( "\n".join( [ "Pipeline.func_run_commands: This pipeline had cleaning turned on.",
                                        "The following products were terminal and should exist:",
-                                       ",".join( dt_dependencies.lstr_terminal_products ),
+                                       ",".join( [ rsc_prod.str_id for rsc_prod in dt_dependencies.lstr_terminal_products ] ),
                                        "The following input dependencies should still exist:",
-                                       ", ".join( dt_dependencies.lstr_inputs ),
+                                       ", ".join( [ rsc_input.str_id for rsc_input in dt_dependencies.lstr_inputs ] ),
                                        "If a file was requested to exist with clean settings, it should also exist." ] ) )
             else:
                 self.logr_logger.info("Pipeline.func_run_commands: Cleaning was not turned on. All files should be available.")
@@ -909,8 +910,8 @@ class Pipeline:
 
         if cmd_cur and cmd_cur.func_is_valid():
             for str_cmd, str_path in dict_update_cur.iteritems():
-                if str_cmd in cmd_cur.str_command:
-                    cmd_cur.str_command = cmd_cur.str_command.replace( str_cmd, os.path.join( str_path, str_cmd ) )
+                if str_cmd in cmd_cur.str_id:
+                    cmd_cur.str_id = cmd_cur.str_id.replace( str_cmd, os.path.join( str_path, str_cmd ) )
                     
 
     # Tested
@@ -941,9 +942,11 @@ class Pipeline:
             return False
         
         if self.f_execute:
-            for str_product in cmd_command.lstr_products:
-                open( self.func_get_ok_file_path( str_product ), "a" ).close()
-                
+            for rsc_product in cmd_command.lstr_products:
+                str_product = rsc_product.str_id
+                with open( self.func_get_ok_file_path( str_product ), "a" ) as file_product:
+                    file_product.write( str( os.path.getmtime( str_product ) ) + "\n" )
+                    file_product.write( time.ctime( os.path.getmtime( str_product ) ) + "\n" )
         return True
 
 
