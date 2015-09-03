@@ -68,7 +68,6 @@ class FunctionalTester( ParentPipelineTester.ParentPipelineTester ):
         # Call Example script
         str_script = os.path.join( "bin", "ExampleScript.py" )
         str_command = "python " + str_script + " --example test_app_for_vanilla_base_run --out_dir "+ str_env
-        print( str_command )
         Commandline.Commandline().func_CMD( str_command )
         
         # Check test environment for results
