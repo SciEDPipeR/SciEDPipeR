@@ -6,6 +6,7 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
+import Command
 import Graph
 import Resource
 
@@ -17,6 +18,13 @@ class DependencyGraph( Graph.Graph ):
   def __init__(self):
     Graph.Graph.__init__( self )
 
+ # Tested
+  def func_get_commands( self ):
+    """
+    Return the commands in an order that can be executed starting but not including Groot.
+    """
+
+    return [ vtx_cur for vtx_cur in self if vtx_cur.str_type == Command.STR_TYPE  ]
 
   # Tested
   def func_get_terminal_products( self ):
