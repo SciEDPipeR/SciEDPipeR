@@ -136,8 +136,71 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         graph_dep.func_add_edge( vtx_seventeen, vtx_eighteen )
         return graph_dep
 
+    def func_make_commands_for_complex_real_graph( self, str_env ):
+        """
+        Dependency Tree made:
+        D1 D2  D3  D4  D5  D6  D7  D8 P7
+        |__|   |   |   |___|   |
+         |     |   |     |     |
+         C1   C2   |    C5    C6
+         |     |   |     |     |
+         P1   P2   |     |     |
+         |_____|   |    P8    P9
+            |      |
+            C3     |
+           ____    |
+         |  |  |   |
+        P3  P4 P5  |
+               |___|
+                 |
+                C4
+                 |
+                P6
+        """
+        str_dependency_1 = os.path.join( str_env, "Dependencies_1.txt" )
+        str_dependency_2 = os.path.join( str_env, "Dependencies_2.txt" )
+        str_dependency_3 = os.path.join( str_env, "Dependencies_3.txt" )
+        str_dependency_4 = os.path.join( str_env, "Dependencies_4.txt" )
+        str_dependency_5 = os.path.join( str_env, "Dependencies_5.txt" )
+        str_dependency_6 = os.path.join( str_env, "Dependencies_6.txt" )
+        str_dependency_7 = os.path.join( str_env, "Dependencies_7.txt" )
+        str_dependency_8 = os.path.join( str_env, "Dependencies_8.txt" )
+        str_product_1 = os.path.join( str_env, "Products_1.txt" )
+        str_product_2 = os.path.join( str_env, "Products_2.txt" )
+        str_product_3 = os.path.join( str_env, "Products_3.txt" )
+        str_product_4 = os.path.join( str_env, "Products_4.txt" )
+        str_product_5 = os.path.join( str_env, "Products_5.txt" )
+        str_product_6 = os.path.join( str_env, "Products_6.txt" )
+        str_product_7 = os.path.join( str_env, "Products_7.txt" )
+        str_product_8 = os.path.join( str_env, "Products_8.txt" )
+        str_product_9 = os.path.join( str_env, "Products_9.txt" )
+        cmd_test_1 = Command.Command( " ".join( [ "cat",str_dependency_1,">",str_product_1 ] ), 
+                                      [ str_dependency_1, str_dependency_2 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( " ".join( [ "cat",str_dependency_3,">",str_product_2 ] ),
+                                      [ str_dependency_3 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( " ".join( [ "cat",str_product_1,">",str_product_4 ] ),
+                                      [ str_product_1, str_product_2 ],
+                                      [ str_product_3, str_product_4, str_product_5 ] )
+        cmd_test_4 = Command.Command( " ".join( [ "cat",str_product_5,">",str_product_6 ] ),
+                                      [ str_product_5, str_dependency_4 ],
+                                      [ str_product_6 ] )
+        cmd_test_5 = Command.Command( " ".join( [ "cat",str_dependency_6,">",str_product_8 ] ),
+                                      [ str_dependency_5, str_dependency_6 ],
+                                      [ str_product_8 ] )
+        cmd_test_6 = Command.Command( " ".join( [ "cat",str_dependency_7,">",str_product_9 ] ),
+                                      [ str_dependency_7 ],
+                                      [ str_product_9 ] )
+        self.func_make_dummy_dir( str_env )
+        for str_file in [ str_dependency_1, str_dependency_2, str_dependency_3, str_dependency_4, 
+                          str_dependency_5, str_dependency_6, str_dependency_7, str_dependency_8 ]:
+            self.func_make_dummy_file( str_file )
+            self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file ))
+        return [ cmd_test_1, cmd_test_2, cmd_test_3, cmd_test_4, cmd_test_5, cmd_test_6  ]
+
 # Init 
-    def nottest_init_for_no_command( self ):
+    def test_init_for_no_command( self ):
         """ Test initialization with no commands """
         str_answer = "Graph:VERTEX{ ID=_i_am_Groot_;Parents=[];Children=[];Type=VERTEX }" 
         graph_dep = DependencyGraph.DependencyGraph()
@@ -145,14 +208,14 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 # Get Commands
-    def nottest_get_command_for_empty_graph( self ):
+    def test_get_command_for_empty_graph( self ):
         """ Test get commands for empty Dependency graph. """
         str_answer = "[]" 
         graph_dep = DependencyGraph.DependencyGraph()
         str_result = str( sorted( [ vtx_cur.str_id for vtx_cur in graph_dep.func_get_commands() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_commands_for_simple_graph( self ):
+    def test_get_commands_for_simple_graph( self ):
         """ Test get terminal products for simple DependencyGraph """
         str_answer = str(sorted([2,3,4]))
         graph_dep = self.func_make_simple_graph()
@@ -167,21 +230,21 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 # Get terminal products
-    def nottest_get_terminal_products_for_empty_graph( self ):
+    def test_get_terminal_products_for_empty_graph( self ):
         """ Test get terminal products for an empty DependencyGraph """
         str_answer = "[]" 
         graph_dep = DependencyGraph.DependencyGraph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_terminal_products() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_terminal_products_for_simple_graph( self ):
+    def test_get_terminal_products_for_simple_graph( self ):
         """ Test get terminal products for simple DependencyGraph """
         str_answer = "['VERTEX{ ID=/R5;Parents=[2];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R6;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R7;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R8;Parents=[4];Children=[];Type=RESOURCE }']" 
         graph_dep = self.func_make_simple_graph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_terminal_products() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_terminal_products_for_complex_graph( self ):
+    def test_get_terminal_products_for_complex_graph( self ):
         """ Test get terminal products for a complex DependencyGraph """
         str_answer = "['VERTEX{ ID=/R11;Parents=[10];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R18;Parents=[17];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R5;Parents=[2];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R6;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R7;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R8;Parents=[4];Children=[];Type=RESOURCE }']" 
         graph_dep = self.func_make_complex_graph()
@@ -189,21 +252,21 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 # Get input files
-    def nottest_get_input_files_for_empty_graph( self ):
+    def test_get_input_files_for_empty_graph( self ):
         """ Test get input files for an empty DependencyGraph """
         str_answer = "[]" 
         graph_dep = DependencyGraph.DependencyGraph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_input_files() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_input_files_for_simple_graph( self ):
+    def test_get_input_files_for_simple_graph( self ):
         """ Test get input_files for an empty DependencyGraph """
         str_answer = "[\"VERTEX{ ID=/R1;Parents=['_i_am_Groot_'];Children=[2, 3, 4];Type=RESOURCE }\"]" 
         graph_dep = self.func_make_simple_graph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_input_files() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_input_files_for_complex_graph( self ):
+    def test_get_input_files_for_complex_graph( self ):
         """ Test get input files for a complex DependencyGraph """
         str_answer = "[\"VERTEX{ ID=/R12;Parents=['_i_am_Groot_'];Children=[13, 14];Type=RESOURCE }\", \"VERTEX{ ID=/R1;Parents=['_i_am_Groot_'];Children=[2, 3, 4];Type=RESOURCE }\", \"VERTEX{ ID=/R9;Parents=['_i_am_Groot_'];Children=[10];Type=RESOURCE }\"]" 
         graph_dep = self.func_make_complex_graph()
@@ -211,14 +274,14 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 # Get dependencies
-    def nottest_get_dependencies_for_empty_graph( self ):
+    def test_get_dependencies_for_empty_graph( self ):
         """ Test get dependencies for an empty DependencyGraph """
         str_answer = "[]" 
         graph_dep = DependencyGraph.DependencyGraph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_dependencies() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_dependencies_for_simple_graph( self ):
+    def test_get_dependencies_for_simple_graph( self ):
         """ Test get dependencies for an empty DependencyGraph """
         str_answer = "[\"VERTEX{ ID=/R1;Parents=['_i_am_Groot_'];Children=[2, 3, 4];Type=RESOURCE }\"]" 
         str_answer = "[\'/R1\']"
@@ -226,7 +289,7 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         str_result = str( sorted( [ vtx_cur for vtx_cur in graph_dep.func_get_dependencies() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_dependencies_for_complex_graph( self ):# R1, R9, R12, R15, R16
+    def test_get_dependencies_for_complex_graph( self ):# R1, R9, R12, R15, R16
         """ Test get dependencies for a complex DependencyGraph """
         graph_dep = self.func_make_complex_graph()
         str_result = str( sorted( [ vtx_cur for vtx_cur in graph_dep.func_get_dependencies() if vtx_cur] ) )
@@ -234,21 +297,21 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals( str_answer, str_result )
 
 # Get products
-    def nottest_get_products_for_empty_graph( self ):
+    def test_get_products_for_empty_graph( self ):
         """ Test get products for an empty DependencyGraph """
         str_answer = "[]" 
         graph_dep = DependencyGraph.DependencyGraph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_products() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_products_for_simple_graph( self ):
+    def test_get_products_for_simple_graph( self ):
         """ Test get products for an empty DependencyGraph """
         str_answer = "['VERTEX{ ID=/R5;Parents=[2];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R6;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R7;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R8;Parents=[4];Children=[];Type=RESOURCE }']" 
         graph_dep = self.func_make_simple_graph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_products() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
 
-    def nottest_get_products_for_complex_graph( self ):
+    def test_get_products_for_complex_graph( self ):
         """ Test get products for an complex DependencyGraph """
         str_answer = "['VERTEX{ ID=/R11;Parents=[10];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R15;Parents=[13];Children=[17];Type=RESOURCE }', 'VERTEX{ ID=/R16;Parents=[14];Children=[17];Type=RESOURCE }', 'VERTEX{ ID=/R18;Parents=[17];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R5;Parents=[2];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R6;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R7;Parents=[3];Children=[];Type=RESOURCE }', 'VERTEX{ ID=/R8;Parents=[4];Children=[];Type=RESOURCE }']" 
         graph_dep = self.func_make_complex_graph()
