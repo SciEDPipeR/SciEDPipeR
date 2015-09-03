@@ -41,7 +41,7 @@ class ParentScript:
         prsr_arguments.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
         prsr_arguments.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
         prsr_arguments.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
-        prsr_arguments.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float(), help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
+        prsr_arguments.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
         prsr_arguments.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
         prsr_arguments.add_argument( "--compress", dest = "str_compress", default = "none", choices = Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES, help = "Turns on compression of products and intermediary files made by the pipeline. Valid choices include:" + str( Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES ) )
         return prsr_arguments
@@ -76,7 +76,6 @@ class ParentScript:
 
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
-
         # Handle time stamp
         if ( not ns_arguments.i_time_stamp_diff is None ):
             ns_arguments.i_time_stamp_diff = max( ns_arguments.i_time_stamp_diff, 0 )
@@ -135,13 +134,15 @@ class ParentScript:
             setattr( ns_arguments, "str_compress",  "none" )
         if not hasattr( ns_arguments, "f_clean" ):
             setattr( ns_arguments, "f_clean", False )
+        if not hasattr( ns_arguments, "i_time_stamp_diff" ):
+            setattr( ns_arguments, "i_time_stamp_diff", None )
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, 
                                             str_output_dir = ns_arguments.str_file_base,
                                             lstr_copy = ns_arguments.lstr_copy if ns_arguments.lstr_copy else None,
                                             str_move = ns_arguments.str_move_dir if ns_arguments.str_move_dir else None,
                                             str_compression_mode = ns_arguments.str_compress,
                                             f_clean = ns_arguments.f_clean,
-                                            i_time_stamp_wiggle = i_time_stamp_diff ):
+                                            i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff ):
             exit( 99 )
     
     
