@@ -577,32 +577,26 @@ class Pipeline:
         # If the state of the parents is not trustworthy delete the ok file for all resources in the command and then return false
         for rsc_file in cmd_command.lstr_dependencies if f_dependencies else cmd_command.lstr_products:
             str_cur_ok_file = self.func_get_ok_file_path( rsc_file.str_id )
-            print str_cur_ok_file
             # Check that the command has ran successfully
             if not os.path.exists( str_cur_ok_file ):
-                self.logr_logger.error( "Pipeline.func_paths_are_from_valid_run: Not yet created without error. PATH=" + rsc_file.str_id )
+                self.logr_logger.info( "Pipeline.func_paths_are_from_valid_run: Not yet created without error. PATH=" + rsc_file.str_id )
                 f_return_valid = False
                 continue
-            print "exists"
             i_target_product_time_stamp = self.func_get_ok_time_stamp( str_cur_ok_file )
-            print i_target_product_time_stamp
             # Make sure each parent / dependency has an ok file.
             for rsc_parent_dep in rsc_file.func_get_dependencies():
                 str_cur_parent_ok_file = self.func_get_ok_file_path( rsc_parent_dep.str_id )
-                print str_cur_parent_ok_file
                 if not os.path.exists( str_cur_parent_ok_file ):
                     self.logr_logger.error( " ".join( [ "Pipeline.func_paths_are_from_valid_run: Parent dependency was not been created yet.",
                                                         "Target product PATH=" + rsc_file.str_id,
                                                         "Parent dependency PATH=" + rsc_parent_dep.str_id ] ) )
                     f_return_valid = False
                     continue
-                print "EXISTS"
                 # This section is if the time stamp checking is on
                 # Check the time stamps of all parents/dependencies of the current resource
                 # Any issue will cause this command to be reran / invalidating the resource for rerun.
                 if not i_fuzzy_time is None:
                     i_parent_time_stamp = self.func_get_ok_time_stamp( str_cur_parent_ok_file )
-                    print i_parent_time_stamp
                     if ( i_parent_time_stamp - i_fuzzy_time ) > i_target_product_time_stamp:
                         self.logr_logger.error( " ".join( [ "Pipeline.func_paths_are_from_valid_run: Parent dependency was older than the target product.",
                                                              "Remaking products.",
@@ -789,7 +783,6 @@ class Pipeline:
         dt_dependencies = DependencyTree.DependencyTree( [ cmd_cur for cmd_cur in lcmd_commands 
                                                           if not self.func_is_special_command( cmd_cur ) ],
                                                           self.logr_logger )
-        print dt_dependencies.func_detail()
         # Manage the wait for checking for products
         # Set the wait for checking for products
         if not li_wait is None:
@@ -802,7 +795,7 @@ class Pipeline:
         # lstr_made_dependencies_to_compress tracks products that are mode which have yet to be compressed.
         # Should be a set
         sstr_made_dependencies_to_compress = set()
-        for cmd_command in lcmd_commands:
+        for cmd_command in lcmd_commands:# dt_dependencies.graph_commands.func_get_commands():
 
             # Log the start
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
