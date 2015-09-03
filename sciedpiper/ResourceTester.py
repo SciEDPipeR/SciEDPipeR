@@ -7,6 +7,8 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
+import Command
+import DependencyTree
 import Graph
 import Resource
 import os
@@ -335,6 +337,117 @@ class ResourceTester( ParentPipelineTester.ParentPipelineTester ):
         lstr_answer = [ str_answer_one, str_answer_two, str_answer_three, str_answer_four ]
         
         self.func_test_equals( sorted( lstr_answer ), sorted( lstr_path_result ) )
+
+    def test_func_get_dependencies_for_no_dependency_one_parent_dependencies( self ):
+        """
+        Test for getting dependencies from a resource that has only one 
+        command parent and no dependencies
+        """
+        str_path_one = os.path.sep + os.path.join( "test","path", "dep" )
+        str_path_three = os.path.sep + os.path.join( "test","path", "dep_dep" )
+        str_answer = ";".join([])
+        cur_cmd = Command.Command( "test_func_get_dependencies_for_one_dependency_one_parent_dependencies_1", [ str_path_three ], [ str_path_one ] )
+        dt_cur = DependencyTree.DependencyTree( [ cur_cmd ] )
+        cur_dep = dt_cur.graph_commands.func_get_vertex( str_path_three )
+        lrsc_deps = cur_dep.func_get_dependencies()
+        str_result = ";".join( sorted( [ cur_rsc.str_id for cur_rsc in lrsc_deps ]) )
+        self.func_test_equals( str_answer, str_result )
+
+    def test_func_get_dependencies_for_one_dependency_one_parent_dependencies( self ):
+        """
+        Test for getting dependencies from a resource that has only one 
+        command parent and one dependency
+        """
+        str_path_one = os.path.sep + os.path.join( "test","path", "dep" )
+        str_path_three = os.path.sep + os.path.join( "test","path", "dep_dep" )
+        str_path_two = os.path.join( "test","path", "product" )
+        str_answer = ";".join([ str_path_three ])
+        cur_cmd = Command.Command( "test_func_get_dependencies_for_one_dependency_one_parent_dependencies_1", [ str_path_three ], [ str_path_one ] )
+        cur_cmd2 = Command.Command( "test_func_get_dependencies_for_one_dependency_one_parent_dependencies_2", [ str_path_one ], [ str_path_two ] )
+        dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd2 ] )
+        cur_dep = dt_cur.graph_commands.func_get_vertex( str_path_one )
+        lrsc_deps = cur_dep.func_get_dependencies()
+        str_result = ";".join( sorted( [ cur_rsc.str_id for cur_rsc in lrsc_deps ]) )
+        self.func_test_equals( str_answer, str_result )
+
+    def test_func_get_dependencies_for_two_dependency_one_parent_dependencies( self ):
+        """
+        Test for getting dependencies from a resource that has only one 
+        command parent and two dependencies
+        """
+        str_path_one = os.path.sep + os.path.join( "test","path", "dep" )
+        str_path_three = os.path.sep + os.path.join( "test","path", "dep_dep" )
+        str_path_four = os.path.sep + os.path.join( "test","path", "dep_dep_2" )
+        str_path_two = os.path.join( "test","path", "product" )
+        str_answer = ";".join([ str_path_three, str_path_four ])
+        cur_cmd = Command.Command( "test_func_get_dependencies_for_two_dependency_one_parent_dependencies_1", [ str_path_three, str_path_four ], [ str_path_one ] )
+        cur_cmd2 = Command.Command( "test_func_get_dependencies_for_two_dependency_one_parent_dependencies_2", [ str_path_one ], [ str_path_two ] )
+        dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd2 ] )
+        cur_dep = dt_cur.graph_commands.func_get_vertex( str_path_one )
+        lrsc_deps = cur_dep.func_get_dependencies()
+        str_result = ";".join( sorted( [ cur_rsc.str_id for cur_rsc in lrsc_deps ]) )
+        self.func_test_equals( str_answer, str_result )
+
+    def test_func_get_dependencies_for_four_dependency_two_parent_dependencies( self ):
+        """
+        Test for getting dependencies from a resource that has two
+        command parents and four dependencies
+        """
+        str_path_one = os.path.sep + os.path.join( "test","path", "dep" )
+        str_path_three = os.path.sep + os.path.join( "test","path", "dep_dep" )
+        str_path_four = os.path.sep + os.path.join( "test","path", "dep_dep_2" )
+        str_path_five = os.path.sep + os.path.join( "test","path", "dep_dep_3" )
+        str_path_six = os.path.sep + os.path.join( "test","path", "dep_dep_4" )
+        str_path_two = os.path.join( "test","path", "product" )
+        str_path_seven = os.path.join( "test","path", "product_2" )
+        str_answer = ";".join([ str_path_three, str_path_four, str_path_five, str_path_six ])
+        cur_cmd = Command.Command( "test_func_get_dependencies_for_two_dependency_two_parent_dependencies_1", [ str_path_three, str_path_four ], [ str_path_one ] )
+        cur_cmd1 = Command.Command( "test_func_get_dependencies_for_two_dependency_two_parent_dependencies_2", [ str_path_five, str_path_six ], [ str_path_one, str_path_seven ] )
+        cur_cmd2 = Command.Command( "test_func_get_dependencies_for_two_dependency_two_parent_dependencies_3", [ str_path_one ], [ str_path_two ] )
+        dt_cur = DependencyTree.DependencyTree( [ cur_cmd, cur_cmd1, cur_cmd2 ] )
+        cur_dep = dt_cur.graph_commands.func_get_vertex( str_path_one )
+        lrsc_deps = cur_dep.func_get_dependencies()
+        str_result = ";".join( sorted( [ cur_rsc.str_id for cur_rsc in lrsc_deps ]) )
+        self.func_test_equals( str_answer, str_result )
+
+    def test_func_get_dependencies_for_one_dependency_one_parent_product( self ):
+        """
+        Test for getting dependencies from a resource that has only one 
+        command parent and one dependencies in that command.
+        """
+        str_path_one = os.path.sep + os.path.join( "test","path", "dep" )
+        str_path_two = os.path.join( "test","path", "product" )
+        str_answer = ";".join([ str_path_one ])
+        cur_cmd = Command.Command( "test_func_get_dependencies_for_one_dependency_one_parent_product", [ str_path_one ], [ str_path_two ] )
+        lrsc_deps = cur_cmd.lstr_products[ 0 ].func_get_dependencies()
+        str_result = ";".join([ cur_rsc.str_id for cur_rsc in sorted( lrsc_deps ) ])
+        self.func_test_equals( str_answer, str_result )
+
+    def test_func_get_dependencies_for_two_dependency_one_parent_product( self ):
+        """
+        Test for getting dependencies from a resource that has two 
+        command parent and one dependencies in that command.
+        """
+        str_path_one = os.path.sep + os.path.join( "test","path", "dep" )
+        str_path_three = os.path.sep + os.path.join( "test","path", "dep2" )
+        str_path_two = os.path.join( "test","path", "product" )
+        str_answer = ";".join( sorted( [ str_path_one, str_path_three ] ) )
+        cur_cmd = Command.Command( "test_func_get_dependencies_for_two_dependency_one_parent_product", [ str_path_one, str_path_three ], [ str_path_two ] )
+        lrsc_deps = cur_cmd.lstr_products[ 0 ].func_get_dependencies()
+        str_result = ";".join( sorted( [ cur_rsc.str_id for cur_rsc in lrsc_deps ]))
+        self.func_test_equals( str_answer, str_result )
+
+    def test_func_get_dependencies_for_no_dependency_one_parent_product( self ):
+        """
+        Test for getting dependencies from a resource that has no
+        command parent and one dependencies in that command.
+        """
+        str_path_two = os.path.join( "test","path", "product" )
+        str_answer = ";".join([ ])
+        cur_cmd = Command.Command( "test_func_get_dependencies_for_two_dependency_one_parent_product", [], [ str_path_two ] )
+        lrsc_deps = cur_cmd.lstr_products[ 0 ].func_get_dependencies()
+        str_result = ";".join([ cur_rsc.str_id for cur_rsc in sorted( lrsc_deps ) ])
+        self.func_test_equals( str_answer, str_result )
 
 #Creates a suite of tests
 def suite():

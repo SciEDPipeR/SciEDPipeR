@@ -24,7 +24,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
     
 # func_check_files_exist
-    def test_func_check_files_exist_no_file( self ):
+    def nottest_func_check_files_exist_no_file( self ):
         """ Check if files exist for one no file """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_check_files_exist_no_file" )
@@ -32,7 +32,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_exists )
 
 
-    def test_func_check_files_exist_one_false_file( self ):
+    def nottest_func_check_files_exist_one_false_file( self ):
         """ Check if files exist for one non-existent file """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_check_files_exist_one_false_file" )
@@ -40,7 +40,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_exists )
         
 
-    def test_func_check_files_exist_five_false_file( self ):
+    def nottest_func_check_files_exist_five_false_file( self ):
         """ Check if files exist for five non-existent files """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_check_files_exist_five_false_file" )
@@ -52,7 +52,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_exists )
         
 
-    def test_func_check_files_exist_one_file( self ):
+    def nottest_func_check_files_exist_one_file( self ):
         """ Check if files exist for one file """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_check_files_exist_one_file" )
@@ -66,7 +66,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_exists )
 
 
-    def test_func_check_files_exist_three_file( self ):
+    def nottest_func_check_files_exist_three_file( self ):
         """ Check if files exist for three files """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_check_files_exist_three_file" )
@@ -84,7 +84,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_exists )
         
 
-    def test_func_check_files_exist_three_file_on_missing( self ):
+    def nottest_func_check_files_exist_three_file_on_missing( self ):
         """ Check if files exist for three files when one is missing """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_check_files_exist_three_file_on_missing" )
@@ -101,7 +101,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_exists )
 
 # func_copy_move
-    def test_func_copy_move_for_bad_case_move_two_files( self ):
+    def nottest_func_copy_move_for_bad_case_move_two_files( self ):
         """ Run copy move for bad case. Too many destinations for move (more than one, here two destinations). """
 
         # Set up
@@ -132,7 +132,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
         
-    def test_func_copy_move_for_bad_case_move_to_file( self ):
+    def nottest_func_copy_move_for_bad_case_move_to_file( self ):
         """ Run copy move for bad case. Move to a file not a directory. """
         
         # Set up
@@ -162,7 +162,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
         
-    def test_func_copy_move_for_move_case_move_to_nonexistant_dir( self ):
+    def nottest_func_copy_move_for_move_case_move_to_nonexistant_dir( self ):
         """ Run copy move for bad case. Move to a directory that does not exist. """
         
         # Set up
@@ -194,7 +194,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
         
-    def test_func_copy_move_for_bad_case_copy_to_empty_destination( self ):
+    def nottest_func_copy_move_for_bad_case_copy_to_empty_destination( self ):
         """ Run copy move for bad case. Copy to an empty destination list. """
 
         # Set up
@@ -224,7 +224,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_files_does_not_exist and not f_success )
 
-    def test_func_copy_move_for_bad_case_copy_to_nonexistant_dir( self ):
+    def nottest_func_copy_move_for_bad_case_copy_to_nonexistant_dir( self ):
         """ Run copy move for bad case. Copy to a directory that does not exist, with others that do. """
 
         # Set up
@@ -265,7 +265,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_files_do_not_exist and not f_success )
 
-    def test_func_copy_move_for_bad_case_copy_to_file( self ):
+    def nottest_func_copy_move_for_bad_case_copy_to_file( self ):
         """ Run copy move for bad case. Copy to a directory that is a file, with others are not. """
 
         # Set up
@@ -304,7 +304,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_files_do_not_exist and not f_success )
         
-    def test_func_copy_move_for_bad_case_copy_to_bad_file_name( self ):
+    def nottest_func_copy_move_for_bad_case_copy_to_bad_file_name( self ):
         """ Run copy move for bad case. Copy to a directory that is a bad file name, with others that are not. """
 
         # Set up
@@ -340,7 +340,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_correct_files_exist and f_correct_files_do_not_exist and not f_success )
 
 
-    def test_func_copy_move_for_test_case_copy_one_file( self ):
+    def nottest_func_copy_move_for_test_case_copy_one_file( self ):
         """ Run copy move for test case in copy mode for one file. During tests, files should not be moved. """
 
         # Set up
@@ -369,7 +369,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and f_success )
 
-    def test_func_copy_move_for_bad_case_copy_none_destination_file( self ):
+    def nottest_func_copy_move_for_bad_case_copy_none_destination_file( self ):
         """ Run copy move for bad case in copy mode for a none destination file. """
 
         # Set up
@@ -398,7 +398,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
 
-    def test_func_copy_move_for_test_case_move_one_file( self ):
+    def nottest_func_copy_move_for_test_case_move_one_file( self ):
         """ Run copy move for test case in move mode for one file. During tests the files should not be moved. """
 
         # Set up
@@ -427,7 +427,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and f_success )
 
-    def test_func_copy_move_for_bad_case_move_none_destination_file( self ):
+    def nottest_func_copy_move_for_bad_case_move_none_destination_file( self ):
         """ Run copy move for bad case in move mode for none file. """
 
         # Set up
@@ -456,7 +456,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
         
-    def test_func_copy_move_for_bad_case_move_none_archive_file( self ):
+    def nottest_func_copy_move_for_bad_case_move_none_archive_file( self ):
         """ Run copy move for bad case in move mode for none archive file. """
 
         # Set up
@@ -485,7 +485,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_correct_does_not_files_exist and not f_success )
 
-    def test_func_copy_move_for_good_case_copy_one_file( self ):
+    def nottest_func_copy_move_for_good_case_copy_one_file( self ):
         """ Run copy move for good case in copy mode for one file. """
 
         # Set up
@@ -514,7 +514,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_success )
         
-    def test_func_copy_move_for_good_case_copy_one_file_twice( self ):
+    def nottest_func_copy_move_for_good_case_copy_one_file_twice( self ):
         """ Run copy move for good case in copy mode for one file copied twice. """
 
         # Set up
@@ -546,7 +546,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         # Evaluate
         self.func_test_true( f_correct_files_exist and f_success )
         
-    def test_func_copy_move_for_good_case_move_one_file( self ):
+    def nottest_func_copy_move_for_good_case_move_one_file( self ):
         """ Run copy move for good case in move mode for one file. """
 
         # Set up
@@ -576,21 +576,21 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_correct_files_exist and f_correct_files_does_not_exist and f_success )
 
 # func_paths_are_from_valid_run
-    def test_func_paths_are_from_valid_run_invalid_command_1( self ):
+    def nottest_func_paths_are_from_valid_run_invalid_command_1( self ):
         """ Test for an invalid command, None """
         
         cmd_cur = None
         self.func_test_true( not Pipeline.Pipeline("test_func_paths_are_from_valid_run_invalid_command_1").func_paths_are_from_valid_run( cmd_cur, f_dependencies = True ))
  
  
-#    def test_func_paths_are_from_valid_run_invalid_command_2( self ):
+#    def nottest_func_paths_are_from_valid_run_invalid_command_2( self ):
 #        """ Test for an invalid command, Invalid command object"""
 #        
 #        cmd_cur = Command.Command( None, None, None )
 #        self.func_test_true( not Pipeline.Pipeline("test_func_paths_are_from_valid_run_invalid_command_2").func_paths_are_from_valid_run( cmd_cur, f_dependencies = True ))
 
 
-    def test_func_paths_are_from_valid_run_good_case_one_dependency( self ):
+    def nottest_func_paths_are_from_valid_run_good_case_one_dependency( self ):
         """ Test for an invalid command, Good case testing the handling of one dependency in the command."""
 
         str_env = os.path.join( self.str_test_directory, "test_func_paths_are_from_valid_run_good_case_one_dependency" )
@@ -609,7 +609,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_result )
 
     
-    def test_func_paths_are_from_valid_run_good_case_one_dependency_dir( self ):
+    def nottest_func_paths_are_from_valid_run_good_case_one_dependency_dir( self ):
         """ Test for an invalid command, Good case testing the handling of one dependency, which is a directory in the command."""
 
         str_env = os.path.join( self.str_test_directory, "test_func_paths_are_from_valid_run_good_case_one_dependency_dir" )
@@ -617,17 +617,17 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_dependency = os.path.join( str_env, "dependency_1")
         str_dependency_ok = cur_pipeline.func_get_ok_file_path( str_dependency )
         str_product = os.path.join( str_env, "product_1.txt" )
-        self.func_make_dummy_dir( str_dependency )
-        self.func_make_dummy_dir( str_dependency_ok )
+        self.func_make_dummy_dir( str_env )
+        self.func_make_dummy_file( str_dependency )
+        self.func_make_dummy_file( str_dependency_ok )
         self.func_make_dummy_file( str_product )
         cmd_cur = Command.Command("command", [ str_dependency ], [ str_product ])
         f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = True )
-        self.func_remove_files( [ str_product ] )
-        self.func_remove_dirs( [ str_dependency, str_dependency_ok ] )
+        self.func_remove_files( [ str_product, str_dependency, str_dependency_ok ] )
         self.func_test_true( f_result )
     
 
-    def test_func_paths_are_from_valid_run_good_case_3_dependencies( self ):
+    def nottest_func_paths_are_from_valid_run_good_case_3_dependencies( self ):
         """ Test for an invalid command, Good case testing the handling of three dependencies in the command."""
 
         str_env = os.path.join( self.str_test_directory, "test_func_paths_are_from_valid_run_good_case_3_dependencies" )
@@ -639,8 +639,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_dependency_3 = os.path.join( str_env, "dependency_3.txt" )
         str_dependency_3_ok = cur_pipeline.func_get_ok_file_path( str_dependency_3 )
         str_product = os.path.join( str_env, "product_1.txt" )
-        self.func_make_dummy_dir( str_dependency )
-        self.func_make_dummy_dir( str_dependency_ok )
+        self.func_make_dummy_dir( str_env )
+        self.func_make_dummy_file( str_dependency )
+        self.func_make_dummy_file( str_dependency_ok )
         self.func_make_dummy_file( str_dependency_2 )
         self.func_make_dummy_file( str_dependency_2_ok )
         self.func_make_dummy_file( str_dependency_3 )
@@ -648,14 +649,13 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_product )
         cmd_cur = Command.Command("command", [ str_dependency, str_dependency_2, str_dependency_3 ], [ str_product ])
         f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = True )
-        self.func_remove_files( [ str_dependency_2, str_dependency_2_ok, 
+        self.func_remove_files( [ str_dependency, str_dependency_ok, str_dependency_2, str_dependency_2_ok, 
                                  str_dependency_3, str_dependency_3_ok, str_product ] )
-        self.func_remove_dirs( [ str_dependency, str_dependency_ok ] )
         self.func_test_true( f_result )
 
 
 # func_do_bsub
-    def test_func_do_bsub_true( self ):
+    def nottest_func_do_bsub_true( self ):
         """ Test to turn on bsubing commands """
         
         i_memory = 10
@@ -665,7 +665,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cur_pipe.func_do_bsub( str( i_memory ), str_queue )
         self.func_test_equals( str_answer_prefix, cur_pipe.str_prefix_command )
         
-    def test_func_do_bsub_false( self ):
+    def nottest_func_do_bsub_false( self ):
         """ Test do not turn on bsubing commands """
 
         str_answer_prefix = ""
@@ -674,7 +674,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_do_special_command
-    def test_func_do_special_command_for_good_case_rm( self ):
+    def nottest_func_do_special_command_for_good_case_rm( self ):
         """ RM should be handled with a false """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_do_special_command_for_good_case_rm" )
@@ -682,7 +682,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not cur_pipe.func_do_special_command( cmd_cur ) )
 
 
-    def test_func_do_special_command_for_good_case_mkdir( self ):
+    def nottest_func_do_special_command_for_good_case_mkdir( self ):
         """ MKDIR should be handled with a false """
 
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_do_special_command_for_good_case_mkdir" )
@@ -690,7 +690,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not cur_pipe.func_do_special_command( cmd_cur ) )
 
 
-    def test_func_do_special_command_for_good_case_cd( self ):
+    def nottest_func_do_special_command_for_good_case_cd( self ):
         """ CD should be handled with moving to the dir and true """
         
         str_env = os.path.join( self.str_test_directory, "test_func_do_special_command_for_good_case_cd" )
@@ -707,7 +707,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_moved and f_return )
         
         
-    def test_func_do_special_command_for_bad_case_cd( self ):
+    def nottest_func_do_special_command_for_bad_case_cd( self ):
         """ If CDing to a dir that does not exist, return false """
         
         str_env = os.path.join( self.str_test_directory, "test_func_do_special_command_for_bad_case_cd" )
@@ -722,7 +722,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_return )
         
 
-    def test_func_do_special_command_for_bad_case_random( self ):
+    def nottest_func_do_special_command_for_bad_case_random( self ):
         """ A random command that is not identified as special should be handled with a false """
 
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_do_special_command_for_bad_case_random" )
@@ -731,7 +731,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_get_ok_file_path
-    def test_get_ok_file_for_empty_string( self ):
+    def nottest_get_ok_file_for_empty_string( self ):
         """ Test for empty string """
         
         str_answer = ".ok"
@@ -740,7 +740,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(str_answer, str_result)
         
         
-    def test_get_ok_file_for_null_string( self ):
+    def nottest_get_ok_file_for_null_string( self ):
         """ Test for null string """
         
         str_answer = ".ok"
@@ -749,7 +749,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(str_answer, str_result)
         
         
-    def test_get_ok_file_for_a_directory( self ):
+    def nottest_get_ok_file_for_a_directory( self ):
         """ Test for a directory"""
 
         str_env = os.path.join( self.str_test_directory, "test_get_ok_file_for_a_directory" )
@@ -759,7 +759,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(str_answer, str_result)
         
     
-    def test_get_ok_file_for_a_file( self ):
+    def nottest_get_ok_file_for_a_file( self ):
         """ Test for a file """
 
         str_env = os.path.join( self.str_test_directory, "test_get_ok_file_for_a_file" )
@@ -770,7 +770,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_handle_gzip
-    def test_func_handle_gzip_for_bad_case_empty_list( self ):
+    def nottest_func_handle_gzip_for_bad_case_empty_list( self ):
         """ Testing being given a bad case, empty list. """
         
         lstr_input = []
@@ -779,7 +779,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(lstr_answer, lstr_result)
         
         
-    def test_func_handle_gzip_for_bad_case_string( self ):
+    def nottest_func_handle_gzip_for_bad_case_string( self ):
         """ Testing being given a bad case, empty list. """
         
         lstr_input = "testing.gz"
@@ -788,7 +788,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(lstr_answer, lstr_result)
         
         
-    def test_func_handle_gzip_for_bad_case_string2( self ):
+    def nottest_func_handle_gzip_for_bad_case_string2( self ):
         """ Testing being given a bad case, empty list. """
         
         lstr_input = "testing"
@@ -797,7 +797,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(lstr_answer, lstr_result)
 
 
-    def test_func_handle_gzip_for_good_case_mixed( self ):
+    def nottest_func_handle_gzip_for_good_case_mixed( self ):
         """ Testing being given a good case, a collection of gzed and not files. """
         
         lstr_input = ["file1.fa","file2.fa.gz","file3.fa","file4.fa.gz","file5.fa.gz","file6.fa"]
@@ -807,7 +807,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_is_special_command
-    def test_func_is_special_command_true_cd( self ):
+    def nottest_func_is_special_command_true_cd( self ):
         """ Test if a command is handled in a special way for true ( cd )"""
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_is_special_command_true_cd" )
@@ -815,7 +815,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( cur_pipe.func_is_special_command( cur_cmd ) )
         
         
-    def test_func_is_special_command_true_cd_2( self ):
+    def nottest_func_is_special_command_true_cd_2( self ):
         """ Test if a command is handled in a special way for true ( CD ).
         This is just verifying capitalization is not affecting the functions."""
         
@@ -824,7 +824,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( cur_pipe.func_is_special_command( cur_cmd ) )
         
         
-    def test_func_is_special_command_true_rm( self ):
+    def nottest_func_is_special_command_true_rm( self ):
         """ Test if a command is handled in a special way for true ( rm )"""
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_is_special_command_true_rm" )
@@ -832,7 +832,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( cur_pipe.func_is_special_command( cur_cmd ) )
 
 
-    def test_func_is_special_command_true_mkdir( self ):
+    def nottest_func_is_special_command_true_mkdir( self ):
         """ Test if a command is handled in a special way for true ( mkdir )"""
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_is_special_command_true_mkdir" )
@@ -840,7 +840,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( cur_pipe.func_is_special_command( cur_cmd ) )
         
 
-    def test_func_is_special_command_false( self ):
+    def nottest_func_is_special_command_false( self ):
         """ Test if a command is handled in a special way for false """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_is_special_command_false" )
@@ -849,7 +849,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_is_valid_path_for_removal
-    def test_func_is_valid_path_for_removal_good_case( self ):
+    def nottest_func_is_valid_path_for_removal_good_case( self ):
         """ Test is a path is found to be valid. Relative paths """
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_good_case" )
@@ -860,7 +860,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
 
-    def test_func_is_valid_path_for_removal_good_case_2( self ):
+    def nottest_func_is_valid_path_for_removal_good_case_2( self ):
         """ Test is a path is found to be valid. Both file and dir are the same."""
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_good_case_2" )
@@ -869,7 +869,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_env ) )
         
         
-    def test_func_is_valid_path_for_removal_good_case_3( self ):
+    def nottest_func_is_valid_path_for_removal_good_case_3( self ):
         """ Test is a path is found to be valid. Absolute paths """
 
         str_env = os.path.sep+os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_good_case_3" )
@@ -880,7 +880,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
         
-    def test_func_is_valid_path_for_removal_bad_case_file_not_in_dir( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_file_not_in_dir( self ):
         """ Test is a path is found to be invalid. Switched the file and dir of two cases that were working. """
 
         str_env = os.path.sep+os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_bad_case_file_not_in_dir" )
@@ -891,7 +891,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
 
 
-    def test_func_is_valid_path_for_removal_bad_case_file_path_ends_with_dir( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_file_path_ends_with_dir( self ):
         """ Test is a path is found to be invalid. Put the output directory in the end of the file path not the beginning """
 
         str_env = os.path.join( self.str_test_directory, "hello", "func_is_valid_path_for_removal_bad_case_file_path_ends_with_dir" )
@@ -901,7 +901,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
 
 
-    def test_func_is_valid_path_for_removal_bad_case_none_1( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_none_1( self ):
         """ Test is a path is found to be invalid. Case: File= None, Dir= None """
 
         str_file_path = None
@@ -911,7 +911,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
         
-    def test_func_is_valid_path_for_removal_bad_case_none_2( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_none_2( self ):
         """ Test is a path is found to be invalid. Case: File= '', Dir= None """
 
         str_file_path = ""
@@ -921,7 +921,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
 
 
-    def test_func_is_valid_path_for_removal_bad_case_none_3( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_none_3( self ):
         """ Test is a path is found to be invalid. Case: File= None, Dir= '' """
 
         str_file_path = None
@@ -931,7 +931,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
 
 
-    def test_func_is_valid_path_for_removal_bad_case_none_4( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_none_4( self ):
         """ Test is a path is found to be invalid. Case: File= '', Dir= '' """
 
         str_file_path = ""
@@ -940,7 +940,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not cur_pipe.func_is_valid_path_for_removal( str_path = str_file_path,
                                                                       str_output_directory = str_output_path ) )
 
-    def test_func_is_valid_path_for_removal_bad_case_not_in_dir_1( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_not_in_dir_1( self ):
         """ Test is a path is found to be invalid. Case: File not in dir """
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_bad_case_not_in_dir_1" )
@@ -951,7 +951,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
         
-    def test_func_is_valid_path_for_removal_bad_case_not_in_dir_2( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_not_in_dir_2( self ):
         """ Test is a path is found to be invalid. Case: File not in dir """
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_bad_case_not_in_dir_2" )
@@ -962,7 +962,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )    
 
 
-    def test_func_is_valid_path_for_removal_bad_case_not_in_dir_3( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_not_in_dir_3( self ):
         """ Test is a path is found to be invalid. Case: File not in dir """
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_bad_case_not_in_dir_3" )
@@ -973,7 +973,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )    
 
 
-    def test_func_is_valid_path_for_removal_bad_case_not_in_dir_4( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_not_in_dir_4( self ):
         """ Test is a path is found to be invalid. Case: File not in dir """
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_bad_case_not_in_dir_4" )
@@ -984,7 +984,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
         
-    def test_func_is_valid_path_for_removal_bad_case_one_relative_1( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_one_relative_1( self ):
         """ Test is a path is found to be invalid. Case: One file relative """
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_bad_case_one_relative_1" )
@@ -995,7 +995,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
         
-    def test_func_is_valid_path_for_removal_bad_case_one_relative_2( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_one_relative_2( self ):
         """ Test is a path is found to be invalid. Case: One dir relative """
 
         str_env = os.path.join( self.str_test_directory, "func_is_valid_path_for_removal_bad_case_one_relative_2" )
@@ -1006,7 +1006,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
         
-    def test_func_is_valid_path_for_removal_bad_case_not_allowed_dir_1( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_not_allowed_dir_1( self ):
         """ Test is a path is found to be invalid. Case: The directory in use is not allowed. File matches dir."""
 
         str_file_path = os.path.sep
@@ -1016,7 +1016,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
                                                                       str_output_directory = str_output_path ) )
         
         
-    def test_func_is_valid_path_for_removal_bad_case_not_allowed_dir_2( self ):
+    def nottest_func_is_valid_path_for_removal_bad_case_not_allowed_dir_2( self ):
         """ Test is a path is found to be invalid. Case: The directory in use is not allowed. File in dir."""
 
         str_file_path = os.path.sep
@@ -1027,7 +1027,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_make_all_needed_dirs
-    def test_func_make_all_needed_dirs_for_none( self ):
+    def nottest_func_make_all_needed_dirs_for_none( self ):
         """
         Test for the case of a none list.
         """
@@ -1037,7 +1037,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         pipe_cur.func_make_all_needed_dirs( lstr_paths )
         self.func_test_true( True )
 
-    def test_func_make_all_needed_dirs_for_list_none( self ):
+    def nottest_func_make_all_needed_dirs_for_list_none( self ):
         """
         Test for the case of a list of none.
         """
@@ -1047,7 +1047,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         pipe_cur.func_make_all_needed_dirs( lstr_paths )
         self.func_test_true( True )
 
-    def test_func_make_all_needed_dirs_for_good_case( self ):
+    def nottest_func_make_all_needed_dirs_for_good_case( self ):
         """
         Test for the case of a good list.
         """
@@ -1065,7 +1065,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success )
 
 # func_mkdirs
-    def test_func_mkdirs_for_terminal_dir( self ):
+    def nottest_func_mkdirs_for_terminal_dir( self ):
         """
         Test the case of a simple terminal directory creation.
         """
@@ -1086,7 +1086,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success )
         
         
-    def test_func_mkdirs_for_mult_dir( self ):
+    def nottest_func_mkdirs_for_mult_dir( self ):
         """
         Test the case of a multiple terminal directory creation.
         """
@@ -1108,7 +1108,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success )
         
         
-    def test_func_mkdirs_for_dir_with_parent( self ):
+    def nottest_func_mkdirs_for_dir_with_parent( self ):
         """
         Test the case of a directory creation of a directory with parents.
         """
@@ -1130,7 +1130,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_remove_paths
-#    def test_func_remove_paths_for_bad_case_invalid_command( self ):
+#    def nottest_func_remove_paths_for_bad_case_invalid_command( self ):
 #        """ Bad case trying to remove one product, invalid command. """
 #        
 #        cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_bad_case_invalid_command" )
@@ -1154,7 +1154,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 #        self.func_test_true( not f_success and f_not_removed_files and f_other_files_remain )
         
         
-    def test_func_remove_paths_for_bad_case_none_command( self ):
+    def nottest_func_remove_paths_for_bad_case_none_command( self ):
         """ Bad case trying to remove one product, none command. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_bad_case_none_command" )
@@ -1178,7 +1178,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_success and f_not_removed_files and f_other_files_remain )
 
 
-    def test_func_remove_paths_for_bad_case_one_product_bad_output_directory( self ):
+    def nottest_func_remove_paths_for_bad_case_one_product_bad_output_directory( self ):
         """
         Bad case trying to remove one product, bad output directory (root).
         !!!! Always run this test in test mode.
@@ -1206,7 +1206,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_success and f_not_removed_files and f_other_files_remain )
         
         
-    def test_func_remove_paths_for_bad_case_one_product_bad_dt( self ):
+    def nottest_func_remove_paths_for_bad_case_one_product_bad_dt( self ):
         """ Bad case trying to remove one product, bad dependency tree. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_bad_case_one_product_bad_dt" )
@@ -1230,7 +1230,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_success and f_not_removed_files and f_other_files_remain )
 
     
-    def test_func_remove_paths_for_good_case_one_product( self ):
+    def nottest_func_remove_paths_for_good_case_one_product( self ):
         """ Good case trying to remove one product. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_good_case_one_product" )
@@ -1254,7 +1254,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
         
     
-    def test_func_remove_paths_for_good_case_one_dependency_NEVER( self ):
+    def nottest_func_remove_paths_for_good_case_one_dependency_NEVER( self ):
         """ Good case trying to remove one dependency at clean level NEVER, should not be cleaned. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_good_case_one_dependency_NEVER" )
@@ -1286,7 +1286,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
         
 
-    def test_func_remove_paths_for_good_case_one_dependency_ASTEMP( self ):
+    def nottest_func_remove_paths_for_good_case_one_dependency_ASTEMP( self ):
         """ Good case trying to remove one dependency at clean level ASTEMP, only used intermediary files should be deleted. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_good_case_one_dependency_ASTEMP" )
@@ -1317,7 +1317,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
 
 
-    def test_func_remove_paths_for_good_case_ALWAYS_never_delete_input_file( self ):
+    def nottest_func_remove_paths_for_good_case_ALWAYS_never_delete_input_file( self ):
         """ 
         Good case trying to remove one dependency at clean level ALWAYS, any always file is always deleted. 
         Here the input file and intermediate file is requested to be deleted but only the intermediate file is deleted. 
@@ -1351,7 +1351,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
         
         
-    def test_func_remove_paths_for_good_case_ALWAYS_clean_all_files( self ):
+    def nottest_func_remove_paths_for_good_case_ALWAYS_clean_all_files( self ):
         """ 
         Good case trying to remove one dependency at clean level ALWAYS, any always file is always deleted. 
         Here all files are deleted (expect for the products of cmd 2).
@@ -1388,7 +1388,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files)
 
 
-    def test_func_remove_paths_for_bad_case_one_product_not_exist( self ):
+    def nottest_func_remove_paths_for_bad_case_one_product_not_exist( self ):
         """
         Bad case trying to remove one product which does not exist.
         Should be true because the file does not exist.
@@ -1411,7 +1411,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_other_files_remain )
         
 
-    def test_func_remove_paths_for_good_case_three_product( self ):
+    def nottest_func_remove_paths_for_good_case_three_product( self ):
         """ Good case trying to remove three products. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_good_case_three_product" )
@@ -1448,7 +1448,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
         
         
-    def test_func_remove_paths_for_good_case_three_product_two_dir( self ):
+    def nottest_func_remove_paths_for_good_case_three_product_two_dir( self ):
         """ Good case trying to remove three products two of which are directories. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_good_case_three_product_two_dir" )
@@ -1485,7 +1485,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
         
         
-    def test_func_remove_paths_for_bad_case_three_product_one_does_not_exist( self ):
+    def nottest_func_remove_paths_for_bad_case_three_product_one_does_not_exist( self ):
         """ Bad case trying to remove three products, one does not exist. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_bad_case_three_product_one_does_not_exist" )
@@ -1520,7 +1520,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success and f_removed_files and f_other_files_remain )
         
         
-    def test_func_remove_paths_for_bad_case_three_products_one_not_in_output( self ):
+    def nottest_func_remove_paths_for_bad_case_three_products_one_not_in_output( self ):
         """ Bad case trying to remove three products, one which is not in the output directory. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_remove_paths_for_bad_case_three_products_one_not_in_output" )
@@ -1559,7 +1559,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_success and f_not_removed_files and f_other_files_remain )
 
 
-    def test_func_remove_paths_for_bad_case_three_products_one_is_root( self ):
+    def nottest_func_remove_paths_for_bad_case_three_products_one_is_root( self ):
         """
         Bad case trying to remove three products, one which is root.
         !!!! Note this test must be ran with the pipeline in test mode.
@@ -1598,7 +1598,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_run_commands
-    def test_func_run_commands_for_no_commands( self ):
+    def nottest_func_run_commands_for_no_commands( self ):
         """ Test running commands for no commands. """
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_run_commands_for_no_commands" )
@@ -1606,7 +1606,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_success )
 
 
-    def test_func_run_commands_for_one_command( self ):
+    def nottest_func_run_commands_for_one_command( self ):
         """ Tests running commands with one command. """
 
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_run_commands_for_one_command" )
@@ -1638,6 +1638,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_file_2 = os.path.join( str_env, "test_func_run_commands_file_2.txt" )
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_file_1 )
+        self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_1 ) )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_2 ) )
         self.func_make_dummy_file( str_file_2 )
         cur_cmd_1 = Command.Command( " ".join( [ "cat", str_file_1, ">", str_file_2 ] ),
@@ -1651,7 +1652,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_files_equal )
    
 
-    def test_func_run_commands_for_two_commands( self ):
+    def nottest_func_run_commands_for_two_commands( self ):
         """ Tests running commands with two commands. """
 
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_run_commands_for_two_commands")
@@ -1677,7 +1678,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_remove_dirs( [  str_env ] )
         self.func_test_true( f_files_equal )
         
-    def test_func_run_commands_for_one_command_clean_after_error( self ):
+    def nottest_func_run_commands_for_one_command_clean_after_error( self ):
         """
         When using clean, the run command should clean up any product.
         This creates one of two products and then runs a bad command
@@ -1704,7 +1705,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_success )
        
        
-    def test_func_run_commands_for_two_commands_clean( self ):
+    def nottest_func_run_commands_for_two_commands_clean( self ):
         """
         Tests running commands with two commands.
         Intermediary products should be cleaned but not inputs or outputs.
@@ -1733,7 +1734,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_files_equal and f_clean )
         
 
-    def test_func_run_commands_for_two_commands_no_clean( self ):
+    def nottest_func_run_commands_for_two_commands_no_clean( self ):
         """
         Tests running commands with two commands.
         Intermediary products should be NOT be cleaned, nor inputs nor outputs.
@@ -1776,6 +1777,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_file_1 )
         self.func_make_dummy_file( str_file_2 )
+        self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_1 ) )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_2 ) )
         cur_cmd_1 = Command.Command( " ".join( [ "cat", str_file_1, ">", str_file_2 ] ),
                                      [ str_file_1 ],
@@ -1790,6 +1792,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         f_clean = f_clean and os.path.exists( str_file_2 )
         f_clean = f_clean and os.path.exists( str_file_3 )
         self.func_remove_files( [ str_file_1, str_file_2, str_file_3,
+                                cur_pipe.func_get_ok_file_path( str_file_1 ),
                                 cur_pipe.func_get_ok_file_path( str_file_2 ),
                                 cur_pipe.func_get_ok_file_path( str_file_3 ) ] )
         self.func_remove_dirs( [  str_env ] )
@@ -1809,6 +1812,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_file_3 = os.path.join( str_env, "test_func_run_commands_file_3.txt" )
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_file_1 )
+        self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_1 ) )
         self.func_make_dummy_file( str_file_2 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_2 ) )
         self.func_make_dummy_file( str_file_3 )
@@ -1826,13 +1830,14 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         f_files_equal = f_files_equal and ( not self.func_are_files_equivalent( str_file_1, str_file_3 ) )
 
         self.func_remove_files([ str_file_1, str_file_2, str_file_3,
+                                cur_pipe.func_get_ok_file_path( str_file_1 ),
                                 cur_pipe.func_get_ok_file_path( str_file_2 ),
                                 cur_pipe.func_get_ok_file_path( str_file_3 ) ])
         self.func_remove_dirs( [  str_env ] )
         self.func_test_true( f_files_equal )
    
        
-    def test_func_run_commands_for_two_commands_stale_clean( self ):
+    def nottest_func_run_commands_for_two_commands_stale_clean( self ):
         """
         Tests running commands with two commands.
         Two commands are stale and need not be run.
@@ -1868,7 +1873,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_files_equal and f_clean )
 
 
-    def test_func_run_commands_for_complex_stale_clean( self ):
+    def nottest_func_run_commands_for_complex_stale_clean( self ):
         """
         Tests running commands in a complex tree.
         Some commands are stale and need not be run.
@@ -1988,7 +1993,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_cleaned and f_not_cleaned )
 
 
-    def test_func_run_commands_for_complex_stale_no_clean( self ):
+    def nottest_func_run_commands_for_complex_stale_no_clean( self ):
         """
         Tests running commands in a complex tree.
         Some commands are stale and need not be run.
@@ -2100,7 +2105,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_update_command_path
-    def test_func_update_command_path_for_good_case( self ):
+    def nottest_func_update_command_path_for_good_case( self ):
         """ Update a command with a prefix good case."""
 
         pipe_cur = Pipeline.Pipeline( "test_func_update_command_path_for_good_case" )
@@ -2112,7 +2117,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         
 
 # func_update_products_validity_status
-#    def test_func_update_products_validity_status_for_bad_case_bad_command( self ):
+#    def nottest_func_update_products_validity_status_for_bad_case_bad_command( self ):
 #        """ A false should be returned on an invalid command. """
 #
 #        str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_bad_case_bad_command" )
@@ -2131,7 +2136,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 #        self.func_test_true( not f_update and not f_ok_file_made )
         
         
-    def test_func_update_products_validity_status_for_bad_case_none_command( self ):
+    def nottest_func_update_products_validity_status_for_bad_case_none_command( self ):
         """ A false should be returned on a None command. """
 
         str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_bad_case_none_command" )
@@ -2150,7 +2155,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_update and not f_ok_file_made )
 
 
-    def test_func_update_products_validity_status_for_bad_case_no_product( self ):
+    def nottest_func_update_products_validity_status_for_bad_case_no_product( self ):
         """ A false should be returned if products do not exist. """
 
         str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_bad_case_no_product" )
@@ -2165,7 +2170,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_update and not f_ok_file_made )
 
 
-    def test_func_update_products_validity_status_for_bad_case_bad_dt( self ):
+    def nottest_func_update_products_validity_status_for_bad_case_bad_dt( self ):
         """ A false should be returned on a bad dt. """
 
         str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_bad_case_bad_dt" )
@@ -2182,7 +2187,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( not f_update and not f_ok_file_made )
         
-    def test_func_update_products_validity_status_for_bad_case_mult_products_one_missing( self ):
+    def nottest_func_update_products_validity_status_for_bad_case_mult_products_one_missing( self ):
         """ A false should be returned if one of the products of the command is false. """
 
         str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_bad_case_mult_products_one_missing" )
@@ -2208,7 +2213,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not f_update and not f_ok_file_made )
         
         
-    def test_func_update_products_validity_status_for_good_case( self ):
+    def nottest_func_update_products_validity_status_for_good_case( self ):
         """ A true should be returned on a good case and the ok file should be made. """
 
         str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_good_case" )
@@ -2227,7 +2232,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( f_update and f_ok_file_made )
         
         
-    def test_func_update_products_validity_status_for_good_case_mult_products( self ):
+    def nottest_func_update_products_validity_status_for_good_case_mult_products( self ):
         """ A true should be returned on a good case and the ok file should be made for each product. """
 
         str_env = os.path.join( self.str_test_directory, "test_func_update_products_validity_status_for_good_case_mult_products" )
@@ -2255,13 +2260,26 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
 
 # func_test_mode
-    def test_func_test_mode( self ):
+    def nottest_func_test_mode( self ):
         """ Check to see if test mode turn on test mode. """
         pip_cur = Pipeline.Pipeline( str_name = "test_func_test_mode" )
         pip_cur.func_test_mode()
         self.func_test_true( not pip_cur.f_execute )
 
-
+# func_get_ok_time_stamp
+    def nottest_func_get_ok_time_stamp_for_good_case( self ):
+        """ Make sure we are reading in the time stamp correctly """
+        str_env = os.path.join( self.str_test_directory, "test_func_get_ok_time_stamp_for_good_case" )
+        self.func_make_dummy_dir( str_env )
+        pipe_cur = Pipeline.Pipeline( "test_func_get_ok_time_stamp_for_good_case" )
+        str_product_1 = os.path.join( str_env, "product_1.txt")
+        with open( str_product_1, "w" ) as hndl_setup:
+            hndl_setup.write( "1441214830.0\nWed Sep  2 13:27:10 2015" )
+        d_stamp = pipe_cur.func_get_ok_time_stamp( str_product_1 )
+        self.func_remove_files( [ str_product_1 ] )
+        self.func_remove_dirs( [ str_env ] )
+        self.func_test_equals( 1441214830.0, d_stamp )
+        
 #Creates a suite of tests
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase( PipelineTester )

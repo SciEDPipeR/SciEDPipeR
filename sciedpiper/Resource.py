@@ -59,6 +59,16 @@ class Resource( Graph.Vertex ):
     def __hash__( self ):
         return hash( self.str_id )
 
+    def func_get_dependencies( self ):
+        """
+        Get the parents / dependencies this file is dependent on.
+        """
+        lrsc_return = []
+        for cur_vertex in self.func_get_parents():
+            for rsc_dep in cur_vertex.func_get_parents():
+                lrsc_return.append( rsc_dep )
+        return lrsc_return
+
     # Tested
     @classmethod
     def func_make_paths_absolute( self, lstr_paths ):

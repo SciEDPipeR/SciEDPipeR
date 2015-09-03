@@ -8,9 +8,10 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 
+import calendar
 import os
 import unittest
-
+import time
 
 class ParentPipelineTester(unittest.TestCase):
     """
@@ -62,7 +63,7 @@ class ParentPipelineTester(unittest.TestCase):
         if not os.path.exists( str_file_path_2 ):
             raise IOError( "Missing file: " + str_file_path_2 )
 
-        # COmpare line by line and short circuit on a mismatched line.        
+        # Compare line by line and short circuit on a mismatched line.        
         with open( str_file_path_1 ) as hndle_1:
             with open( str_file_path_2 ) as hndle_2:
                 for str_line in hndle_1:
@@ -89,6 +90,9 @@ class ParentPipelineTester(unittest.TestCase):
         if str_path:
             if not os.path.exists( str_path ):
                 with open( str_path, "w" ) as hndle_open:
+                    cur_time = calendar.timegm( time.gmtime() )
+                    hndle_open.write( str( cur_time  ) + "\n" )
+                    hndle_open.write( str( time.ctime( cur_time ) ) + "\n" )
                     hndle_open.write( str_message if str_message else str_path )
                 return True
         return False

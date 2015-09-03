@@ -400,17 +400,6 @@ class DependencyTree:
     def func_get_clean_level( self, str_path ):
         return self.graph_commands.func_get_vertex( str_path ).i_clean  
 
-#    # Tested
-#    def func_show_active_dependencies( self ):
-#        """
-#        Show the dependencies that are still active.
-#        
-#        * Return : String
-#                   A list of dependencies still needed in the pipeline.
-#        """
-#        
-#        return ", ".join( sorted( self.dict_dependencies.keys() ) )            
-
     def __str__( self ):
         return "Graph{" + str( len( self.graph_commands ) ) + "}"
 
@@ -428,12 +417,3 @@ class DependencyTree:
                            "Dependencies{ " + str( sorted( [ str_dep for str_dep in self.dict_dependencies ] ) ) + "}", 
                            "Inputs{ " + str( sorted( [ rsc_in.str_id for rsc_in in self.lstr_inputs if rsc_in ] ) ) + "}", 
                            "Terminal_Products{ " + str(sorted([ vtx_product.str_id for vtx_product in self.lstr_terminal_products if vtx_product ])) + "}"] )
-
-         
-#        lstr_return = []
-#        for vtx_command in self.graph_commands:
-#            lls_dep_prods = self.graph_commands.get( str_command, ["",""] )
-#            lstr_return.append( "".join( [ "Command: ", str_command,
-#                                 "\nDependencies: ", str( lls_dep_prods[ self.C_INT_DEPENDENCIES_INDEX ] ),
-#                                 "\nProducts: ", str( lls_dep_prods[ self.C_INT_PRODUCTS_INDEX ] ) ] ) )
-#        return "\n".join( lstr_return )
