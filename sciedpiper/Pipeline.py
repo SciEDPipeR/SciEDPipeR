@@ -959,10 +959,12 @@ class Pipeline:
         return f_success
 
 
-    # 1 test
+    # 5 tests
     def func_update_command_path( self, cmd_cur, dict_update_cur ):
         """
         Allows a way to update commands with a path but from the external call incase they can not be put in an env path.
+        Will update until the command has an optional argument
+        If there are no optional arguments anywhere in the command can be updated (including positional arguments).
         
         * cmd_cur : Command
                   : Command to update (update is permanent)
@@ -971,10 +973,23 @@ class Pipeline:
         """
 
         if cmd_cur and cmd_cur.func_is_valid():
+            str_command_with_replacement = cmd_cur.str_command
             for str_cmd, str_path in dict_update_cur.iteritems():
                 if str_cmd in cmd_cur.str_id:
-                    cmd_cur.str_id = cmd_cur.str_id.replace( str_cmd, os.path.join( str_path, str_cmd ) )
-                    
+                    str_command_with_replacement = str_command_with_replacement.replace( str_cmd, os.path.join( str_path, str_cmd ) )
+
+            # Set and return the command as is if allowing updates to the command after flags
+            if not cmd_cur.f_stop_update_at_flags:
+                cmd_cur.str_id = str_command_with_replacement
+                return
+
+            # Only perform the update on the command until you get to an argument, then stop
+            i_first_argument_index = str_command_with_replacement.index(" -") if " -" in str_command_with_replacement else len( str_command_with_replacement )
+            str_command_with_replacement = str_command_with_replacement[ 0 : i_first_argument_index ]
+            i_first_argument_index = cmd_cur.str_command.index(" -") if " -" in cmd_cur.str_command else None
+            if not i_first_argument_index is None:
+                str_command_with_replacement = str_command_with_replacement + cmd_cur.str_command[ i_first_argument_index: len( cmd_cur.str_command ) ]
+            cmd_cur.str_command = str_command_with_replacement
 
     # Tested
     def func_update_products_validity_status( self, cmd_command, dt_tree ):

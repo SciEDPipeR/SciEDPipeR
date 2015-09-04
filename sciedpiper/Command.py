@@ -79,6 +79,10 @@ class Command( Graph.Vertex ):
             self.func_add_child( rsc_prod )
             rsc_prod.func_add_parent( self )
 
+        # Controls updating the commandlines pas flags
+        # This often needs to be true when adding a sciedpiper script with an update command.
+        self.f_stop_update_at_flags = False
+
     # Used in testing
     @property
     def lstr_dependencies( self ):

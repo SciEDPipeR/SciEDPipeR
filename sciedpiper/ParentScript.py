@@ -88,14 +88,14 @@ class ParentScript:
         f_archive = True
         # Make a default output folder based on the time if not given
         # Make default log
-        if not hasattr( ns_arguments, "str_file_base"):
+        if not hasattr( ns_arguments, "str_file_base") or not ns_arguments.str_file_base:
             f_archive = False
             ns_arguments.str_file_base = os.getcwd()
 
         # If an output / project folder is indicated.
         if hasattr( ns_arguments, "str_file_base" ):
             # Make the output directory if it does not exist
-            if not os.path.isdir( ns_arguments.str_file_base ):
+            if ns_arguments.str_file_base and not os.path.isdir( ns_arguments.str_file_base ):
                 os.mkdir( ns_arguments.str_file_base )
 
         # Make pipeline object and indicate Log file
