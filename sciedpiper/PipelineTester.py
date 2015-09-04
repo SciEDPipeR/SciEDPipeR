@@ -2473,7 +2473,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur = Command.Command( "java update.jar -xmf 30 -f -g craziness.txt", [ "str_depend" ], [ "str_product" ]  )
         dict_update_cur = { "no_update.jar": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
     def test_func_update_command_path_for_good_case_update_true( self ):
         """ Update a command with a prefix good case (update args TRUE)."""
@@ -2493,7 +2493,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur.f_stop_update_at_flags = False
         dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
     def test_func_update_command_path_for_good_case_no_args_update_true( self ):
         """ Update a command with a prefix good case no args (True)."""
@@ -2503,7 +2503,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur.f_stop_update_at_flags = True
         dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
     def test_func_update_command_path_for_good_case_no_args_update_false( self ):
         """ Update a command with a prefix good case no args (false)."""
@@ -2513,7 +2513,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur.f_stop_update_at_flags = False
         dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
     def test_func_update_command_path_for_good_case_no_updating_argument_update_true( self ):
         """ Test updating a command when the arguments match ( but should not update ) (true)."""
@@ -2523,7 +2523,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur.f_stop_update_at_flags = True
         dict_update_cur = { "craziness.txt": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
     def test_func_update_command_path_for_good_case_no_updating_argument_update_false( self ):
         """ Test updating a command when the arguments match ( but should not update )."""
@@ -2533,7 +2533,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur.f_stop_update_at_flags = False
         dict_update_cur = { "craziness.txt": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
     def test_func_update_command_path_for_updating_command_and_no_updating_argument_update_true( self ):
         """ Test updating a command when the arguments match ( but should not update ) but the command should be updated."""
@@ -2543,7 +2543,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur.f_stop_update_at_flags = True
         dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ), "craziness.txt": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
     def test_func_update_command_path_for_updating_command_and_no_updating_argument_update_false( self ):
         """ Test updating a command when the arguments match ( but should not update ) but the command should be updated."""
@@ -2553,7 +2553,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur.f_stop_update_at_flags = False
         dict_update_cur = { "update.jar": os.path.join( "prefix", "path","to" ), "craziness.txt": os.path.join( "prefix", "path","to" ) }
         pipe_cur.func_update_command_path( cmd_cur, dict_update_cur )
-        self.func_test_equals( str_answer, cmd_cur.str_command )
+        self.func_test_equals( str_answer, cmd_cur.str_id )
 
 # func_update_products_validity_status
 #    def test_func_update_products_validity_status_for_bad_case_bad_command( self ):
