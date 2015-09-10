@@ -972,24 +972,23 @@ class Pipeline:
                           : Dictionary with paths to prefix to the commands
         """
 
-        if cmd_cur and cmd_cur.func_is_valid():
-            str_command_with_replacement = cmd_cur.str_id
-            for str_cmd, str_path in dict_update_cur.iteritems():
-                if str_cmd in cmd_cur.str_id:
-                    str_command_with_replacement = str_command_with_replacement.replace( str_cmd, os.path.join( str_path, str_cmd ) )
+        str_command_with_replacement = cmd_cur.str_id
+        for str_cmd, str_path in dict_update_cur.iteritems():
+            if str_cmd in cmd_cur.str_id:
+                str_command_with_replacement = str_command_with_replacement.replace( str_cmd, os.path.join( str_path, str_cmd ) )
 
-            # Set and return the command as is if allowing updates to the command after flags
-            if not cmd_cur.f_stop_update_at_flags:
-                cmd_cur.str_id = str_command_with_replacement
-                return
-
-            # Only perform the update on the command until you get to an argument, then stop
-            i_first_argument_index = str_command_with_replacement.index(" -") if " -" in str_command_with_replacement else len( str_command_with_replacement )
-            str_command_with_replacement = str_command_with_replacement[ 0 : i_first_argument_index ]
-            i_first_argument_index = cmd_cur.str_id.index(" -") if " -" in cmd_cur.str_id else None
-            if not i_first_argument_index is None:
-                str_command_with_replacement = str_command_with_replacement + cmd_cur.str_id[ i_first_argument_index: len( cmd_cur.str_id ) ]
+        # Set and return the command as is if allowing updates to the command after flags
+        if not cmd_cur.f_stop_update_at_flags:
             cmd_cur.str_id = str_command_with_replacement
+            return
+
+        # Only perform the update on the command until you get to an argument, then stop
+        i_first_argument_index = str_command_with_replacement.index(" -") if " -" in str_command_with_replacement else len( str_command_with_replacement )
+        str_command_with_replacement = str_command_with_replacement[ 0 : i_first_argument_index ]
+        i_first_argument_index = cmd_cur.str_id.index(" -") if " -" in cmd_cur.str_id else None
+        if not i_first_argument_index is None:
+            str_command_with_replacement = str_command_with_replacement + cmd_cur.str_id[ i_first_argument_index: len( cmd_cur.str_id ) ]
+        cmd_cur.str_id = str_command_with_replacement
 
     # Tested
     def func_update_products_validity_status( self, cmd_command, dt_tree ):
