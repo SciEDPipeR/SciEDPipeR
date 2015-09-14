@@ -565,7 +565,7 @@ class Pipeline:
 
         # Return false on invalid data
         if not cmd_command or not cmd_command.func_is_valid():
-            self.logr_logger.error( "".join(["Pipeline.func_paths_are_from_valid_run: Received an invalid command to check validity. Command=", str( cmd_command ) if cmd_command is None else cmd_command.str_id ]))
+            self.logr_logger.warning( "".join(["Pipeline.func_paths_are_from_valid_run: Received an invalid command to check validity. Command=", str( cmd_command ) if cmd_command is None else cmd_command.str_id ]))
             return False
 
         f_return_valid = True
@@ -1005,7 +1005,7 @@ class Pipeline:
         
         # Return false on invalid data
         if not cmd_command or not cmd_command.func_is_valid():
-            self.logr_logger.error( "Pipeline.func_update_products_validity_status: Received an invalid command to update validity. Did not update." )
+            self.logr_logger.warning( "Pipeline.func_update_products_validity_status: Received an invalid command to update validity. Did not update." )
             return False
         
         if not dt_tree:
