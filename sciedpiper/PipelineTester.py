@@ -857,7 +857,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_do_special_command_for_good_case_rm" )
         cmd_cur = Command.Command( "rm hello", [ "Hello" ], [ "goodbye" ] )
-        self.func_test_true( not cur_pipe.func_do_special_command( cmd_cur ) )
+        self.func_test_true( cur_pipe.func_do_special_command( cmd_cur ) )
 
 
     def test_func_do_special_command_for_good_case_mkdir( self ):
@@ -865,7 +865,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
 
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_do_special_command_for_good_case_mkdir" )
         cmd_cur = Command.Command( "mkdir hello", [ "Hello" ], [ "goodbye" ] )
-        self.func_test_true( not cur_pipe.func_do_special_command( cmd_cur ) )
+        self.func_test_true( cur_pipe.func_do_special_command( cmd_cur ) )
 
 
     def test_func_do_special_command_for_good_case_cd( self ):

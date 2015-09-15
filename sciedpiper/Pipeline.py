@@ -290,16 +290,20 @@ class Pipeline:
         
         # Handle rm
         elif( str_cmd == "rm"):
-            self.logr_logger.info( " ".join( [ "Pipeline.func_do_special_command: rm should not be used as a command.",
-                                              "Path removal should instead be handled through the pipeline's",
-                                              "built-in cleaning levels ( which have safety checks )." ] ) )
-        
+            self.logr_logger.warning( " ".join( [ "Pipeline.func_do_special_command: We would prefer rm not be used as a command.",
+                                              "Path removal can instead be automatically handled through the pipeline's",
+                                              "built-in cleaning levels ( which have safety checks ). This is your choice.",
+                                              "This is NOT an error." ] ) )
+            return True
         # handle mkdir
         elif( str_cmd == "mkdir" ):
-            self.logr_logger.info( " ".join( [ "Pipeline.func_do_special_command: mkdir should not be used as a command.",
+            self.logr_logger.warning( " ".join( [ "Pipeline.func_do_special_command: We would prefer mkdir not be used as a command.",
                                               "The pipeline has specific functions to handle safe directory creation.",
-                                              "Try using Pipeline's method func_mkdirs."] ))
-
+                                              "Try using Pipeline's method func_mkdirs. As well, the pipeline automatically",
+                                              "makes all directories needed for a pipeline (given the product paths) before the",
+                                              "pipeline executes. So you problably don't need the mkdirs, but it is your choice.",
+                                              "This is NOT an error." ] ))
+            return True
         return False
     
     
