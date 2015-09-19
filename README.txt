@@ -7,6 +7,7 @@ Quick Start
 
 SciEDPipeR is a development environment focused on making scientific pipelines easy. For now you need to know python to use SciEDPipeR. For those who know python the good news is that you can use any language feature when making pipelines; for those that do not program in python we are working on ways to leverage the pipelining system without it :-)
 
+
 To install:
 
 Download the code
@@ -25,9 +26,25 @@ Install SciEDPipeR (Windows)
 
 setup.py install
 
+Install SciEDPipeR without root priviledges (in your local user space)
+Modify the above setup.py command with the following
+( Linux /Mac )
+
+python setup.py install --user
+
+(OpenSUSE and RedHat may need the following additional argument)
+
+python setup.py install --user --prefix==
+
+( Windows )
+
+setup.py install --user
+
+
 To make a script:
 
 see the bin/ExampleScript.py:
+
 
 To run the example (from the directory it is in):
 
