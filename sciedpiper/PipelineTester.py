@@ -680,10 +680,10 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_product_1_ok = cur_pipeline.func_get_ok_file_path( str_product_1 )
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_product_1_ok )
-        self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_product_1 )
         # Wait for 1 seconds
         time.sleep(1)
+        self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1 ], [ str_product_1 ])
         f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = 0 )
@@ -706,9 +706,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_product_1_ok = cur_pipeline.func_get_ok_file_path( str_product_1 )
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_product_1_ok )
-        self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_product_1 )
         time.sleep(i_wait)
+        self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1 ], [ str_product_1 ])
         f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = i_fuzzy )
@@ -758,11 +758,11 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_product_1_ok = cur_pipeline.func_get_ok_file_path( str_product_1 )
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_product_1_ok )
-        self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_dependency_2 )
         self.func_make_dummy_file( str_dependency_2_ok )
         self.func_make_dummy_file( str_product_1 )
         time.sleep(i_wait)
+        self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1, str_dependency_2 ], [ str_product_1 ])
         f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = i_fuzzy )
@@ -2109,7 +2109,6 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         str_file_3 = os.path.join( str_env, "test_func_run_commands_file_3.txt" )
         str_file_4 = os.path.join( str_env, "test_func_run_commands_file_4.txt" )
         self.func_make_dummy_dir( str_env )
-        self.func_make_dummy_file( str_file_1 )
         self.func_make_dummy_file( str_file_2 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_2 ) )
         self.func_make_dummy_file( str_file_3 )
@@ -2117,6 +2116,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_file_4 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_4 ) )
         time.sleep(2)
+        self.func_make_dummy_file( str_file_1 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_1 ) )
         cur_cmd_1 = Command.Command( " ".join( [ "cat", str_file_1, ">", str_file_2 ] ),
                                      [ str_file_1 ],
@@ -2160,12 +2160,12 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_dir( str_env )
         self.func_make_dummy_file( str_file_1 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_1 ) )
-        self.func_make_dummy_file( str_file_2 )
         self.func_make_dummy_file( str_file_3 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_3 ) )
         self.func_make_dummy_file( str_file_4 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_4 ) )
         time.sleep(2)
+        self.func_make_dummy_file( str_file_2 )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_2 ) )
         cur_cmd_1 = Command.Command( " ".join( [ "cat", str_file_1, ">", str_file_2 ] ),
                                      [ str_file_1 ],
@@ -2706,16 +2706,16 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( not pip_cur.f_execute )
 
 
-# func_get_ok_time_stamp
-    def test_func_get_ok_time_stamp_for_good_case( self ):
+# func_get_file_time_stamp
+    def test_func_get_file_time_stamp_for_good_case( self ):
         """ Make sure we are reading in the time stamp correctly """
-        str_env = os.path.join( self.str_test_directory, "test_func_get_ok_time_stamp_for_good_case" )
+        str_env = os.path.join( self.str_test_directory, "test_func_get_file_time_stamp_for_good_case" )
         self.func_make_dummy_dir( str_env )
-        pipe_cur = Pipeline.Pipeline( "test_func_get_ok_time_stamp_for_good_case" )
         str_product_1 = os.path.join( str_env, "product_1.txt")
-        with open( str_product_1, "w" ) as hndl_setup:
-            hndl_setup.write( "1441214830.0\nWed Sep  2 13:27:10 2015" )
-        d_stamp = pipe_cur.func_get_ok_time_stamp( str_product_1 )
+        self.func_make_dummy_file( str_product_1 )
+        os.utime( str_product_1, (1441214830.0,1441214830.0) )
+        pipe_cur = Pipeline.Pipeline( "test_func_get_file_time_stamp_for_good_case" )
+        d_stamp = pipe_cur.func_get_file_time_stamp( str_product_1 )
         self.func_remove_files( [ str_product_1 ] )
         self.func_remove_dirs( [ str_env ] )
         self.func_test_equals( 1441214830.0, d_stamp )

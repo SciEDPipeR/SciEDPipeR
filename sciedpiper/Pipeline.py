@@ -532,18 +532,15 @@ class Pipeline:
             self.logr_logger.error( " ".join( [ "Pipeline.func_mkdirs: Received an error while creating the", str_dir, "directory. Stopping analysis, premature termination of pipeline. Error = ", str( e ) ] ) )
         return False
     
-    def func_get_ok_time_stamp( self, str_ok_file_path ):
+    def func_get_file_time_stamp( self, str_file_path ):
         """
-        Gets the time stamp from an ok file as a float.
+        Gets the time stamp from a file as a float.
 
-        * str_ok_file_path : String
-                           : File path to ok file.
+        * str_file_path : String
+                        : Path to file.
         * return : float
         """
-        with open( str_ok_file_path, "r" ) as hndl_ok:
-            str_time_stamp = hndl_ok.readline()
-            str_time_stamp = str_time_stamp.strip("\n" )
-            return float( str_time_stamp )
+        return os.path.getmtime( str_file_path )
 
     # Tested, could test more (products)
     def func_paths_are_from_valid_run( self, cmd_command, f_dependencies, i_fuzzy_time = None ):
@@ -580,17 +577,15 @@ class Pipeline:
         # 2b. If time stamping is on (a float value given ) make sure all parents are older than the children.
         # If the state of the parents is not trustworthy delete the ok file for all resources in the command and then return false
         for rsc_file in cmd_command.lstr_dependencies if f_dependencies else cmd_command.lstr_products:
-            str_cur_ok_file = self.func_get_ok_file_path( rsc_file.str_id )
             # Check that the command has ran successfully
-            if not os.path.exists( str_cur_ok_file ):
+            if not os.path.exists( self.func_get_ok_file_path( rsc_file.str_id ) ):
                 self.logr_logger.info( "Pipeline.func_paths_are_from_valid_run: Not yet created without error. PATH=" + rsc_file.str_id )
                 f_return_valid = False
                 continue
-            i_target_product_time_stamp = self.func_get_ok_time_stamp( str_cur_ok_file )
+            i_target_product_time_stamp = self.func_get_file_time_stamp( rsc_file.str_id )
             # Make sure each parent / dependency has an ok file.
             for rsc_parent_dep in rsc_file.func_get_dependencies():
-                str_cur_parent_ok_file = self.func_get_ok_file_path( rsc_parent_dep.str_id )
-                if not os.path.exists( str_cur_parent_ok_file ):
+                if not os.path.exists( self.func_get_ok_file_path( rsc_parent_dep.str_id ) ):
                     self.logr_logger.error( " ".join( [ "Pipeline.func_paths_are_from_valid_run: Parent dependency was not been created yet.",
                                                         "Target product PATH=" + rsc_file.str_id,
                                                         "Parent dependency PATH=" + rsc_parent_dep.str_id ] ) )
@@ -600,7 +595,7 @@ class Pipeline:
                 # Check the time stamps of all parents/dependencies of the current resource
                 # Any issue will cause this command to be reran / invalidating the resource for rerun.
                 if not i_fuzzy_time is None:
-                    i_parent_time_stamp = self.func_get_ok_time_stamp( str_cur_parent_ok_file )
+                    i_parent_time_stamp = self.func_get_file_time_stamp( rsc_parent_dep.str_id )
                     if ( i_parent_time_stamp - i_fuzzy_time ) > i_target_product_time_stamp:
                         self.logr_logger.error( " ".join( [ "Pipeline.func_paths_are_from_valid_run: Parent dependency was older than the target product.",
                                                              "Remaking products.",
@@ -1021,13 +1016,11 @@ class Pipeline:
             self.logr_logger.error( "Pipeline.func_update_products_validity_status: Was to validate a command's products, some of which were missing. Did not update.")
             return False
 
-        # Make the ok file and place a time stamp in the ok file of when the file is made 
+        # Make the ok file, empty with no content
         if self.f_execute:
             for rsc_product in cmd_command.lstr_products:
                 str_product = rsc_product.str_id
-                with open( self.func_get_ok_file_path( str_product ), "a" ) as file_product:
-                    file_product.write( str( os.path.getmtime( str_product ) ) + "\n" )
-                    file_product.write( time.ctime( os.path.getmtime( str_product ) ) + "\n" )
+                open( self.func_get_ok_file_path( str_product ), "w" ).close()
         return True
 
 
