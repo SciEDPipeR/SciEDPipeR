@@ -14,6 +14,7 @@ import unicodedata
 # Constants
 ARGUMENTS = "arguments"
 COMMANDS = "commands"
+C_STR_WORKFLOW_ID = "workflow_id"
     
 class Struct:
   """
@@ -130,6 +131,9 @@ class JSONManager( object ):
     # List of tasks for workflow
     ldict_tasks = []
 
+    # List of dicts describing files used in the pipeline
+    ldict_resources = {}
+
     # For each command.
     str_wdl = ""
     for cmd_cur in lcmd_commands:
@@ -141,15 +145,29 @@ class JSONManager( object ):
       # Update tasks
       ldict_tasks.append({ "name" : cmd_cur.str_name, "products" : [ cur_prod.str_id for cur_prod in cmd_cur.lstr_products ] })
 
-      i_output_number = 1
-      str_wdl = str_wdl + "\n".join([ "task " + cmd_cur.str_name + " {",
-                           "  command {",
-                           "    " + cmd_cur.str_id,
-                           "  }",
-                           "  output {" ])
-      str_wdl = str_wdl + "\n".join([ "    File output" + str(i_output_number) + " " + str_child.str_id for str_child in cmd_cur.lstr_products ] )
-      str_wdl = str_wdl + "\n".join(["  }",
-                                     "}\n" ])
+      i_input_number = 1
+      str_wdl = str_wdl + "task " + cmd_cur.str_name + " {\n"
+
+      # Add dependencies as inputs
+      for str_input in cmd_cur.lstr_dependencies:
+        str_wdl = str_wdl + "  File in" + str(i_input_number) + " " + str_input.str_id + "\n"
+        i_input_number = i_input_number + 1
+
+      str_wdl = str_wdl + "\n".join([ "  command {",
+                                      "    " + cmd_cur.str_id,
+                                      "  }"])
+
+      # Add products as outputs
+      if cmd_cur.lstr_products:
+        i_output_number = 1
+        lstr_wdl_prod = []
+        str_wdl = str_wdl + "  output {\n"
+        for str_child in cmd_cur.lstr_products:
+          lstr_wdl_prod.append( "    File out" + str(i_output_number) + " " + str_child.str_id )
+          ldict_resources.setdefault( str_child.str_id, {} )[ C_STR_WORKFLOW_ID ] = cmd_cur.str_name + ".out" + str(i_output_number)
+          i_output_number = i_output_number + 1
+        lstr_wdl_prod.extend(["\n  }","}\n"])
+        str_wdl = str_wdl + "\n".join( lstr_wdl_prod )
 
     # Make workflow
     str_wdl = str_wdl + "\nworkflow " + str_workflow + " {\n"
@@ -162,14 +180,13 @@ class JSONManager( object ):
         i_product_index = 1
         lstr_wdl_prod = []
         for str_product in dict_cur_task[ "products" ]:
-          lstr_wdl_prod.append( "in"+str(i_product_index) + "=" + str_product )
+          lstr_wdl_prod.append( "in"+str(i_product_index) + "=" + ldict_resources[ str_product ][ C_STR_WORKFLOW_ID ] )
           i_product_index = i_product_index + 1
         str_wdl = str_wdl + ", ".join(lstr_wdl_prod)
         str_wdl = str_wdl + "}\n"
       else:
         str_wdl = str_wdl + "\n"
     str_wdl = str_wdl + "}"
-    print str_wdl
 
     # Make string and return.
     # Write to file it requested.
