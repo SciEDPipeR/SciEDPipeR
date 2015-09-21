@@ -44,6 +44,7 @@ class ParentScript:
         prsr_arguments.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
         prsr_arguments.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
         prsr_arguments.add_argument( "--compress", dest = "str_compress", default = "none", choices = Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES, help = "Turns on compression of products and intermediary files made by the pipeline. Valid choices include:" + str( Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES ) )
+        prsr_arguments.add_argument( "--wdl", dest = "str_wdl", default = None, help = "When used, the pipeline will not run but instead a wdl file will be generated for the workflow, then this argument is used, please pass the file path to which the wdl file should be written." )
         return prsr_arguments
 
     def func_update_arguments( self, args_raw ):
@@ -142,7 +143,7 @@ class ParentScript:
                                             str_move = ns_arguments.str_move_dir if ns_arguments.str_move_dir else None,
                                             str_compression_mode = ns_arguments.str_compress,
                                             f_clean = ns_arguments.f_clean,
-                                            i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff ):
+                                            i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff, str_wdl = ns_arguments.str_wdl ):
             exit( 99 )
     
     

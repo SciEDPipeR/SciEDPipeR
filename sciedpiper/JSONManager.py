@@ -113,3 +113,67 @@ class JSONManager( object ):
         with open( str_file, "w" ) as hndl_out:
             hndl_out.write( str_json )
     return str_json
+
+  @classmethod
+  def func_pipeline_to_wdl( self, lcmd_commands, str_workflow = "custom", str_file = None ):
+    """
+    Change a list of commands to a WDL output
+
+    * lcmd_commands : List of commands to change to WDL
+                    : List
+    * str_file : File to output the wdl string if given, either way the string is returned.
+               : File path
+    * returns : WDL representation of pipeline as a string
+              : String
+    """
+
+    # List of tasks for workflow
+    ldict_tasks = []
+
+    # For each command.
+    str_wdl = ""
+    for cmd_cur in lcmd_commands:
+
+      #Check to make sure the list has something in it
+      if not cmd_cur:
+        continue
+
+      # Update tasks
+      ldict_tasks.append({ "name" : cmd_cur.str_name, "products" : [ cur_prod.str_id for cur_prod in cmd_cur.lstr_products ] })
+
+      i_output_number = 1
+      str_wdl = str_wdl + "\n".join([ "task " + cmd_cur.str_name + " {",
+                           "  command {",
+                           "    " + cmd_cur.str_id,
+                           "  }",
+                           "  output {" ])
+      str_wdl = str_wdl + "\n".join([ "    File output" + str(i_output_number) + " " + str_child.str_id for str_child in cmd_cur.lstr_products ] )
+      str_wdl = str_wdl + "\n".join(["  }",
+                                     "}\n" ])
+
+    # Make workflow
+    str_wdl = str_wdl + "\nworkflow " + str_workflow + " {\n"
+    for dict_cur_task in ldict_tasks:
+      str_wdl = str_wdl + "  call " + dict_cur_task[ "name" ]
+
+      # Add output
+      if dict_cur_task[ "products" ]:
+        str_wdl = str_wdl + " { input:"
+        i_product_index = 1
+        lstr_wdl_prod = []
+        for str_product in dict_cur_task[ "products" ]:
+          lstr_wdl_prod.append( "in"+str(i_product_index) + "=" + str_product )
+          i_product_index = i_product_index + 1
+        str_wdl = str_wdl + ", ".join(lstr_wdl_prod)
+        str_wdl = str_wdl + "}\n"
+      else:
+        str_wdl = str_wdl + "\n"
+    str_wdl = str_wdl + "}"
+    print str_wdl
+
+    # Make string and return.
+    # Write to file it requested.
+    if str_file:
+        with open( str_file, "w" ) as hndl_out:
+            hndl_out.write( str_wdl )
+    return str_wdl

@@ -12,6 +12,7 @@ import Command
 import Commandline
 import Compression
 import DependencyTree
+import JSONManager
 import logging
 import os
 import shutil
@@ -730,7 +731,7 @@ class Pipeline:
 
     def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, str_run_name = "",
                            li_wait = None, lstr_copy = None, str_move = None, str_compression_mode = None,
-                           str_compression_type = "gz", i_time_stamp_wiggle = None ):
+                           str_compression_type = "gz", i_time_stamp_wiggle = None, str_wdl = None ):
         """
         Runs all commands in serial and logs the time each took.
         Will NOT stop on error but will attempt all commands.
@@ -774,8 +775,15 @@ class Pipeline:
             # Update the command with a path if needed.
             self.func_update_command_path( cmd_command, self.dict_update_path )
 
-            # Make all the directories needed for the commands
-            self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
+            if str_wdl is None:
+                # Make all the directories needed for the commands
+                self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
+
+        # Make a wdl file # TODO update this to use the deoendecy tree traversal for self-ordering commands
+        if str_wdl:
+            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Not running pipeline. Writting WDL to file:", str_wdl ] ) )
+            JSONManager.JSONManager.func_pipeline_to_wdl( lcmd_commands = lcmd_commands, str_workflow = self.str_name, str_file = str_wdl )
+            return True
 
         # Load up the commands and build the dependency tree
         # This skips special commands
