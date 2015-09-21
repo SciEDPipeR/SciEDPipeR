@@ -49,7 +49,7 @@ class Command( Graph.Vertex ):
     """
     
     # Tested
-    def __init__( self, str_cur_command, lstr_cur_dependencies, lstr_cur_products ):
+    def __init__( self, str_cur_command, lstr_cur_dependencies, lstr_cur_products, str_name = "unnamed" ):
         """
         Initializer. 
         All paths should be absolute paths.
@@ -70,6 +70,7 @@ class Command( Graph.Vertex ):
         Graph.Vertex.__init__( self,str_cur_command )
         self.str_type = STR_TYPE
         self.str_status = STR_NOT_RUN
+        self.str_name = str_name
         for str_dependency in lstr_cur_dependencies:
             rsc_dep = Resource.Resource( str_dependency, f_is_product=False )
             self.func_add_parent( rsc_dep )
