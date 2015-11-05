@@ -34,6 +34,7 @@ class ParentScript:
         prsr_arguments.add_argument( "-b", "--bsub_queue", metavar = "BSUB_Queue", dest = "str_bsub_queue", default = None, help = "If given, each command will sequentially be ran on this queue with bsub." )
         prsr_arguments.add_argument( "-c", "--clean", dest = "f_clean", default = False, action="store_true", help = "Turns on (true) or off (false) cleaning of intermediary product files." ) 
         prsr_arguments.add_argument( "--copy", metavar = "Copy_location", dest = "lstr_copy", default = None, action="append", help="Paths to copy the output directory after the pipeline is completed. Output directory must be specified; can be used more than once for multiple copy locations.")
+        prsr_arguments.add_argument( "--dot_file", metavar = "Dot_file", dest = "str_dot_path", default = None, help="When provided a dot file of the underlying graph will be written to this file.")
         prsr_arguments.add_argument( "-g", "--log", metavar = "Optional_logging_file", dest = "str_log_file", default = None, help = "Optional log file, if not given logging will be to the standard out." )
         prsr_arguments.add_argument( "--json_out", metavar = "JSON_out", dest = "str_json_file_out", default = None, help = "Write script to a JSON file." )
         prsr_arguments.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
@@ -126,6 +127,7 @@ class ParentScript:
             pline_cur.logr_logger.info( "Writing JSON file to: " + ns_arguments.str_json_file_out )
 
         # Run commands
+        # Force these arguments (done here as well as argparse in case the script is inherited weird.
         if not hasattr( ns_arguments, "lstr_copy" ):
             setattr( ns_arguments, "lstr_copy", None )
         if not hasattr( ns_arguments, "str_move_dir" ):
@@ -136,13 +138,16 @@ class ParentScript:
             setattr( ns_arguments, "f_clean", False )
         if not hasattr( ns_arguments, "i_time_stamp_diff" ):
             setattr( ns_arguments, "i_time_stamp_diff", None )
+        if not hasattr( ns_arguments, "str_dot_path" ):
+            setattr( ns_arguments, "str_dot_path", None )
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, 
                                             str_output_dir = ns_arguments.str_file_base,
                                             lstr_copy = ns_arguments.lstr_copy if ns_arguments.lstr_copy else None,
                                             str_move = ns_arguments.str_move_dir if ns_arguments.str_move_dir else None,
                                             str_compression_mode = ns_arguments.str_compress,
                                             f_clean = ns_arguments.f_clean,
-                                            i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff ):
+                                            i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff,
+                                            str_dot_file = ns_arguments.str_dot_path ):
             exit( 99 )
     
     

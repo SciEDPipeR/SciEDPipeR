@@ -275,6 +275,14 @@ class Command( Graph.Vertex ):
         str_products = "Products: " + ",".join( sorted ( [ str( rsc_prod ) for rsc_prod in self.lstr_products ] ) )
         return( "; ".join( [ str_command, str_dependencies, str_products ] ) )
 
+    def func_get_dot_connections( self ):
+        """
+        Gets command relationships in dot file syntax.
+        """
+        return( [ "\""+self.str_id+"\" [shape=box];" ] +
+                [ "\""+os.path.basename(rsc_dep.str_id)+"\"->\""+self.str_id+"\";" for rsc_dep in self.lstr_dependencies ] + 
+                [ "\""+self.str_id+"\"->\""+os.path.basename(rsc_prod.str_id)+"\";" for rsc_prod in self.lstr_products ] )
+
     # OK
     def __str__( self ):
         """

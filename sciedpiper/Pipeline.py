@@ -730,7 +730,7 @@ class Pipeline:
 
     def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, str_run_name = "",
                            li_wait = None, lstr_copy = None, str_move = None, str_compression_mode = None,
-                           str_compression_type = "gz", i_time_stamp_wiggle = None ):
+                           str_compression_type = "gz", i_time_stamp_wiggle = None, str_dot_file = None ):
         """
         Runs all commands in serial and logs the time each took.
         Will NOT stop on error but will attempt all commands.
@@ -761,7 +761,10 @@ class Pipeline:
 
         # Log the beginning of the pipeline
         self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting pipeline", self.str_name ] ) )
-        
+
+        # Holds dot info if requested
+        lstr_dot = [ "digraph " + self.str_name + " {" ]
+
         # Make sure the output directory is an absolute path
         # Need to work with absolute files so that it can be
         # Identified that the input files are in the output directory
@@ -795,6 +798,10 @@ class Pipeline:
         # Should be a set
         sstr_made_dependencies_to_compress = set()
         for cmd_command in lcmd_commands:# dt_dependencies.graph_commands.func_get_commands():
+
+            # If requested make / add to dot file
+            if str_dot_file:
+                lstr_dot.extend( cmd_command.func_get_dot_connections() )
 
             # Log the start
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
@@ -906,7 +913,13 @@ class Pipeline:
             # Indicate failure
             if ( not f_success ) and self.f_execute:
                 self.logr_logger.error( "Pipeline.func_run_commands: The last command was not successful. Pipeline run failed." )
-       
+        
+        # Complete the dot file and write
+        if str_dot_file:
+            lstr_dot.append( "}" )
+            with open( str_dot_file, "w" ) as hndl_dot:
+                hndl_dot.write( "\n".join( lstr_dot ) )
+
         # Log successful completion
         if f_success:
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Successfully ended pipeline", self.str_name ] ) )
