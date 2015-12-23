@@ -77,6 +77,7 @@ class ParentScript:
 
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
+
         # Handle time stamp
         if ( not ns_arguments.i_time_stamp_diff is None ):
             ns_arguments.i_time_stamp_diff = max( ns_arguments.i_time_stamp_diff, 0 )
@@ -100,9 +101,14 @@ class ParentScript:
                 os.mkdir( ns_arguments.str_file_base )
 
         # Make pipeline object and indicate Log file
-        pline_cur = Pipeline.Pipeline( str_name = "Custom_script", 
+        pline_cur = Pipeline.Pipeline( str_name = prsr_arguments.prog, 
                                        str_log_to_file = ns_arguments.str_log_file if hasattr( ns_arguments, "str_log_file" ) else os.path.join( ns_arguments.str_file_base, "custom_log.txt"), 
                                        str_update_source_path = ns_arguments.str_update_classpath if hasattr( ns_arguments, "str_update_classpath" ) else None )
+
+        # Update the logger with the arguments
+        pline_cur.logr_logger.info( "ParentScript.func_run_pipeline: This run was started with the following arguments.\n" +
+                                    "\n".join( [ str( str_namespace_key ) + " = " + str( str_namespace_value )
+                                    for str_namespace_key, str_namespace_value in vars( ns_arguments ).items() ] ) )
 
         # Put pipeline in test mode if needed.
         if hasattr( ns_arguments, "f_Test" ) and ns_arguments.f_Test:
