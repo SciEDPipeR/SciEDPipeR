@@ -121,6 +121,7 @@ class ParentScript:
         # If the commands are not existent ( parsed from JSON )
         # then build them from script
         lcmd_commands = self.func_make_commands( args_parsed = ns_arguments, cur_pipeline = pline_cur )
+
         # Write JSON file
         if hasattr( ns_arguments, "str_json_file_out" ) and ns_arguments.str_json_file_out:
             JSONManager.JSONManager.func_pipeline_to_json( lcmd_commands=lcmd_commands , dict_args=vars( ns_arguments ), str_file=ns_arguments.str_json_file_out, f_pretty=True )
