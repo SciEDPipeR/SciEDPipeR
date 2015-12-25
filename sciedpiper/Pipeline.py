@@ -49,7 +49,10 @@ class Pipeline:
     """
 
 
-    def __init__( self, str_name = "", str_log_to_file = None, str_log_level = logging.INFO, str_update_source_path = None ):
+    def __init__( self, str_name = "",
+                        str_log_to_file = None,
+                        str_log_level = logging.INFO,
+                        str_update_source_path = None ):
         """ 
         Initiator has an optional parameter to set logging for a specific file.
         
@@ -94,7 +97,7 @@ class Pipeline:
         
         self.logr_logger = self.func_make_logger( str_log_file = self.str_log_file, str_logging_level = str_log_level )
         """ Logger for the pipeline. """
-        
+
         #Holds updates for class paths
         #Paths to prefix to the jar command
         self.dict_update_path = {}

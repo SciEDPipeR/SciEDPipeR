@@ -9,6 +9,7 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 import argparse
+import Arguments
 import JSONManager
 import os
 import Pipeline
@@ -72,9 +73,12 @@ class ParentScript:
         # If a prsr is returned, write over the old one.
         # Otherwise do not because it was updated in the function
         prsr_return = self.func_update_arguments( prsr_arguments )
+
         if prsr_return:
             prsr_arguments = prsr_return
 
+        # Store information about the arguments needed for later functionality
+        dict_args_info = Arguments.Arguments.func_extract_argument_info( prsr_arguments )
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
 
