@@ -66,7 +66,6 @@ class Pipeline:
         * str_log_level : String ( logging level )
                           Controls the level of logging. must be a valid logging level, see argparse.
         """
-
         self.cmdl_execute = Commandline.Commandline( str_name )
         """ Simple interface for running commandline """
         
@@ -105,7 +104,6 @@ class Pipeline:
             for str_path in str_update_source_path.split( "," ):
                 str_command, str_path = str_path.split( ":" )
                 self.dict_update_path[ str_command ] = str_path
-
 
     # Tested
     def func_check_files_exist( self, lstr_files ):
@@ -765,7 +763,7 @@ class Pipeline:
 
         # Log the beginning of the pipeline
         self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting pipeline", self.str_name ] ) )
-        
+
         # Make sure the output directory is an absolute path
         # Need to work with absolute files so that it can be
         # Identified that the input files are in the output directory

@@ -10,7 +10,6 @@ __status__ = "Development"
 import argparse
 
 # Constants
-C_STR_DESTINATION = "dest"
 C_STR_OPTION_STRINGS = "option_strings"
 C_STR_TYPE = "type"
 C_STR_VARIABLE_NAME = "var_name"

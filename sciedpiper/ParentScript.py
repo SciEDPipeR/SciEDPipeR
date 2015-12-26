@@ -10,11 +10,14 @@ __status__ = "Development"
 
 import argparse
 import Arguments
+import ConfigManager
 import JSONManager
 import os
 import Pipeline
+import sys
 
 # Constants
+C_STR_CONFIG_EXTENSION = ".config"
 # Keys for alignment return ( dicts )
 INDEX_CMD = "cmd"
 INDEX_FILE = "out_file"
@@ -68,6 +71,11 @@ class ParentScript:
         This is the function that is called by children objects to run.
         """
 
+        ## Manage the arguments
+        # Start with the parent arguments
+        # Allow children script arguments to be added
+        # Update arguments with config file for environemntal options
+        ##
         # Allow child object to update arguments
         prsr_arguments = self.func_create_arguments()
         # If a prsr is returned, write over the old one.
@@ -81,7 +89,12 @@ class ParentScript:
         dict_args_info = Arguments.Arguments.func_extract_argument_info( prsr_arguments )
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
-
+        # Update the arguments with the config file.
+        str_possible_config_file = os.path.splitext( os.path.realpath( sys.argv[0] ) )[ 0 ] + C_STR_CONFIG_EXTENSION 
+        if os.path.exists( str_possible_config_file ):
+            ns_arguments = ConfigManager.ConfigManager.func_update_arguments( args_parsed=ns_arguments,
+                                                                              dict_args_info=dict_args_info,
+                                                                              str_configuration_file_path=str_possible_config_file )
         # Handle time stamp
         if ( not ns_arguments.i_time_stamp_diff is None ):
             ns_arguments.i_time_stamp_diff = max( ns_arguments.i_time_stamp_diff, 0 )
@@ -117,7 +130,7 @@ class ParentScript:
         # Put pipeline in test mode if needed.
         if hasattr( ns_arguments, "f_Test" ) and ns_arguments.f_Test:
             pline_cur.func_test_mode()
-            
+
         # Turn off archiving if output directory was not given
         if hasattr( ns_arguments, "f_archive" ) and not f_archive:
             pline_cur.logr_logger.warning( "ParentScript.func_run_pipeline: Turning off archiving, please specify an output directory if you want this feature enabled.")
@@ -136,7 +149,6 @@ class ParentScript:
         if hasattr( ns_arguments, "str_json_file_out" ) and ns_arguments.str_json_file_out:
             JSONManager.JSONManager.func_pipeline_to_json( lcmd_commands=lcmd_commands , dict_args=vars( ns_arguments ), str_file=ns_arguments.str_json_file_out, f_pretty=True )
             pline_cur.logr_logger.info( "Writing JSON file to: " + ns_arguments.str_json_file_out )
-
         # Run commands
         if not hasattr( ns_arguments, "lstr_copy" ):
             setattr( ns_arguments, "lstr_copy", None )
