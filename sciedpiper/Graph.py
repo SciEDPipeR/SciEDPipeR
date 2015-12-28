@@ -15,8 +15,10 @@ class Graph:
     """ All the vertices can be accessed through this dict """
     self.root = Vertex( "_i_am_Groot_" )
     """ Root hold all nodes that have no parents, this allows multiple DAGs and singletons without loosing them."""
+
     # Every graph has root ("Groot")
     self.func_add_vertex( vtx_new=self.root )
+
 
   # Tested
   def func_get_terminal_vertices( self ):
@@ -24,15 +26,17 @@ class Graph:
     Turn vertices that are terminal.
     """
 
-    for cur_vtx in self:
-      if not cur_vtx.func_get_children() and ( not cur_vtx.str_id == self.root.str_id ): 
-        yield cur_vtx
+    return [ cur_vtx for cur_vtx in self
+      if not cur_vtx.func_get_children() and ( not cur_vtx.str_id == self.root.str_id ) ]
+
 
   # Tested
   def func_get_vertex( self, str_id ):
+
     if str_id:
       return self.vertices.get( str_id, None)
     return None
+
 
   # Tested
   def func_get_graph_roots( self ):
@@ -41,6 +45,7 @@ class Graph:
     """
 
     return self.root.func_get_children()
+
 
   # Used in tests
   def func_add_vertex( self, vtx_new ):
@@ -53,12 +58,15 @@ class Graph:
       self.func_add_edge( self.root, vtx_new )
       return self
 
+
   # Tested
   def __contains__( self , vtx_checking ):
     """ Overwrite the 'in' functionality """
+
     if not vtx_checking:
       return False
     return vtx_checking.str_id in self.vertices
+
 
   # Tested
   def func_add_edge( self, vtx_parent, vtx_child ):
@@ -98,6 +106,7 @@ class Graph:
     self.vertices[ vtx_cur_child.str_id ].func_add_parent( self.vertices[ vtx_cur_parent.str_id ] )
     return True    
 
+
   # Tested
   def func_delete_vertex( self, vtx_del ):
     """
@@ -109,6 +118,7 @@ class Graph:
     links to other parents connected to the graph, the child will stay
     linked through those links.
     """
+
     if not vtx_del in self:
       return
     lvtx_children = vtx_del.func_get_children()
@@ -162,6 +172,8 @@ class Graph:
     """ Indicate which nodes are visted """
     dq_cache = deque( [ self.root ] )
     """ Cache of nodes to vist """
+    list_node_ordered = [ self.root ]
+    """ Ordered list of nodes visted to return """
 
     # Iterate through cache and add children to cache
     while len( dq_cache ):
@@ -173,18 +185,25 @@ class Graph:
           # If this is the first time we see the vertex, add to cache and indicate it is visited.
           dq_cache.append( vtx_child )
           dict_visited[ vtx_child ] = None
-      yield vtx_cur
+          list_node_ordered.append( vtx_child )
+    return iter( list_node_ordered )
+
 
   # Tested
   def __len__( self ):
+
     return len( self.vertices )
+
 
   # Tested
   def __str__( self ):
+
     return "Graph: " + str( len( self.vertices  )) + " vertices."
+
 
   # Used in tests
   def func_detail( self ):
+
     lstr_vertices = []
     for str_key in sorted( self.vertices.keys() ):
       lstr_vertices.append( self.vertices[ str_key ].func_detail() )
@@ -201,14 +220,18 @@ class Vertex:
     * str_id : Id for vertex
              : String but could be a numeric.
     """
+
     self.str_id = str_id
     self.dict_vtx_parents = {}
     self.dict_vtx_children = {}
     self.str_type = STR_TYPE_VERTEX
 
+
   # Used in testing
   def __id__( self ):
+
     return hash( self.str_id )
+
 
   # Tested
   def func_add_parent( self, vtx_parent ):
@@ -220,13 +243,17 @@ class Vertex:
 
     * return : void
     """
+
     if vtx_parent and vtx_parent.str_id:
       self.dict_vtx_parents[ vtx_parent.str_id ] = vtx_parent
 
+
   # Tested
   def func_remove_parent( self, vtx_parent ):
+
     if vtx_parent.str_id in self.dict_vtx_parents:
       del self.dict_vtx_parents[ vtx_parent.str_id ]
+
 
   # Tested
   def func_has_parent( self ):
@@ -236,7 +263,9 @@ class Vertex:
     * return : True indicates has parent.
              : boolean
     """
+
     return True if self.dict_vtx_parents else False
+
 
   # Tested
   def func_add_child( self, vtx_child ):
@@ -251,32 +280,44 @@ class Vertex:
     if vtx_child and vtx_child.str_id:
       self.dict_vtx_children[ vtx_child.str_id ] = vtx_child
 
+
   # Tested
   def func_has_child( self ):
+
     return True if self.dict_vtx_children else False
+
 
   # Tested
   def func_remove_child( self, vtx_child ):
+
     if vtx_child.str_id in self.dict_vtx_children:
       del self.dict_vtx_children[ vtx_child.str_id ]
 
+
   # Tested
   def func_get_parents( self ):
+
     return sorted( self.dict_vtx_parents.values() )
+
 
   # Tested
   def func_get_children( self ):
+
     return sorted( self.dict_vtx_children.values() )
+
 
   # Tested
   def __str__( self ):
+
     return "".join([ "VERTEX{ " + str( self.str_id ) + ", Parent count: ",
                      str(len(self.dict_vtx_parents)),
                      ", Children count: ",
                      str(len(self.dict_vtx_children)), " }" ])
 
+
   # Used in testing
   def func_detail( self ):
+
     return ";".join( [ "VERTEX{ ID=" + str( self.str_id ),
                        "Parents=" + str( sorted( self.dict_vtx_parents.keys() ) ),
                        "Children=" + str( sorted( self.dict_vtx_children.keys() ) ),
