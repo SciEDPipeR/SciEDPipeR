@@ -136,69 +136,6 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         graph_dep.func_add_edge( vtx_seventeen, vtx_eighteen )
         return graph_dep
 
-    def func_make_commands_for_complex_real_graph( self, str_env ):
-        """
-        Dependency Tree made:
-        D1 D2  D3  D4  D5  D6  D7  D8 P7
-        |__|   |   |   |___|   |
-         |     |   |     |     |
-         C1   C2   |    C5    C6
-         |     |   |     |     |
-         P1   P2   |     |     |
-         |_____|   |    P8    P9
-            |      |
-            C3     |
-           ____    |
-         |  |  |   |
-        P3  P4 P5  |
-               |___|
-                 |
-                C4
-                 |
-                P6
-        """
-        str_dependency_1 = os.path.join( str_env, "Dependencies_1.txt" )
-        str_dependency_2 = os.path.join( str_env, "Dependencies_2.txt" )
-        str_dependency_3 = os.path.join( str_env, "Dependencies_3.txt" )
-        str_dependency_4 = os.path.join( str_env, "Dependencies_4.txt" )
-        str_dependency_5 = os.path.join( str_env, "Dependencies_5.txt" )
-        str_dependency_6 = os.path.join( str_env, "Dependencies_6.txt" )
-        str_dependency_7 = os.path.join( str_env, "Dependencies_7.txt" )
-        str_dependency_8 = os.path.join( str_env, "Dependencies_8.txt" )
-        str_product_1 = os.path.join( str_env, "Products_1.txt" )
-        str_product_2 = os.path.join( str_env, "Products_2.txt" )
-        str_product_3 = os.path.join( str_env, "Products_3.txt" )
-        str_product_4 = os.path.join( str_env, "Products_4.txt" )
-        str_product_5 = os.path.join( str_env, "Products_5.txt" )
-        str_product_6 = os.path.join( str_env, "Products_6.txt" )
-        str_product_7 = os.path.join( str_env, "Products_7.txt" )
-        str_product_8 = os.path.join( str_env, "Products_8.txt" )
-        str_product_9 = os.path.join( str_env, "Products_9.txt" )
-        cmd_test_1 = Command.Command( " ".join( [ "cat",str_dependency_1,">",str_product_1 ] ), 
-                                      [ str_dependency_1, str_dependency_2 ],
-                                      [ str_product_1 ] )
-        cmd_test_2 = Command.Command( " ".join( [ "cat",str_dependency_3,">",str_product_2 ] ),
-                                      [ str_dependency_3 ],
-                                      [ str_product_2 ] )
-        cmd_test_3 = Command.Command( " ".join( [ "cat",str_product_1,">",str_product_4 ] ),
-                                      [ str_product_1, str_product_2 ],
-                                      [ str_product_3, str_product_4, str_product_5 ] )
-        cmd_test_4 = Command.Command( " ".join( [ "cat",str_product_5,">",str_product_6 ] ),
-                                      [ str_product_5, str_dependency_4 ],
-                                      [ str_product_6 ] )
-        cmd_test_5 = Command.Command( " ".join( [ "cat",str_dependency_6,">",str_product_8 ] ),
-                                      [ str_dependency_5, str_dependency_6 ],
-                                      [ str_product_8 ] )
-        cmd_test_6 = Command.Command( " ".join( [ "cat",str_dependency_7,">",str_product_9 ] ),
-                                      [ str_dependency_7 ],
-                                      [ str_product_9 ] )
-        self.func_make_dummy_dir( str_env )
-        for str_file in [ str_dependency_1, str_dependency_2, str_dependency_3, str_dependency_4, 
-                          str_dependency_5, str_dependency_6, str_dependency_7, str_dependency_8 ]:
-            self.func_make_dummy_file( str_file )
-            self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file ))
-        return [ cmd_test_1, cmd_test_2, cmd_test_3, cmd_test_4, cmd_test_5, cmd_test_6  ]
-
 # Init 
     def test_init_for_no_command( self ):
         """ Test initialization with no commands """
@@ -228,6 +165,36 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         graph_dep = self.func_make_complex_graph()
         str_result = str( sorted( [ vtx_cur.str_id for vtx_cur in graph_dep.func_get_commands() if vtx_cur] ) )
         self.func_test_equals( str_answer, str_result )
+
+    def test_get_commands_for_order_in_complex_graph( self ):
+        """ Test get commands for the complex DependencyGraph, checking to make sure the order is right. """
+        itr_commands = iter( self.func_make_complex_graph().func_get_commands() )
+        lstr_commands_group_1 = [ 2, 3, 4 ]
+        lstr_commands_group_2 = [ 10 ]
+        lstr_commands_group_3 = [ 13, 14 ]
+        lstr_commands_group_4 = [ 17 ]
+        cmd_cur = itr_commands.next()
+        if not cmd_cur.str_id in lstr_commands_group_1:
+            self.func_test_true( False )
+        cmd_cur = itr_commands.next()
+        if not cmd_cur.str_id in lstr_commands_group_1:
+            self.func_test_true( False )
+        cmd_cur = itr_commands.next()
+        if not cmd_cur.str_id in lstr_commands_group_1:
+            self.func_test_true( False )
+        cmd_cur = itr_commands.next()
+        if not cmd_cur.str_id in lstr_commands_group_2:
+            self.func_test_true( False )
+        cmd_cur = itr_commands.next()
+        if not cmd_cur.str_id in lstr_commands_group_3:
+            self.func_test_true( False )
+        cmd_cur = itr_commands.next()
+        if not cmd_cur.str_id in lstr_commands_group_3:
+            self.func_test_true( False )
+        cmd_cur = itr_commands.next()
+        if not cmd_cur.str_id in lstr_commands_group_4:
+            self.func_test_true( False )
+        self.func_test_true( True )
 
 # Get terminal products
     def test_get_terminal_products_for_empty_graph( self ):
@@ -302,7 +269,7 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         str_answer = "[]" 
         graph_dep = DependencyGraph.DependencyGraph()
         str_result = str( sorted( [ vtx_cur.func_detail() for vtx_cur in graph_dep.func_get_products() if vtx_cur] ) )
-        self.func_test_equals( str_answer, str_result )
+        self.func_test_equals( str_answer, str_result ) 
 
     def test_get_products_for_simple_graph( self ):
         """ Test get products for an empty DependencyGraph """
