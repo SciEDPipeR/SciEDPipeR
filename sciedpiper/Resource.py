@@ -48,8 +48,8 @@ class Resource( Graph.Vertex ):
         return " ".join( [ "PATH:", str( self.str_id ) + ",",
                           "CLEAN:", str( self.i_clean ) + ",",
                           "Product" if self.f_is_product else "Dependency",
-                          "PARENTS:", str( [ str( vtx_parent.str_id ) for vtx_parent in self.func_get_parents() ] ),
-                          "CHILDREN:", str( [ str( vtx_child.str_id ) for vtx_child in self.func_get_children() ] ) ] )
+                          "PARENTS:", str( sorted( [ str( vtx_parent.str_id ) for vtx_parent in self.func_get_parents() ] ) ),
+                          "CHILDREN:", str( sorted( [ str( vtx_child.str_id ) for vtx_child in self.func_get_children() ] ) ) ] )
 
     def __eq__( self, other ):
         if ( not isinstance( other, Resource )):
