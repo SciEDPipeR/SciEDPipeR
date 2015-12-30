@@ -1362,6 +1362,333 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(str_answer, str_result)
 
 
+    def test_func_get_commands_no_command( self ):
+        """ Tests the commands returned when no command is in the graph """
+
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commmands_no_command" ) + os.path.sep
+        str_answer = "[]"
+        dt_tree = DependencyTree.DependencyTree( [ ] )
+        str_result = str([ cmd_cur.func_detail() for cmd_cur in dt_tree.func_get_commands() ])
+        self.func_test_equals( str_answer, str_result )
+    
+
+    def test_func_get_commands_one_command( self ):
+        """ Tests the commands returned when one command is in the graph """
+
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commmands_one_command" ) + os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_answer = "".join([ "[\"Command: Command_1; ",
+                                  "Dependencies: PATH: " + str_env + "Dependency_1, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; ",
+                                  "Products: PATH: " + str_env + "Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: []\"]" ])
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ], [ str_product_1 ] )
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1 ] )
+        str_result = str([ cmd_cur.func_detail() for cmd_cur in dt_tree.func_get_commands() ])
+        self.func_test_equals( str_answer, str_result )
+
+
+    def test_func_get_commands_three_command( self ):
+        """ Tests the order of the commands returned when three commmands are in the graph. """
+
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commands_three_command" ) + os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_answer = "".join([ "[\"Command: Command_1; ",
+                                    "Dependencies: PATH: " + str_env + "Dependency_1, CLEAN: 2, ",
+                                    "Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; ",
+                                    "Products: PATH: " + str_env + "Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_2']\", ",
+                                "\"Command: Command_2; ",
+                                    "Dependencies: PATH: " + str_env + "Products_1, CLEAN: 2, ",
+                                    "Product PARENTS: ['Command_1'] CHILDREN: ['Command_2']; ",
+                                    "Products: PATH: " + str_env + "Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_3']\",",
+                               " \"Command: Command_3; ",
+                                    "Dependencies: PATH: " + str_env + "Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_3']; ",
+                                    "Products: PATH: " + str_env + "Products_3, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: []\"]" ])
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ],
+                                      [ str_product_3 ] )
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3 ] )
+        str_result = str([ cmd_cur.func_detail() for cmd_cur in dt_tree.func_get_commands() ])
+        self.func_test_equals(str_answer, str_result)
+
+
+    def test_func_get_commands_six_command_1( self ):
+        """ 
+        Tests the order of the commands returned when six commands are in a graph as shown below.  
+          1      2
+          |      |
+          3      4
+          |      |
+          5      6
+        """ 
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commands_six_command_1" ) + os.path.sep
+        str_env = os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_dependency_2 = str_env + "Dependency_2"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_product_4 = str_env + "Products_4"
+        str_product_5 = str_env + "Products_5"
+        str_product_6 = str_env + "Products_6"
+        str_cmd_1_answer = "Command: Command_1; Dependencies: PATH: /Dependency_1, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; Products: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3']"
+        str_cmd_2_answer = "Command: Command_2; Dependencies: PATH: /Dependency_2, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_2']; Products: PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4']"
+        str_cmd_3_answer = "Command: Command_3; Dependencies: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3']; Products: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']"
+        str_cmd_4_answer = "Command: Command_4; Dependencies: PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4']; Products: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_4'] CHILDREN: ['Command_6']"
+        str_cmd_5_answer = "Command: Command_5; Dependencies: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']; Products: PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: []"
+        str_cmd_6_answer = "Command: Command_6; Dependencies: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_4'] CHILDREN: ['Command_6']; Products: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_6'] CHILDREN: []"
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ], [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_dependency_2 ], [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_1 ], [ str_product_3 ] )
+        cmd_test_4 = Command.Command( "Command_4", [ str_product_2 ], [ str_product_4 ] )
+        cmd_test_5 = Command.Command( "Command_5", [ str_product_3 ], [ str_product_5 ] )
+        cmd_test_6 = Command.Command( "Command_6", [ str_product_4 ], [ str_product_6 ] )
+        lstr_cmd_1 = [ str_cmd_1_answer, str_cmd_2_answer ]
+        lstr_cmd_2 = [ str_cmd_3_answer, str_cmd_4_answer ]
+        lstr_cmd_3 = [ str_cmd_5_answer, str_cmd_6_answer ]
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3, cmd_test_4, cmd_test_5, cmd_test_6 ] )
+        itr_cmd = iter( dt_tree.func_get_commands() )
+        if not itr_cmd.next().func_detail() in lstr_cmd_1:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_1:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        self.func_test_true( True )
+
+
+    def test_func_get_commands_six_command_2( self ):
+        """ 
+        Tests the order of the commands returned when six commands are in a graph as shown below.  
+          1   2
+           \ /
+            3
+           / \
+          4   5
+              |
+              6
+        """ 
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commands_six_command_2" ) + os.path.sep
+        str_env = os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_dependency_2 = str_env + "Dependency_2"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_product_4 = str_env + "Products_4"
+        str_product_5 = str_env + "Products_5"
+        str_product_6 = str_env + "Products_6"
+        str_product_7 = str_env + "Products_7"
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ], [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_dependency_2 ], [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_1, str_product_2 ], [ str_product_3, str_product_4 ] )
+        cmd_test_4 = Command.Command( "Command_4", [ str_product_3 ], [ str_product_7 ] )
+        cmd_test_5 = Command.Command( "Command_5", [ str_product_4 ], [ str_product_5 ] )
+        cmd_test_6 = Command.Command( "Command_6", [ str_product_5 ], [ str_product_6 ] )
+        str_cmd_1_answer = "Command: Command_1; Dependencies: PATH: /Dependency_1, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; Products: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3']"
+        str_cmd_2_answer = "Command: Command_2; Dependencies: PATH: /Dependency_2, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_2']; Products: PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_3']"
+        str_cmd_3_answer = "Command: Command_3; Dependencies: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3'],PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_3']; Products: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_4'],PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']"
+        str_cmd_4_answer = "Command: Command_4; Dependencies: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_4']; Products: PATH: /Products_7, CLEAN: 2, Product PARENTS: ['Command_4'] CHILDREN: []"
+        str_cmd_5_answer = "Command: Command_5; Dependencies: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']; Products: PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']"
+        str_cmd_6_answer = "Command: Command_6; Dependencies: PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']; Products: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_6'] CHILDREN: []"
+        lstr_cmd_1 = [ str_cmd_1_answer, str_cmd_2_answer ]
+        lstr_cmd_2 = [ str_cmd_3_answer ]
+        lstr_cmd_3 = [ str_cmd_4_answer, str_cmd_5_answer ]
+        lstr_cmd_4 = [ str_cmd_6_answer ]
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3, cmd_test_4, cmd_test_5, cmd_test_6 ] )
+        itr_cmd = iter( dt_tree.func_get_commands() )
+        if not itr_cmd.next().func_detail() in lstr_cmd_1:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_1:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_4:
+            self.func_test_true( False )
+        self.func_test_true( True )
+
+
+    def test_func_get_commands_six_command_3( self ):
+        """ 
+        Tests the order of the commands returned when six commands are in a graph as shown below.  
+          1
+          |
+          2
+          |\
+          3 4
+          |/
+          5
+          |
+          6
+        """ 
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commands_six_command_3" ) + os.path.sep
+        str_env = os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_product_4 = str_env + "Products_4"
+        str_product_5 = str_env + "Products_5"
+        str_product_6 = str_env + "Products_6"
+        str_product_7 = str_env + "Products_7"
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ], [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ], [ str_product_2, str_product_3 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ], [ str_product_4 ] )
+        cmd_test_4 = Command.Command( "Command_4", [ str_product_3 ], [ str_product_5 ] )
+        cmd_test_5 = Command.Command( "Command_5", [ str_product_4, str_product_5 ], [ str_product_6 ] )
+        cmd_test_6 = Command.Command( "Command_6", [ str_product_6 ], [ str_product_7 ] )
+        str_cmd_1_answer = "Command: Command_1; Dependencies: PATH: /Dependency_1, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; Products: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_2']"
+        str_cmd_2_answer = "Command: Command_2; Dependencies: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_2']; Products: PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_3'],PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4']"
+        str_cmd_3_answer = "Command: Command_3; Dependencies: PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_3']; Products: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']"
+        str_cmd_4_answer = "Command: Command_4; Dependencies: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4']; Products: PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_4'] CHILDREN: ['Command_5']"
+        str_cmd_5_answer = "Command: Command_5; Dependencies: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5'],PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_4'] CHILDREN: ['Command_5']; Products: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']"
+        str_cmd_6_answer = "Command: Command_6; Dependencies: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']; Products: PATH: /Products_7, CLEAN: 2, Product PARENTS: ['Command_6'] CHILDREN: []"
+        lstr_cmd_1 = [ str_cmd_1_answer ]
+        lstr_cmd_2 = [ str_cmd_2_answer ]
+        lstr_cmd_3 = [ str_cmd_3_answer, str_cmd_4_answer ]
+        lstr_cmd_4 = [ str_cmd_5_answer ]
+        lstr_cmd_5 = [ str_cmd_6_answer ]
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3, cmd_test_4, cmd_test_5, cmd_test_6 ] )
+        itr_cmd = iter( dt_tree.func_get_commands() )
+        if not itr_cmd.next().func_detail() in lstr_cmd_1:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_4:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_5:
+            self.func_test_true( False )
+        self.func_test_true( True )
+
+
+    def test_func_get_commands_six_command_4( self ):
+        """ 
+        Tests the order of the commands returned when six commands are in a graph as shown below.  
+          1
+          |\
+          2 3
+          | |
+          4 5
+          |/
+          6
+        """ 
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commands_six_command_4" ) + os.path.sep
+        str_env = os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_product_4 = str_env + "Products_4"
+        str_product_5 = str_env + "Products_5"
+        str_product_6 = str_env + "Products_6"
+        str_product_7 = str_env + "Products_7"
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ], [ str_product_1, str_product_2 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ], [ str_product_3 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ], [ str_product_4 ] )
+        cmd_test_4 = Command.Command( "Command_4", [ str_product_3 ], [ str_product_5 ] )
+        cmd_test_5 = Command.Command( "Command_5", [ str_product_4 ], [ str_product_6 ] )
+        cmd_test_6 = Command.Command( "Command_6", [ str_product_5, str_product_6 ], [ str_product_7 ] )
+        str_cmd_1_answer = "Command: Command_1; Dependencies: PATH: /Dependency_1, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; Products: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_2'],PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3']"
+        str_cmd_2_answer = "Command: Command_2; Dependencies: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_2']; Products: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4']"
+        str_cmd_3_answer = "Command: Command_3; Dependencies: PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3']; Products: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']"
+        str_cmd_4_answer = "Command: Command_4; Dependencies: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4']; Products: PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_4'] CHILDREN: ['Command_6']"
+        str_cmd_5_answer = "Command: Command_5; Dependencies: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']; Products: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']"
+        str_cmd_6_answer = "Command: Command_6; Dependencies: PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_4'] CHILDREN: ['Command_6'],PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']; Products: PATH: /Products_7, CLEAN: 2, Product PARENTS: ['Command_6'] CHILDREN: []"
+        lstr_cmd_1 = [ str_cmd_1_answer ]
+        lstr_cmd_2 = [ str_cmd_2_answer, str_cmd_3_answer ]
+        lstr_cmd_3 = [ str_cmd_4_answer, str_cmd_5_answer ]
+        lstr_cmd_4 = [ str_cmd_6_answer ]
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3, cmd_test_4, cmd_test_5, cmd_test_6 ] )
+        itr_cmd = iter( dt_tree.func_get_commands() )
+        if not itr_cmd.next().func_detail() in lstr_cmd_1:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_4:
+            self.func_test_true( False )
+        self.func_test_true( True )
+
+
+    def test_func_get_commands_six_command_5( self ):
+        """ 
+        Tests the order of the commands returned when six commands are in a graph as shown below.  
+          1
+          |\
+          2 3
+          |/ \
+          4   5
+            \ |
+              6
+        """ 
+        str_env = os.path.join( self.str_test_directory, "test_func_get_commands_six_command_5" ) + os.path.sep
+        str_env = os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_product_4 = str_env + "Products_4"
+        str_product_5 = str_env + "Products_5"
+        str_product_6 = str_env + "Products_6"
+        str_product_7 = str_env + "Products_7"
+        str_product_8 = str_env + "Products_8"
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ], [ str_product_1, str_product_2 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ], [ str_product_3 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ], [ str_product_4, str_product_5 ] )
+        cmd_test_4 = Command.Command( "Command_4", [ str_product_3, str_product_4 ], [ str_product_6 ] )
+        cmd_test_5 = Command.Command( "Command_5", [ str_product_5 ], [ str_product_6, str_product_7 ] )
+        cmd_test_6 = Command.Command( "Command_6", [ str_product_6, str_product_7 ], [ str_product_8 ] )
+        str_cmd_1_answer = "Command: Command_1; Dependencies: PATH: /Dependency_1, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; Products: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_2'],PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3']"
+        str_cmd_2_answer = "Command: Command_2; Dependencies: PATH: /Products_1, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_2']; Products: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4']"
+        str_cmd_3_answer = "Command: Command_3; Dependencies: PATH: /Products_2, CLEAN: 2, Product PARENTS: ['Command_1'] CHILDREN: ['Command_3']; Products: PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_4'],PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']"
+        str_cmd_4_answer = "Command: Command_4; Dependencies: PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_2'] CHILDREN: ['Command_4'],PATH: /Products_4, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_4']; Products: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_4', 'Command_5'] CHILDREN: ['Command_6']"
+        str_cmd_5_answer = "Command: Command_5; Dependencies: PATH: /Products_5, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: ['Command_5']; Products: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_4', 'Command_5'] CHILDREN: ['Command_6'],PATH: /Products_7, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']"
+        str_cmd_6_answer = "Command: Command_6; Dependencies: PATH: /Products_6, CLEAN: 2, Product PARENTS: ['Command_4', 'Command_5'] CHILDREN: ['Command_6'],PATH: /Products_7, CLEAN: 2, Product PARENTS: ['Command_5'] CHILDREN: ['Command_6']; Products: PATH: /Products_8, CLEAN: 2, Product PARENTS: ['Command_6'] CHILDREN: []"
+        lstr_cmd_1 = [ str_cmd_1_answer ]
+        lstr_cmd_2 = [ str_cmd_2_answer, str_cmd_3_answer ]
+        lstr_cmd_3 = [ str_cmd_4_answer, str_cmd_5_answer ]
+        lstr_cmd_4 = [ str_cmd_6_answer ]
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3, cmd_test_4, cmd_test_5, cmd_test_6 ] )
+        itr_cmd = iter( dt_tree.func_get_commands() )
+        if not itr_cmd.next().func_detail() in lstr_cmd_1:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_2:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_3:
+            self.func_test_true( False )
+        if not itr_cmd.next().func_detail() in lstr_cmd_4:
+            self.func_test_true( False )
+        self.func_test_true( True )
+
+
 #Creates a suite of tests
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase( DependencyTreeTester )

@@ -209,6 +209,15 @@ class DependencyTree:
         cmd_cur.str_status = Command.STR_ERROR
         return False
 
+
+    def func_get_commands( self ):
+        """
+        Returns a breadthwise iterator of the internal commands.
+        """
+
+        return self.graph_commands.func_get_commands()
+
+
     # Tested
     def func_remove_dependency_relationships( self, cmd_cur):
         """
