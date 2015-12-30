@@ -43,9 +43,8 @@ class DependencyTree:
                    : A logger to use
         """
         
-        self.logr_logger = logging.getLogger() if not logr_cur else logr_cur
+        self.logr_logger = logging.getLogger(__name__) if not logr_cur else logr_cur
         """ Logger, uses the default logger. """
-        
         self.graph_commands = DependencyGraph.DependencyGraph()
         """ Graph holds the relationship between commands. """
 

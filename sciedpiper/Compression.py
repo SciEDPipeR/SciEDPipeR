@@ -40,7 +40,7 @@ class Compression:
         Initializer
         """
         
-        self.logr_logger = logging.getLogger() if not logr_cur else logr_cur
+        self.logr_logger = logging.getLogger(__name__) if not logr_cur else logr_cur
         """ Logger, uses the default logger. """
         
         self.dict_magic_number = { "\x1f\x8b\x08": STR_COMPRESSION_GZ,
