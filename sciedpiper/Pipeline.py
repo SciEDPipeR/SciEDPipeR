@@ -730,19 +730,29 @@ class Pipeline:
         return True
 
 
-    def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, str_run_name = "",
+    def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, f_self_organize_commands = True,
                            li_wait = None, lstr_copy = None, str_move = None, str_compression_mode = None,
                            str_compression_type = "gz", i_time_stamp_wiggle = None, str_wdl = None ):
         """
         Runs all commands in serial and logs the time each took.
         Will NOT stop on error but will attempt all commands.
         
-        * lstr_commands : List of strings ( commands )
+        * lcmd_commands : List of commands
                           Each command will be ran in order until completion or failure.
                           Each command will also be logged and timed.
 
+        * str_output_dir : String
+                         : String path to output directory
+
         * f_clean : Boolean
                     True indicates files should be deleted when no longer needed dependent on their clean level.
+
+        * f_self_organize_commands : Boolean
+                                     True indicates commmands are ran by the order given by the graph 
+                                     as opposed to as given by the user.
+
+        * li_wait : List of integers
+                    Seconds of waiting when looking for products to be creates, each int is a wait in the order o fthe list
 
         * i_time_stamp_wiggle : int or None to turn off
                                 Time stamps must bemore than this difference in order to be evaluated, otherwise they pass.
@@ -780,9 +790,9 @@ class Pipeline:
                 # Make all the directories needed for the commands
                 self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
 
-        # Make a wdl file # TODO update this to use the deoendecy tree traversal for self-ordering commands
+        # Make a wdl file
         if str_wdl:
-            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Not running pipeline. Writting WDL to file:", str_wdl ] ) )
+            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Not running pipeline. Writing WDL to file:", str_wdl ] ) )
             JSONManager.JSONManager.func_pipeline_to_wdl( lcmd_commands = lcmd_commands, str_workflow = self.str_name, str_file = str_wdl )
             return True
 
@@ -803,7 +813,11 @@ class Pipeline:
         # lstr_made_dependencies_to_compress tracks products that are mode which have yet to be compressed.
         # Should be a set
         sstr_made_dependencies_to_compress = set()
-        for cmd_command in lcmd_commands:# dt_dependencies.graph_commands.func_get_commands():
+
+        # Turn on graph organized commands if needed.
+        if f_self_organize_commands:
+            lcmd_commands = dt_dependencies.func_get_commands()
+        for cmd_command in lcmd_commands:
 
             # Log the start
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
