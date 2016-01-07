@@ -11,13 +11,16 @@ __status__ = "Development"
 import argparse
 import Arguments
 import ConfigManager
+import Commandline
 import JSONManager
 import os
 import Pipeline
+import stat
 import sys
 
 # Constants
 C_STR_CONFIG_EXTENSION = ".config"
+C_STR_NO_PIPELINE_CONFIG_ARG = "--no_pipeline_config"
 # Keys for alignment return ( dicts )
 INDEX_CMD = "cmd"
 INDEX_FILE = "out_file"
@@ -43,8 +46,10 @@ class ParentScript:
         prsr_arguments.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
         prsr_arguments.add_argument( "--move", metavar = "Move_location", dest = "str_move_dir", default = None, help = "The path where to move the output directory after the pipeline ends. Can be used with the copy argument if both copying to one location(s) and moving to another is needed. Must specify output directory." )
         prsr_arguments.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
+        prsr_arguments.add_argument( C_STR_NO_PIPELINE_CONFIG_ARG, dest = "f_use_pipeline_config", default = True, action = "store_false", help = "Use this flag to ignore the pipeline config file." )
         prsr_arguments.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
         prsr_arguments.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
+        prsr_arguments.add_argument( "--resources", dest = "str_resource_config", default = None, help = "Resource config file must be used in conjunction with a pipeline config file." )
         prsr_arguments.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
         prsr_arguments.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
         prsr_arguments.add_argument( "--compress", dest = "str_compress", default = "none", choices = Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES, help = "Turns on compression of products and intermediary files made by the pipeline. Valid choices include:" + str( Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES ) )
@@ -86,15 +91,41 @@ class ParentScript:
             prsr_arguments = prsr_return
 
         # Store information about the arguments needed for later functionality
+        # { arg_flag: arg_dest }
         dict_args_info = Arguments.Arguments.func_extract_argument_info( prsr_arguments )
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
+
+        # If a resource config file is given, the pipeline config file must be given
+        if ns_arguments.str_resource_config and not ns_arguments.f_use_pipeline_config:
+            print "A pipeline config file must be used to map resources from the Resource Config file to the command. Please make a pipeline config file."
+            prsr_arguments.print_help()
+            exit( 203 )
+
         # Update the arguments with the config file.
         str_possible_config_file = os.path.splitext( os.path.realpath( sys.argv[0] ) )[ 0 ] + C_STR_CONFIG_EXTENSION 
-        if os.path.exists( str_possible_config_file ):
-            ns_arguments = ConfigManager.ConfigManager.func_update_arguments( args_parsed=ns_arguments,
-                                                                              dict_args_info=dict_args_info,
-                                                                              str_configuration_file_path=str_possible_config_file )
+        if os.path.exists( str_possible_config_file ) and ns_arguments.f_use_pipeline_config:
+            cur_config_manager = ConfigManager.ConfigManager( str_possible_config_file )
+            ns_arguments = cur_config_manager.func_update_arguments( args_parsed=ns_arguments,
+                                                                     dict_args_info=dict_args_info,
+                                                                     str_resource_config=ns_arguments.str_resource_config )
+            str_additional_env_path = cur_config_manager.func_update_env_path()
+            str_additional_python_path = cur_config_manager.func_update_python_path()
+            str_updated_script_path = cur_config_manager.func_update_script_path( sys.argv[ 0 ] )
+            str_precommands = cur_config_manager.func_get_precommands()
+            str_postcommands = cur_config_manager.func_get_postcommands()
+            # If needing to update the script path, or add pre/post commands write a script in the output and call it.
+            if str_updated_script_path or str_precommands or str_postcommands:
+                ## Make output directory
+                self.func_make_output_dir( ns_arguments )
+                ## Make the script in the output directory
+                str_script_to_run = self.func_make_script( ns_arguments, dict_args_info, str_additional_env_path,
+                                       str_additional_python_path, str_updated_script_path,
+                                       str_precommands, str_postcommands )
+                # Run script
+                Commandline.Commandline().func_CMD( str_script_to_run, f_use_bash = True ) 
+                exit( 0 )
+
         # Handle time stamp
         if ( not ns_arguments.i_time_stamp_diff is None ):
             ns_arguments.i_time_stamp_diff = max( ns_arguments.i_time_stamp_diff, 0 )
@@ -105,17 +136,11 @@ class ParentScript:
         ## Output dir related
         # If the output dir is not specified then move and copy functions are disabled
         f_archive = True
-        # Make a default output folder based on the time if not given
-        # Make default log
         if not hasattr( ns_arguments, "str_file_base") or not ns_arguments.str_file_base:
             f_archive = False
-            ns_arguments.str_file_base = os.getcwd()
 
-        # If an output / project folder is indicated.
-        if hasattr( ns_arguments, "str_file_base" ):
-            # Make the output directory if it does not exist
-            if ns_arguments.str_file_base and not os.path.isdir( ns_arguments.str_file_base ):
-                os.mkdir( ns_arguments.str_file_base )
+        ## Make output directory
+        self.func_make_output_dir( ns_arguments )
 
         # Make pipeline object and indicate Log file
         pline_cur = Pipeline.Pipeline( str_name = prsr_arguments.prog, 
@@ -189,3 +214,73 @@ class ParentScript:
         * return : List of command objects
         """
         return []
+
+
+    def func_make_script( self, ns_arguments, dict_args_info, str_additional_env_path,
+                                str_additional_python_path, str_updated_script_path,
+                                str_precommands, str_postcommands ):
+
+        str_full_script_name = os.path.join( ns_arguments.str_file_base, os.path.basename( str_updated_script_path ) )
+        str_full_script_name = os.path.splitext( str_full_script_name )[0]+".sh"
+        lstr_positionals = []
+
+        # Make dict to translate dest to flag
+        dict_dest_to_flag = {}
+        for str_info_key in dict_args_info:
+            if not str_info_key == Arguments.C_STR_POSITIONAL_ARGUMENTS:
+                dict_dest_to_flag[ dict_args_info[ str_info_key ][ Arguments.C_STR_VARIABLE_NAME ] ] = str_info_key
+
+        with open( str_full_script_name, "w" ) as hndl_write_script:
+            lstr_script_call = [ str_full_script_name ]
+            # Add flags and positional arguments
+            for str_arg_dest, str_arg_value in vars( ns_arguments ).items():
+                if not str_arg_dest in dict_args_info[ Arguments.C_STR_POSITIONAL_ARGUMENTS ][ Arguments.C_STR_VARIABLE_NAME ]:
+                    # If the value is boolean
+                    # Check the action if it is action_true or action_false
+                    # If it is then use the correct flag presence depending on the value and the action.
+                    cur_str_flag = dict_dest_to_flag[ str_arg_dest ]
+                    if ( isinstance( str_arg_value, bool )):
+                        # Handle special cases help
+                        if cur_str_flag in [ "-h", "--help" ]:
+                            if str_arg_value:
+                                lstr_script_call.append( cut_str_flag )
+                        elif not str_arg_value == dict_args_info[ cur_str_flag ][ Arguments.C_STR_DEFAULT ]:
+                            lstr_script_call.append( cur_str_flag )
+                    else:
+                        lstr_script_call.extend([ cur_str_flag, str( str_arg_value ) ])
+
+            # Add in no config pipeline otherwise the config file is read again and this
+            # code is executed again making an inf loop.
+            if not C_STR_NO_PIPELINE_CONFIG_ARG in lstr_script_call:
+                lstr_script_call.append( C_STR_NO_PIPELINE_CONFIG_ARG )
+
+            # Add positional arguments
+            lstr_script_call.extend( lstr_positionals )
+
+            # Make / write script body
+            lstr_script = [ "#!/usr/bin/env bash",
+                            "",
+                            "set -e",
+                            "PATH=$PATH:"+str_additional_env_path,
+                            "PYTHONPATH=$PYTHONPATH:"+str_additional_python_path,
+                            str_precommands,
+                            " ".join( lstr_script_call ),
+                            str_postcommands ]
+            hndl_write_script.write( "\n".join( lstr_script ) )
+        os.chmod( str_full_script_name, 0774 )
+        return str_full_script_name
+
+
+    def func_make_output_dir( self, ns_arguments ):
+
+        ## Output dir related
+        if not hasattr( ns_arguments, "str_file_base") or not ns_arguments.str_file_base:
+            ns_arguments.str_file_base = os.getcwd()
+        ns_arguments.str_file_base = os.path.abspath( ns_arguments.str_file_base )
+
+        # If an output / project folder is indicated.
+        if hasattr( ns_arguments, "str_file_base" ):
+            # Make the output directory if it does not exist
+            if ns_arguments.str_file_base and not os.path.isdir( ns_arguments.str_file_base ):
+                os.mkdir( ns_arguments.str_file_base )
+        return ns_arguments.str_file_base
