@@ -148,9 +148,10 @@ class ParentScript:
                                        str_update_source_path = ns_arguments.str_update_classpath if hasattr( ns_arguments, "str_update_classpath" ) else None )
 
         # Update the logger with the arguments
+        pline_cur.logr_logger.info( "ParentScript.func_run_pipeline: The call to the pipeline was: " + " ".join( [ "\n" ] + sys.argv + [ "\n" ] ) )
         pline_cur.logr_logger.info( "ParentScript.func_run_pipeline: This run was started with the following arguments.\n" +
                                     "\n".join( [ str( str_namespace_key ) + " = " + str( str_namespace_value )
-                                    for str_namespace_key, str_namespace_value in vars( ns_arguments ).items() ] ) )
+                                    for str_namespace_key, str_namespace_value in vars( ns_arguments ).items() ] + [ "\n" ] ) )
 
         # Put pipeline in test mode if needed.
         if hasattr( ns_arguments, "f_Test" ) and ns_arguments.f_Test:
