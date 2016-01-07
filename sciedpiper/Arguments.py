@@ -10,9 +10,12 @@ __status__ = "Development"
 import argparse
 
 # Constants
+C_STR_CHOICES = "choices"
+C_STR_DEFAULT = "default"
 C_STR_OPTION_STRINGS = "option_strings"
 C_STR_TYPE = "type"
 C_STR_VARIABLE_NAME = "var_name"
+C_STR_POSITIONAL_ARGUMENTS = "__positional_arguments__"
 
 # Constants Types
 C_STR_INT_TYPE = "<type 'int'>"
@@ -58,6 +61,15 @@ class Arguments( object ):
                     dict_argument_info[ str_long_flag ][ C_STR_TYPE ] = C_STR_LIST_TYPE
                 else:
                     dict_argument_info[ str_long_flag ][ C_STR_TYPE ] = C_STR_STRING_TYPE
+
+            # Set default for flags
+            dict_argument_info[ str_long_flag ][ C_STR_DEFAULT ] = str_arg_value.default
+
+            # Set choices for flags
+            dict_argument_info[ str_long_flag ][ C_STR_CHOICES ] = str_arg_value.choices
+
+        # Add in positionals
+        dict_argument_info[ C_STR_POSITIONAL_ARGUMENTS ] = { C_STR_TYPE: C_STR_LIST_TYPE, C_STR_VARIABLE_NAME : [ stract_pos.dest for stract_pos in args._get_positional_actions() ], C_STR_OPTION_STRINGS : [], C_STR_CHOICES : [] }
 
         return dict_argument_info
 
