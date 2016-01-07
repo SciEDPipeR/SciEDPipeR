@@ -28,6 +28,29 @@ INDEX_FOLDER = "align_folder"
 
 class ParentScript:
 
+
+    def func_tag_file( self, str_file, str_tag ):
+        """ 
+        Adds a tag to a file name (at the end of the basename before the extension.
+        """
+        if not str_file or not str_tag:
+            return str_file
+        str_base, str_ext = os.path.splitext( str_file )
+        return str_base + "_" + str_tag + str_ext
+
+
+    def func_base_file( self, str_file ):
+        return os.path.splitext( os.path.basename( str_file ) )[ 0 ] 
+
+
+    def func_update_file_location( self, str_file, str_new_dir ):
+        return os.path.join( str_new_dir, os.path.basename( str_file ) ) 
+
+
+    def func_switch_ext( self, str_file, str_ext ):
+        return os.path.splitext( str_file )[ 0 ] + "." + str_ext
+
+
     def func_create_arguments( self ):
         """
         Create arguments.
