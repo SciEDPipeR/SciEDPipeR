@@ -752,10 +752,10 @@ class Pipeline:
                                      as opposed to as given by the user.
 
         * li_wait : List of integers
-                    Seconds of waiting when looking for products to be creates, each int is a wait in the order o fthe list
+                    Seconds of waiting when looking for products to be creates, each int is a wait in the order of the list
 
         * i_time_stamp_wiggle : int or None to turn off
-                                Time stamps must bemore than this difference in order to be evaluated, otherwise they pass.
+                                Time stamps must be more than this difference in order to be evaluated, otherwise they pass.
 
         * Return : Boolean
                    True indicates no error occurred

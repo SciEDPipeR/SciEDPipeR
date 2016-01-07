@@ -50,9 +50,11 @@ class ParentScript:
         prsr_arguments.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
         prsr_arguments.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
         prsr_arguments.add_argument( "--resources", dest = "str_resource_config", default = None, help = "Resource config file must be used in conjunction with a pipeline config file." )
+        prsr_arguments.add_argument( "--user_ordered_commands", dest = "f_self_organize", action = "store_false", default = True, help = "Commands are ordered for execution by dependency and product relationship by default. When including this flag, commands will be ran in the order provided in the script (in the list of commands)." )
         prsr_arguments.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
         prsr_arguments.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
         prsr_arguments.add_argument( "--compress", dest = "str_compress", default = "none", choices = Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES, help = "Turns on compression of products and intermediary files made by the pipeline. Valid choices include:" + str( Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES ) )
+        prsr_arguments.add_argument( "--wait", dest = "lstr_wait", default = "5,15,40", help = "The number of seconds and times the pipeline will wait to check for products after each pipeline command ends. This compensates for IO lag. Should be just integers in seconds delimited by commas. 3,10,20 would indicate wait three seconds, then try again after 10 seconds, and lastly wait for 20 seconds." )
         prsr_arguments.add_argument( "--wdl", dest = "str_wdl", default = None, help = "When used, the pipeline will not run but instead a wdl file will be generated for the workflow, then this argument is used, please pass the file path to which the wdl file should be written." )
         return prsr_arguments
 
@@ -188,11 +190,14 @@ class ParentScript:
             setattr( ns_arguments, "i_time_stamp_diff", None )
         if not pline_cur.func_run_commands( lcmd_commands = lcmd_commands, 
                                             str_output_dir = ns_arguments.str_file_base,
+                                            f_clean = ns_arguments.f_clean,
+                                            f_self_organize_commands = ns_arguments.f_self_organize,
+                                            li_wait = [ int( str_wait ) for str_wait in ns_arguments.lstr_wait.split(",") ],
                                             lstr_copy = ns_arguments.lstr_copy if ns_arguments.lstr_copy else None,
                                             str_move = ns_arguments.str_move_dir if ns_arguments.str_move_dir else None,
                                             str_compression_mode = ns_arguments.str_compress,
-                                            f_clean = ns_arguments.f_clean,
-                                            i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff, str_wdl = ns_arguments.str_wdl ):
+                                            i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff,
+                                            str_wdl = ns_arguments.str_wdl ):
             exit( 99 )
     
     
