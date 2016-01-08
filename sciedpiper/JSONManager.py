@@ -15,7 +15,16 @@ import unicodedata
 ARGUMENTS = "arguments"
 COMMANDS = "commands"
 C_STR_WORKFLOW_ID = "workflow_id"
-    
+
+# WDL key words
+C_STR_CALL = "call"
+C_STR_TASK = "task"
+C_STR_COMMAND = "command"
+C_STR_FILE = "File"
+C_STR_INPUT = "input"
+C_STR_OUTPUT = "output"
+C_STR_WORKFLOW = "workflow"
+
 class Struct:
   """
   Using this to turn a dict to a class.
@@ -129,6 +138,9 @@ class JSONManager( object ):
     """
 
     # List of tasks for workflow
+    # [ { name : name_value,
+    #     products : { out1 : file_name, out2 : file_name },
+    #     dependencies : {in1 : file_name, in2 : file_name } } ]
     ldict_tasks = []
 
     # List of dicts describing files used in the pipeline
@@ -142,48 +154,48 @@ class JSONManager( object ):
       if not cmd_cur:
         continue
 
-      # Update tasks
-      ldict_tasks.append({ "name" : cmd_cur.str_name, "products" : [ cur_prod.str_id for cur_prod in cmd_cur.lstr_products ] })
+      # Update tasks and extract data to a format useful.
+      cur_command_dict = { "name" : cmd_cur.str_name, "products" : {}, "dependencies" : {}}
+      i_product_count = 1
+      i_dependency_count = 1
+      for cur_prod in cmd_cur.lstr_products:
+        cur_command_dict[ "products" ][ "out" + str( i_product_count ) ] = cur_prod.str_id
+        i_product_count = i_product_count + 1
+      for cur_dep in cmd_cur.lstr_dependencies:
+        cur_command_dict[ "dependencies" ][ "in" + str( i_dependency_count ) ] = cur_dep.str_id
+        i_dependency_count = i_dependency_count + 1
+      ldict_tasks.append( cur_command_dict )
 
-      i_input_number = 1
-      str_wdl = str_wdl + "task " + cmd_cur.str_name + " {\n"
+      # Add task to WDL
+      str_wdl = str_wdl + C_STR_TASK + " " + cmd_cur.str_name + " {\n"
 
-      # Add dependencies as inputs
-      for str_input in cmd_cur.lstr_dependencies:
-        str_wdl = str_wdl + "  File in" + str(i_input_number) + " " + str_input.str_id + "\n"
-        i_input_number = i_input_number + 1
+      # Add dependencies as inputs to WDL
+      for str_file_count, str_file_name in cur_command_dict[ "dependencies" ].items():
+        str_wdl = str_wdl + "  " + C_STR_FILE + " " + str_file_count + " " + str_file_name + "\n"
 
-      str_wdl = str_wdl + "\n".join([ "  command {",
+      # Add command to WDL
+      str_wdl = str_wdl + "\n".join([ "  " + C_STR_COMMAND + " {",
                                       "    " + cmd_cur.str_id,
                                       "  }"])
 
-      # Add products as outputs
-      if cmd_cur.lstr_products:
-        i_output_number = 1
-        lstr_wdl_prod = []
-        str_wdl = str_wdl + "  output {\n"
-        for str_child in cmd_cur.lstr_products:
-          lstr_wdl_prod.append( "    File out" + str(i_output_number) + " " + str_child.str_id )
-          ldict_resources.setdefault( str_child.str_id, {} )[ C_STR_WORKFLOW_ID ] = cmd_cur.str_name + ".out" + str(i_output_number)
-          i_output_number = i_output_number + 1
-        lstr_wdl_prod.extend(["\n  }","}\n"])
-        str_wdl = str_wdl + "\n".join( lstr_wdl_prod )
+      # Add products as outputs to WDL
+      str_wdl = str_wdl + "  " + C_STR_OUTPUT + " {\n"
+      for str_file_out_count, str_file_out_name in cur_command_dict[ "products" ].items():
+        str_wdl = str_wdl + "    " + C_STR_OUTPUT + " " + str_file_out_count + " " + str_file_out_name
+      str_wdl = str_wdl + "\n  }\n}\n"
 
     # Make workflow
-    str_wdl = str_wdl + "\nworkflow " + str_workflow + " {\n"
+    str_wdl = str_wdl + "\n" + C_STR_WORKFLOW  + " " + str_workflow + " {\n"
     for dict_cur_task in ldict_tasks:
       str_wdl = str_wdl + "  call " + dict_cur_task[ "name" ]
 
       # Add output
-      if dict_cur_task[ "products" ]:
-        str_wdl = str_wdl + " { input:"
-        i_product_index = 1
-        lstr_wdl_prod = []
-        for str_product in dict_cur_task[ "products" ]:
-          lstr_wdl_prod.append( "in"+str(i_product_index) + "=" + ldict_resources[ str_product ][ C_STR_WORKFLOW_ID ] )
-          i_product_index = i_product_index + 1
-        str_wdl = str_wdl + ", ".join(lstr_wdl_prod)
-        str_wdl = str_wdl + "}\n"
+      if dict_cur_task[ "dependencies" ]:
+        str_wdl = str_wdl + " { " + C_STR_INPUT + ": "
+        lstr_workflow_inputs = []
+        for str_dep_position, str_dep_value in dict_cur_task[ "dependencies" ].items():
+          lstr_workflow_inputs.append( str_dep_position + "=" + str_dep_value )
+        str_wdl = str_wdl + ", ".join( lstr_workflow_inputs ) + " }\n"
       else:
         str_wdl = str_wdl + "\n"
     str_wdl = str_wdl + "}"
