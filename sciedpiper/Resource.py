@@ -25,11 +25,16 @@ STR_NOT_MADE = "NOT"
 STR_MADE = "MADE"
 STR_ERROR = "ERROR"
 
+# WDL variable that doe snot need to be expanded to an abs path
+C_STR_WDL_VARIABLE = "$"
+
 class Resource( Graph.Vertex ):
     """
     Represents a file input or output to a command.
     Is treated as a node in the graph.
     """
+
+    SIZES = [ "B", "KB", "MB", "GB", "TB", "PB" ]
 
     # Tested
     def __init__( self, str_path, f_is_product, i_clean=CLEAN_DEFAULT ):
@@ -69,6 +74,29 @@ class Resource( Graph.Vertex ):
                 lrsc_return.append( rsc_dep )
         return lrsc_return
 
+    def func_get_size( self ):
+        """
+        Gets the size of the file in a human readable format.
+
+        :return name: Humand readable string for the file's sample size.
+        :return type: String
+        """
+
+        i_size_bytes = 0
+        if os.path.isdir( self.str_id ): 
+            for str_dir_path, lstr_dir_names, lstr_file_names in os.walk( self.str_id ):
+                i_size_bytes = i_size_bytes + os.path.getsize( str_dir_path )
+                for str_file_name in lstr_file_names:
+                    i_size_bytes = i_size_bytes + os.path.getsize( os.path.join( str_dir_path, str_file_name ) )
+        else:
+            i_size_bytes = os.path.getsize( self.str_id )
+        print i_size_bytes
+        i_magnitude = 0
+        while( i_size_bytes >= 1024 and i_magnitude < len( Resource.SIZES ) ):
+            i_magnitude = i_magnitude + 1
+            i_size_bytes = i_size_bytes / 1024.0
+        return str( round( i_size_bytes, 2 ) ) + " " + Resource.SIZES[ i_magnitude ]
+
     # Tested
     @classmethod
     def func_make_paths_absolute( self, lstr_paths ):
@@ -95,7 +123,10 @@ class Resource( Graph.Vertex ):
         if lstr_paths:
             for str_path in lstr_paths:
                 if str_path:
-                  lstr_return_list.append( os.path.abspath( str_path ) )
+                  if str_path[0] == C_STR_WDL_VARIABLE:
+                      lstr_return_list.append( str_path )
+                  else:
+                      lstr_return_list.append( os.path.abspath( str_path ) )
         return lstr_return_list
 
     # Tested
