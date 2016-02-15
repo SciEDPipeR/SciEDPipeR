@@ -21,10 +21,13 @@ import sys
 # Constants
 C_STR_CONFIG_EXTENSION = ".config"
 C_STR_NO_PIPELINE_CONFIG_ARG = "--no_pipeline_config"
+C_STR_PIPELINE_CONFIG_FILE_ARG = "--pipeline_config_file"
+
 # Keys for alignment return ( dicts )
 INDEX_CMD = "cmd"
 INDEX_FILE = "out_file"
 INDEX_FOLDER = "align_folder"
+
 
 class ParentScript:
 
@@ -61,24 +64,36 @@ class ParentScript:
 
         # Standard command line arguments
         prsr_arguments = argparse.ArgumentParser( prog = "custom.py", description = "Custom Script", conflict_handler="resolve", formatter_class = argparse.ArgumentDefaultsHelpFormatter )
-        prsr_arguments.add_argument( "-b", "--bsub_queue", metavar = "BSUB_Queue", dest = "str_bsub_queue", default = None, help = "If given, each command will sequentially be ran on this queue with bsub." )
-        prsr_arguments.add_argument( "-c", "--clean", dest = "f_clean", default = False, action="store_true", help = "Turns on (true) or off (false) cleaning of intermediary product files." ) 
-        prsr_arguments.add_argument( "--copy", metavar = "Copy_location", dest = "lstr_copy", default = None, action="append", help="Paths to copy the output directory after the pipeline is completed. Output directory must be specified; can be used more than once for multiple copy locations.")
-        prsr_arguments.add_argument( "-g", "--log", metavar = "Optional_logging_file", dest = "str_log_file", default = None, help = "Optional log file, if not given logging will be to the standard out." )
-        prsr_arguments.add_argument( "--json_out", metavar = "JSON_out", dest = "str_json_file_out", default = None, help = "Write script to a JSON file." )
-        prsr_arguments.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
-        prsr_arguments.add_argument( "--move", metavar = "Move_location", dest = "str_move_dir", default = None, help = "The path where to move the output directory after the pipeline ends. Can be used with the copy argument if both copying to one location(s) and moving to another is needed. Must specify output directory." )
-        prsr_arguments.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
-        prsr_arguments.add_argument( C_STR_NO_PIPELINE_CONFIG_ARG, dest = "f_use_pipeline_config", default = True, action = "store_false", help = "Use this flag to ignore the pipeline config file." )
-        prsr_arguments.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
-        prsr_arguments.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
-        prsr_arguments.add_argument( "--resources", dest = "str_resource_config", default = None, help = "Resource config file must be used in conjunction with a pipeline config file." )
-        prsr_arguments.add_argument( "--user_ordered_commands", dest = "f_self_organize", action = "store_false", default = True, help = "Commands are ordered for execution by dependency and product relationship by default. When including this flag, commands will be ran in the order provided in the script (in the list of commands)." )
-        prsr_arguments.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
-        prsr_arguments.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
-        prsr_arguments.add_argument( "--compress", dest = "str_compress", default = "none", choices = Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES, help = "Turns on compression of products and intermediary files made by the pipeline. Valid choices include:" + str( Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES ) )
-        prsr_arguments.add_argument( "--wait", dest = "lstr_wait", default = "5,15,40", help = "The number of seconds and times the pipeline will wait to check for products after each pipeline command ends. This compensates for IO lag. Should be just integers in seconds delimited by commas. 3,10,20 would indicate wait three seconds, then try again after 10 seconds, and lastly wait for 20 seconds." )
-        prsr_arguments.add_argument( "--wdl", dest = "str_wdl", default = None, help = "When used, the pipeline will not run but instead a wdl file will be generated for the workflow, then this argument is used, please pass the file path to which the wdl file should be written." )
+
+        # Built-in functionality
+        grp_builtin = prsr_arguments.add_argument_group( "Builtins", "Functionality builtin with the SciEDPipeR engine." )
+
+        grp_builtin.add_argument( "-b", "--bsub_queue", metavar = "BSUB_Queue", dest = "str_bsub_queue", default = None, help = "If given, each command will sequentially be ran on this queue with bsub." )
+        grp_builtin.add_argument( "-c", "--clean", dest = "f_clean", default = False, action="store_true", help = "Turns on (true) or off (false) cleaning of intermediary product files." ) 
+        grp_builtin.add_argument( "--copy", metavar = "Copy_location", dest = "lstr_copy", default = None, action="append", help="Paths to copy the output directory after the pipeline is completed. Output directory must be specified; can be used more than once for multiple copy locations.")
+        grp_builtin.add_argument( "-g", "--log", metavar = "Optional_logging_file", dest = "str_log_file", default = None, help = "Optional log file, if not given logging will be to the standard out." )
+        grp_builtin.add_argument( "--json_out", metavar = "JSON_out", dest = "str_json_file_out", default = None, help = "Write script to a JSON file." )
+        grp_builtin.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
+        grp_builtin.add_argument( "--move", metavar = "Move_location", dest = "str_move_dir", default = None, help = "The path where to move the output directory after the pipeline ends. Can be used with the copy argument if both copying to one location(s) and moving to another is needed. Must specify output directory." )
+        grp_builtin.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
+        grp_builtin.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
+        grp_builtin.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
+        grp_builtin.add_argument( "--resources", dest = "str_resource_config", default = None, help = "Resource config file must be used in conjunction with a pipeline config file." )
+        grp_builtin.add_argument( "--user_ordered_commands", dest = "f_self_organize", action = "store_false", default = True, help = "Commands are ordered for execution by dependency and product relationship by default. When including this flag, commands will be ran in the order provided in the script (in the list of commands)." )
+        grp_builtin.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
+        grp_builtin.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
+        grp_builtin.add_argument( "--compress", dest = "str_compress", default = "none", choices = Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES, help = "Turns on compression of products and intermediary files made by the pipeline. Valid choices include:" + str( Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES ) )
+        grp_builtin.add_argument( "--wait", dest = "lstr_wait", default = "5,15,40", help = "The number of seconds and times the pipeline will wait to check for products after each pipeline command ends. This compensates for IO lag. Should be just integers in seconds delimited by commas. 3,10,20 would indicate wait three seconds, then try again after 10 seconds, and lastly wait for 20 seconds." )
+
+        # Config associated
+        grp_config = prsr_arguments.add_argument_group( "Pipeline Config", "Pipeline config files change the running of pipelines. Useful when managing envrionments." )
+        grp_config.add_argument( C_STR_NO_PIPELINE_CONFIG_ARG, dest = "f_use_pipeline_config", default = True, action = "store_false", help = "Use this flag to ignore the pipeline config file." )
+        grp_config.add_argument( C_STR_PIPELINE_CONFIG_FILE_ARG, dest = "str_pipeline_config_file", default = None, help = "The pipeline config file to use, if not given and using the pipeline config files is turned on then the program will look in the directory where the script is located." )
+
+        # Experimental functionality
+        grp_experimental = prsr_arguments.add_argument_group( "Experimental", "Functionality in process, or not completely genericized." )
+        grp_experimental.add_argument( "--wdl", dest = "str_wdl", default = None, help = "When used, the pipeline will not run but instead a wdl file will be generated for the workflow, then this argument is used, please pass the file path to which the wdl file should be written." )
+
         return prsr_arguments
 
     def func_update_arguments( self, args_raw ):
@@ -128,7 +143,10 @@ class ParentScript:
             exit( 203 )
 
         # Update the arguments with the config file.
-        str_possible_config_file = os.path.splitext( os.path.realpath( sys.argv[0] ) )[ 0 ] + C_STR_CONFIG_EXTENSION 
+        if ns_arguments.str_pipeline_config_file:
+            str_possible_config_file = os.path.realpath( ns_Arguments.str_pipeline_config_file )
+        else:
+            str_possible_config_file = os.path.splitext( os.path.realpath( sys.argv[0] ) )[ 0 ] + C_STR_CONFIG_EXTENSION 
         if os.path.exists( str_possible_config_file ) and ns_arguments.f_use_pipeline_config:
             cur_config_manager = ConfigManager.ConfigManager( str_possible_config_file )
             ns_arguments = cur_config_manager.func_update_arguments( args_parsed=ns_arguments,
@@ -194,7 +212,19 @@ class ParentScript:
         # Run the user based pipeline
         # If the commands are not existent ( parsed from JSON )
         # then build them from script
-        lcmd_commands = self.func_make_commands( args_parsed = ns_arguments, cur_pipeline = pline_cur )
+        # Where variables are being used.
+        if ns_arguments.str_wdl:
+            # If WDL is being output, switch the vlaue sof the arguments with the name to track
+            import inspect
+            import copy
+            ns_wdl_arguments = copy.deepcopy( ns_arguments )
+            lstr_members = [ member[0] for member in inspect.getmembers( ns_wdl_arguments )
+                             if not ( member[0].startswith( "_" ) or member[0].endswith( "_" ) or inspect.isroutine( member )) ]
+            for str_member in lstr_members:
+                setattr( ns_wdl_arguments, str_member, "${"+str_member+"}" )
+            lcmd_commands = self.func_make_commands( args_parsed = ns_wdl_arguments, cur_pipeline = pline_cur )
+        else:
+            lcmd_commands = self.func_make_commands( args_parsed = ns_arguments, cur_pipeline = pline_cur )
 
         # Write JSON file
         if hasattr( ns_arguments, "str_json_file_out" ) and ns_arguments.str_json_file_out:
@@ -220,7 +250,8 @@ class ParentScript:
                                             str_move = ns_arguments.str_move_dir if ns_arguments.str_move_dir else None,
                                             str_compression_mode = ns_arguments.str_compress,
                                             i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff,
-                                            str_wdl = ns_arguments.str_wdl ):
+                                            str_wdl = ns_arguments.str_wdl,
+                                            args_original = ( ns_arguments if ns_arguments.str_wdl else None )):
             exit( 99 )
     
     
