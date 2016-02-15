@@ -136,12 +136,6 @@ class ParentScript:
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
 
-        # If a resource config file is given, the pipeline config file must be given
-        if ns_arguments.str_resource_config and not ns_arguments.f_use_pipeline_config:
-            print "A pipeline config file must be used to map resources from the Resource Config file to the command. Please make a pipeline config file."
-            prsr_arguments.print_help()
-            exit( 203 )
-
         # Update the arguments with the config file.
         if ns_arguments.str_pipeline_config_file:
             str_possible_config_file = os.path.realpath( ns_Arguments.str_pipeline_config_file )
@@ -168,6 +162,11 @@ class ParentScript:
                 # Run script
                 Commandline.Commandline().func_CMD( str_script_to_run, f_use_bash = True ) 
                 exit( 0 )
+        # If a resource config file is given, the pipeline config file must be given
+        elif ns_arguments.str_resource_config:
+            print "A pipeline config file must be used to map resources from the Resource Config file to the command. Please use a pipeline config file."
+            prsr_arguments.print_help()
+            exit( 203 )
 
         # Handle time stamp
         if ( not ns_arguments.i_time_stamp_diff is None ):
