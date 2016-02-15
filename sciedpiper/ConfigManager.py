@@ -9,6 +9,7 @@ __status__ = "Development"
 
 import argparse
 import Arguments
+import collections
 import ConfigParser
 import os
 import sys
@@ -23,6 +24,7 @@ C_STR_PYTHON_PATH_SECTION = "PYTHON_PATH"
 C_STR_PRECOMMANDS_SECTION = "PRECOMMANDS"
 C_STR_POSTCOMMANDS_SECTION = "POSTCOMMANDS"
 C_STR_RESOURCES_SECTION = "RESOURCES"
+C_STR_SAMPLE_FILE_SECTION = "SAMPLE_FILE"
 
 class ConfigManager( object ):
     """
@@ -56,13 +58,29 @@ class ConfigManager( object ):
             raise TypeError( "ConfigManager::_func_type_cast:Unknown type string. Type =" + str( str_type_string ) )
 
 
-    def func_update_arguments( self, args_parsed, dict_args_info, str_resource_config ):
+    def func_normalize_argument( self, str_argument, dict_args_normalized ):
+        """ Takes an argument (short or long form) and normalizes the argument to one of the possible arguments.
+            If the argument is not found, an exception (NameError) is raised.
+            If the argument is found, a normalized value for it is returned.
+        """
+
+        if ( not str_argument ) or ( not str_argument in dict_args_normalized ):
+            raise NameError( " ".join([ "ConfigManager::func_update_arguments:Could not find the entry from the config file in this pipeline's arguments.",
+                                        "Check to make sure the following argument is in the pipeline's arguments:",
+                                        str_argument ]) )
+        return dict_args_normalized[ str_argument ]
+
+
+    def func_update_arguments( self, args_parsed, dict_args_info, lstr_sample_arguments = None):
 
         if not args_parsed:
             return {}
 
+        # List of updated arguments
+        lstr_updated_arguments = []
+
         # Make a dict of flags to key for the args
-        # { flag : destination }
+        # { flag( could be short or long with and without dashes ) : normalized flag }
         dict_args_key = {}
         if dict_args_info:
             for str_key, dict_values in dict_args_info.items():
@@ -71,38 +89,60 @@ class ConfigManager( object ):
                         dict_args_key[ str_flag ] = str_key
                         dict_args_key[ str_flag.lstrip( "-" ) ] = str_key
 
+        # Arguments section
         # For each entry in the Arguments section, update the argparser
-        # use the argument flag
+        # Type cast as need and normalize argument.
+        # Store updated argument
         for str_config_key, str_config_value in self.config.items( C_STR_ARGUMENTS_SECTION ):
             if not str_config_key in dict_args_key:
                 # If the argument not found from the config file in the pipeline arguments, except.
                 raise NameError( " ".join([ "ConfigManager::func_update_arguments:Could not find the entry from the config file in this pipeline's arguments.",
                                             "Check to make sure the following argument is in the pipeline's arguments:",
                                             str_config_key ]) )
-            str_variable = dict_args_info[ dict_args_key[ str_config_key ] ][ Arguments.C_STR_VARIABLE_NAME ]
-            str_config_type = dict_args_info[ dict_args_key[ str_config_key ] ][ Arguments.C_STR_TYPE ]
+            str_config_key_norm = self.func_normalize_argument( str_config_key, dict_args_key )
+            lstr_updated_arguments.append( str_config_key_norm )
+            str_variable = dict_args_info[ str_config_key_norm ][ Arguments.C_STR_VARIABLE_NAME ]
+            str_config_type = dict_args_info[ str_config_key_norm ][ Arguments.C_STR_TYPE ]
             setattr( args_parsed, str_variable, self._func_type_cast( str( str_config_type ), str_config_value ) )
 
-        # Update the resources arguments.
-        # If this tries to update something updated within the arguments section of the config file, error
-        # Should be unique from the arguments over write section
+        # Read in the resource file
         dict_resource_info = {}
         ## Read in file and strip
-        if str_resource_config:
-            with open( str_resource_config, "r" ) as hndl_resource_config:
+        if args_parsed.str_resource_config:
+            with open( args_parsed.str_resource_config, "r" ) as hndl_resource_config:
                 lstr_resource_values = [ line.split(":") for line in hndl_resource_config ]
                 for lstr_resource in lstr_resource_values:
                     dict_resource_info[ lstr_resource[ 0 ].strip() ] = lstr_resource[ 1 ].strip()
-        ## Stop if arguments are in common
-        if len( list( set( dict_resource_info.keys() ) & set( dict_args_key.keys() ) ) ) > 0:
-            raise ValueError( "ConfigManager::func_update_arguments:Arguments over write and reosurces sections can not update the same arguments. Argument/s in common: " + str( intersect( dict_resource_info.keys(), dict_args_key.keys() ) ) )
 
+        # Resource section
         ## Read in Resource section
-        ## Pull in the resource section keys that should refer to keys in the resource config
+        ## Pull in the resource section values that should refer to keys in the resource config
         ## if it is there update with it.
         for str_resource_key, str_resource_value in self.config.items( C_STR_RESOURCES_SECTION ):
-            if str_resource_key in dict_resource_info:
-                setattr( args_parsed, str_resource_value, dict_resource_info[ str_resource_key ] )
+            str_resource_key_norm = self.func_normalize_argument( str_resource_key, dict_args_key )
+            str_resource_variable = dict_args_info[ str_resource_key_norm ][ Arguments.C_STR_VARIABLE_NAME ]
+            lstr_updated_arguments.append( str_resource_key_norm )
+            if str_resource_value in dict_resource_info:
+                setattr( args_parsed, str_resource_variable, dict_resource_info[ str_resource_value ] )
+
+        # Sample Section
+        # If given sample information over those arguments.
+        # Should be unique from both the arguments and resource section.
+        if lstr_sample_arguments:
+            i_number_sample_items = len( lstr_sample_arguments )
+            for str_sample_key, str_sample_value in self.config.items( C_STR_SAMPLE_FILE_SECTION ):
+                str_sample_key_norm = self.func_normalize_argument( str_sample_key, dict_args_key )
+                str_sample_variable = dict_args_info[ str_sample_key_norm ][ Arguments.C_STR_VARIABLE_NAME ]
+                lstr_updated_arguments.append( str_sample_key_norm )
+                i_sample_item_index = int( str_sample_value ) - 1
+                if ( i_sample_item_index >= i_number_sample_items ) or ( i_sample_item_index < 0 ):
+                    raise ValueError( "ConfigManager::func_update_arguments:Please note that the sample file given with this pipeline does not have enough items in it given the pipeline config file. Please make sure the sample file is tab delimited. Also make sure that the sample file section does not refer to more elements than exist in the sample file. Remember the pipeline config section is base 1 NOT 0.\nNumber of items in samples file = " + str( i_number_sample_items ) + "\nItems number requested = " + str_sample_value + "\n" )
+                setattr( args_parsed, str_sample_variable, lstr_sample_arguments[ i_sample_item_index ] )
+
+        # Stop if arguments were updated multiple times.
+        cntr_args = collections.Counter( lstr_updated_arguments )
+        if max( cntr_args.values() ) > 1:
+            raise ValueError( "\n".join( [ "ConfigManager::func_update_arguments:Arguments can not be updated multiple times. " ] + [ "Flag: " + str_cntr_key + " , Updated Times: " + str( i_cntr_values ) for str_cntr_key, i_cntr_values in cntr_args.items() ] ) )
 
         # Check to make sure the config file substitutions did not violate any
         # Choices specified.
@@ -123,6 +163,7 @@ class ConfigManager( object ):
                 os.environ[ "PATH" ] = os.environ[ "PATH" ] + ":" + str_config_value.rstrip("/")
                 return str_config_value.rstrip("/")
         return None
+
 
     def func_update_python_path( self ):
         # Read in the python path updates

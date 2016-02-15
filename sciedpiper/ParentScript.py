@@ -73,12 +73,12 @@ class ParentScript:
         grp_builtin.add_argument( "--copy", metavar = "Copy_location", dest = "lstr_copy", default = None, action="append", help="Paths to copy the output directory after the pipeline is completed. Output directory must be specified; can be used more than once for multiple copy locations.")
         grp_builtin.add_argument( "-g", "--log", metavar = "Optional_logging_file", dest = "str_log_file", default = None, help = "Optional log file, if not given logging will be to the standard out." )
         grp_builtin.add_argument( "--json_out", metavar = "JSON_out", dest = "str_json_file_out", default = None, help = "Write script to a JSON file." )
+        grp_builtin.add_argument( "--jobs_file", metavar = "JOBS_file", dest = "str_jobs_file", default = None, help = "File with different jobs to run." )
         grp_builtin.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
         grp_builtin.add_argument( "--move", metavar = "Move_location", dest = "str_move_dir", default = None, help = "The path where to move the output directory after the pipeline ends. Can be used with the copy argument if both copying to one location(s) and moving to another is needed. Must specify output directory." )
         grp_builtin.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
         grp_builtin.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
         grp_builtin.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
-        grp_builtin.add_argument( "--resources", dest = "str_resource_config", default = None, help = "Resource config file must be used in conjunction with a pipeline config file." )
         grp_builtin.add_argument( "--user_ordered_commands", dest = "f_self_organize", action = "store_false", default = True, help = "Commands are ordered for execution by dependency and product relationship by default. When including this flag, commands will be ran in the order provided in the script (in the list of commands)." )
         grp_builtin.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
         grp_builtin.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
@@ -89,6 +89,7 @@ class ParentScript:
         grp_config = prsr_arguments.add_argument_group( "Pipeline Config", "Pipeline config files change the running of pipelines. Useful when managing envrionments." )
         grp_config.add_argument( C_STR_NO_PIPELINE_CONFIG_ARG, dest = "f_use_pipeline_config", default = True, action = "store_false", help = "Use this flag to ignore the pipeline config file." )
         grp_config.add_argument( C_STR_PIPELINE_CONFIG_FILE_ARG, dest = "str_pipeline_config_file", default = None, help = "The pipeline config file to use, if not given and using the pipeline config files is turned on then the program will look in the directory where the script is located." )
+        grp_config.add_argument( "--resources", dest = "str_resource_config", default = None, help = "Resource config file must be used in conjunction with a pipeline config file." )
 
         # Experimental functionality
         grp_experimental = prsr_arguments.add_argument_group( "Experimental", "Functionality in process, or not completely genericized." )
@@ -131,7 +132,6 @@ class ParentScript:
             prsr_arguments = prsr_return
 
         # Store information about the arguments needed for later functionality
-        # { arg_flag: arg_dest }
         dict_args_info = Arguments.Arguments.func_extract_argument_info( prsr_arguments )
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
@@ -151,7 +151,7 @@ class ParentScript:
             cur_config_manager = ConfigManager.ConfigManager( str_possible_config_file )
             ns_arguments = cur_config_manager.func_update_arguments( args_parsed=ns_arguments,
                                                                      dict_args_info=dict_args_info,
-                                                                     str_resource_config=ns_arguments.str_resource_config )
+                                                                     lstr_sample_arguments = None )
             str_additional_env_path = cur_config_manager.func_update_env_path()
             str_additional_python_path = cur_config_manager.func_update_python_path()
             str_updated_script_path = cur_config_manager.func_update_script_path( sys.argv[ 0 ] )
