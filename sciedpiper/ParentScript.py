@@ -12,6 +12,7 @@ import argparse
 import Arguments
 import ConfigManager
 import Commandline
+import csv
 import JSONManager
 import os
 import Pipeline
@@ -20,8 +21,11 @@ import sys
 
 # Constants
 C_STR_CONFIG_EXTENSION = ".config"
+C_STR_OUTPUT_DIR = "str_file_base"
 C_STR_NO_PIPELINE_CONFIG_ARG = "--no_pipeline_config"
 C_STR_PIPELINE_CONFIG_FILE_ARG = "--pipeline_config_file"
+C_STR_SAMPLE_FILE_ARG = "--sample_file"
+C_STR_SAMPLE_FILE_DEST = "str_sample_file"
 
 # Keys for alignment return ( dicts )
 INDEX_CMD = "cmd"
@@ -77,13 +81,17 @@ class ParentScript:
         grp_builtin.add_argument( "-m", "--max_bsub_memory", metavar = "Max_BSUB_Mem", dest = "str_max_memory", default = "8", help = "The max amount of memory in GB requested when running bsub commands." )
         grp_builtin.add_argument( "--move", metavar = "Move_location", dest = "str_move_dir", default = None, help = "The path where to move the output directory after the pipeline ends. Can be used with the copy argument if both copying to one location(s) and moving to another is needed. Must specify output directory." )
         grp_builtin.add_argument( "-n", "--threads", metavar = "Process_threads", dest = "i_number_threads", type = int, default = 1, help = "The number of threads to use for multi-threaded steps." )
-        grp_builtin.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = "str_file_base", default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
+        grp_builtin.add_argument( "-o", "--out_dir", metavar = "Output_directory", dest = C_STR_OUTPUT_DIR, default = "", help = "The output directory where results will be placed. If not given a directory will be created from sample names and placed with the samples." )
         grp_builtin.add_argument( "-t", "--test", dest = "f_Test", default = False, action = "store_true", help = "Will check the environment and display commands line but not run.")
         grp_builtin.add_argument( "--user_ordered_commands", dest = "f_self_organize", action = "store_false", default = True, help = "Commands are ordered for execution by dependency and product relationship by default. When including this flag, commands will be ran in the order provided in the script (in the list of commands)." )
         grp_builtin.add_argument( "--timestamp", dest = "i_time_stamp_diff", default = None, type=float, help = "Using this will turn on timestamp and will require the parent to be atleast this amount or more younger than a product in order to invalidate the product.")
         grp_builtin.add_argument( "-u", "--update_command", dest = "str_update_classpath", default = None, help = "Allows a class path to be added to the jars. eg. 'command.jar:/APPEND/THIS/PATH/To/JAR,java.jar:/Append/Path'")
         grp_builtin.add_argument( "--compress", dest = "str_compress", default = "none", choices = Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES, help = "Turns on compression of products and intermediary files made by the pipeline. Valid choices include:" + str( Pipeline.LSTR_COMPRESSION_HANDLING_CHOICES ) )
         grp_builtin.add_argument( "--wait", dest = "lstr_wait", default = "5,15,40", help = "The number of seconds and times the pipeline will wait to check for products after each pipeline command ends. This compensates for IO lag. Should be just integers in seconds delimited by commas. 3,10,20 would indicate wait three seconds, then try again after 10 seconds, and lastly wait for 20 seconds." )
+
+        # Job submission associated
+        grp_jobs = prsr_arguments.add_argument_group( "Job Submission", "Pipeline parameters specifically for job submission." )
+        grp_jobs.add_argument( C_STR_SAMPLE_FILE_ARG, dest = C_STR_SAMPLE_FILE_DEST, default = None, help = "Sample file for multiple job submission. Tied to the pipeline with the pipeline config file. Must be tab delimited." )
 
         # Config associated
         grp_config = prsr_arguments.add_argument_group( "Pipeline Config", "Pipeline config files change the running of pipelines. Useful when managing envrionments." )
@@ -136,16 +144,54 @@ class ParentScript:
         # Parse arguments from command line
         ns_arguments = prsr_arguments.parse_args()
 
+        # Make sure the output directory is set
+        self.func_set_output_dir( ns_arguments )
+
+        # Sample file is outside of the config file, it can not be updated.
+        llstr_sample_data = [ None ]
+        if ns_arguments.str_sample_file:
+            with open( ns_arguments.str_sample_file, "r" ) as hndl_samples:
+                llstr_sample_data = [ lstr_row for lstr_row in csv.reader( hndl_samples, delimiter = "\t" ) ]
+
+        # Original output file
+        str_orig_out_dir = ns_arguments.str_file_base
+ 
+        # Keeps tack of errors
+        f_error_occured = False
+
+        # Run for each sample line (passing None once if no sample was given)
+        for lstr_sample_data in llstr_sample_data:
+
+            ns_arguments.str_file_base = str_orig_out_dir
+
+            # Run a sample
+            try:
+                f_return = self.func_run_sample( ns_arguments = ns_arguments,
+                                                 dict_args_info = dict_args_info,
+                                                 lstr_sample_info = lstr_sample_data )
+                f_error_occured = f_error_occured or f_return
+            except Exception as e:
+                f_error_occured = True
+                print( "Could not run sample " + lstr_sample_data[ 0 ] )
+                print( e )
+
+        if f_error_occured:
+            exit( 999 )
+        else:
+            exit( 0 )
+
+    def func_run_sample( self, ns_arguments, dict_args_info, lstr_sample_info ):
+
         # Update the arguments with the config file.
         if ns_arguments.str_pipeline_config_file:
-            str_possible_config_file = os.path.realpath( ns_Arguments.str_pipeline_config_file )
+            str_possible_config_file = os.path.realpath( ns_arguments.str_pipeline_config_file )
         else:
             str_possible_config_file = os.path.splitext( os.path.realpath( sys.argv[0] ) )[ 0 ] + C_STR_CONFIG_EXTENSION 
         if os.path.exists( str_possible_config_file ) and ns_arguments.f_use_pipeline_config:
             cur_config_manager = ConfigManager.ConfigManager( str_possible_config_file )
             ns_arguments = cur_config_manager.func_update_arguments( args_parsed=ns_arguments,
                                                                      dict_args_info=dict_args_info,
-                                                                     lstr_sample_arguments = None )
+                                                                     lstr_sample_arguments = lstr_sample_info )
             str_additional_env_path = cur_config_manager.func_update_env_path()
             str_additional_python_path = cur_config_manager.func_update_python_path()
             str_updated_script_path = cur_config_manager.func_update_script_path( sys.argv[ 0 ] )
@@ -154,19 +200,19 @@ class ParentScript:
             # If needing to update the script path, or add pre/post commands write a script in the output and call it.
             if str_updated_script_path or str_precommands or str_postcommands:
                 ## Make output directory
-                self.func_make_output_dir( ns_arguments )
+                ParentScript.func_make_output_dir( ns_arguments )
                 ## Make the script in the output directory
                 str_script_to_run = self.func_make_script( ns_arguments, dict_args_info, str_additional_env_path,
                                        str_additional_python_path, str_updated_script_path,
                                        str_precommands, str_postcommands )
                 # Run script
-                Commandline.Commandline().func_CMD( str_script_to_run, f_use_bash = True ) 
-                exit( 0 )
+                return( Commandline.Commandline().func_CMD( str_script_to_run, f_use_bash = True ) )
+                
         # If a resource config file is given, the pipeline config file must be given
         elif ns_arguments.str_resource_config:
             print "A pipeline config file must be used to map resources from the Resource Config file to the command. Please use a pipeline config file."
             prsr_arguments.print_help()
-            exit( 203 )
+            return( False )
 
         # Handle time stamp
         if ( not ns_arguments.i_time_stamp_diff is None ):
@@ -182,7 +228,7 @@ class ParentScript:
             f_archive = False
 
         ## Make output directory
-        self.func_make_output_dir( ns_arguments )
+        ParentScript.func_make_output_dir( ns_arguments )
 
         # Make pipeline object and indicate Log file
         pline_cur = Pipeline.Pipeline( str_name = prsr_arguments.prog, 
@@ -251,9 +297,9 @@ class ParentScript:
                                             i_time_stamp_wiggle = ns_arguments.i_time_stamp_diff,
                                             str_wdl = ns_arguments.str_wdl,
                                             args_original = ( ns_arguments if ns_arguments.str_wdl else None )):
-            exit( 99 )
+            return( False )
     
-    
+ 
     def func_make_commands( self,  args_parsed, cur_pipeline ):
         """
         Allows:
@@ -309,9 +355,10 @@ class ParentScript:
                         lstr_script_call.extend([ cur_str_flag, str( str_arg_value ) ])
 
             # Add in no config pipeline otherwise the config file is read again and this
-            # code is executed again making an inf loop.
+            # Both cases make code execute again making an inf loop.
             if not C_STR_NO_PIPELINE_CONFIG_ARG in lstr_script_call:
                 lstr_script_call.append( C_STR_NO_PIPELINE_CONFIG_ARG )
+            
 
             # Add positional arguments
             lstr_script_call.extend( lstr_positionals )
@@ -329,13 +376,16 @@ class ParentScript:
         os.chmod( str_full_script_name, 0774 )
         return str_full_script_name
 
-
-    def func_make_output_dir( self, ns_arguments ):
+    def func_set_output_dir( self, ns_arguments ):
 
         ## Output dir related
         if not hasattr( ns_arguments, "str_file_base") or not ns_arguments.str_file_base:
             ns_arguments.str_file_base = os.getcwd()
         ns_arguments.str_file_base = os.path.abspath( ns_arguments.str_file_base )
+
+
+    @classmethod
+    def func_make_output_dir( self, ns_arguments ):
 
         # If an output / project folder is indicated.
         if hasattr( ns_arguments, "str_file_base" ):

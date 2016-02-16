@@ -11,6 +11,7 @@ import argparse
 import Arguments
 import collections
 import ConfigParser
+import ParentScript
 import os
 import sys
 
@@ -138,6 +139,14 @@ class ConfigManager( object ):
                 if ( i_sample_item_index >= i_number_sample_items ) or ( i_sample_item_index < 0 ):
                     raise ValueError( "ConfigManager::func_update_arguments:Please note that the sample file given with this pipeline does not have enough items in it given the pipeline config file. Please make sure the sample file is tab delimited. Also make sure that the sample file section does not refer to more elements than exist in the sample file. Remember the pipeline config section is base 1 NOT 0.\nNumber of items in samples file = " + str( i_number_sample_items ) + "\nItems number requested = " + str_sample_value + "\n" )
                 setattr( args_parsed, str_sample_variable, lstr_sample_arguments[ i_sample_item_index ] )
+
+            # Update the output directory with the sample name.
+            ParentScript.ParentScript.func_make_output_dir( args_parsed )
+            setattr( args_parsed, ParentScript.C_STR_OUTPUT_DIR, os.path.join( args_parsed.str_file_base, lstr_sample_arguments[ 0 ] ) )
+
+            # Remove the sample file from the args incase a script is made
+            # This will otherwise make an inf loop
+            setattr( args_parsed, ParentScript.C_STR_SAMPLE_FILE_DEST, None )
 
         # Stop if arguments were updated multiple times.
         cntr_args = collections.Counter( lstr_updated_arguments )
