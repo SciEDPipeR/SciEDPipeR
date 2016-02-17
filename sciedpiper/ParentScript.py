@@ -14,6 +14,7 @@ import ConfigManager
 import Commandline
 import csv
 import JSONManager
+import logging
 import os
 import Pipeline
 import stat
@@ -21,6 +22,7 @@ import sys
 
 # Constants
 C_STR_CONFIG_EXTENSION = ".config"
+C_STR_JOB_LOGGER_NAME = "JobRunner"
 C_STR_OUTPUT_DIR = "str_file_base"
 C_STR_NO_PIPELINE_CONFIG_ARG = "--no_pipeline_config"
 C_STR_PIPELINE_CONFIG_FILE_ARG = "--pipeline_config_file"
@@ -32,6 +34,9 @@ INDEX_CMD = "cmd"
 INDEX_FILE = "out_file"
 INDEX_FOLDER = "align_folder"
 
+# Locked arguments (can not be updated by the pipeline config file.
+# Make sure to include all flags and move argparse to the correct group.
+C_LSTR_LOCKED_ARGS = [ "-o", "--out_dir", C_STR_SAMPLE_FILE_ARG ]
 
 class ParentScript:
 
@@ -147,6 +152,13 @@ class ParentScript:
         # Make sure the output directory is set
         self.func_set_output_dir( ns_arguments )
 
+        # Make logger for all jobs
+        logr_job = logging.getLogger( C_STR_JOB_LOGGER_NAME )
+        hdlr_job = logging.FileHandler( filename = os.path.join( ns_arguments.str_file_base, C_STR_JOB_LOGGER_NAME + ".log" ), mode = "w" )
+        hdlr_job.setFormatter( logging.Formatter( "%(asctime)s - %(name)s - %(levelname)s - %(message)s" ) )
+        logr_job.addHandler( hdlr_job )
+        logr_job.setLevel( logging.INFO )
+
         # Sample file is outside of the config file, it can not be updated.
         llstr_sample_data = [ None ]
         if ns_arguments.str_sample_file:
@@ -164,14 +176,26 @@ class ParentScript:
 
             ns_arguments.str_file_base = str_orig_out_dir
 
+            logr_job.info( "ParentScript::func_run_pipeline. Start Running job = " + lstr_sample_data[ 0 ] )
+
             # Run a sample
             try:
                 f_return = self.func_run_sample( ns_arguments = ns_arguments,
                                                  dict_args_info = dict_args_info,
                                                  lstr_sample_info = lstr_sample_data )
-                f_error_occured = f_error_occured or f_return
+
+                if f_return:
+                    logr_job.info( "ParentScript::func_run_pipeline. Ran WITHOUT error, job = " + lstr_sample_data[ 0 ] )
+                else:
+                    logr_job.info( "ParentScript::func_run_pipeline. An ERROR occured while running job = " + lstr_sample_data[ 0 ] )
+                logr_job.info( "ParentScript::func_run_pipeline. End Running job = " + lstr_sample_data[ 0 ] )
+
+
+                f_error_occured = f_error_occured or ( not f_return )
             except Exception as e:
                 f_error_occured = True
+                logr_job.info( "ParentScript::func_run_pipeline. Serious error occured for " + lstr_sample_data[ 0 ] + "." )
+                logr_job.info( "ParentScript::func_run_pipeline. Exception for " + lstr_sample_data[ 0 ] + "\n" + str( e ) )
                 print( "Could not run sample " + lstr_sample_data[ 0 ] )
                 print( e )
 
@@ -191,7 +215,8 @@ class ParentScript:
             cur_config_manager = ConfigManager.ConfigManager( str_possible_config_file )
             ns_arguments = cur_config_manager.func_update_arguments( args_parsed=ns_arguments,
                                                                      dict_args_info=dict_args_info,
-                                                                     lstr_sample_arguments = lstr_sample_info )
+                                                                     lstr_sample_arguments = lstr_sample_info,
+                                                                     lstr_locked_arguments = C_LSTR_LOCKED_ARGS )
             str_additional_env_path = cur_config_manager.func_update_env_path()
             str_additional_python_path = cur_config_manager.func_update_python_path()
             str_updated_script_path = cur_config_manager.func_update_script_path( sys.argv[ 0 ] )

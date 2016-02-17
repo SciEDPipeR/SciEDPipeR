@@ -72,7 +72,7 @@ class ConfigManager( object ):
         return dict_args_normalized[ str_argument ]
 
 
-    def func_update_arguments( self, args_parsed, dict_args_info, lstr_sample_arguments = None):
+    def func_update_arguments( self, args_parsed, dict_args_info, lstr_sample_arguments = None, lstr_locked_arguments = []):
 
         if not args_parsed:
             return {}
@@ -101,6 +101,10 @@ class ConfigManager( object ):
                                             "Check to make sure the following argument is in the pipeline's arguments:",
                                             str_config_key ]) )
             str_config_key_norm = self.func_normalize_argument( str_config_key, dict_args_key )
+            if str_config_key_norm in lstr_locked_arguments:
+                # Check to make sure the key is not locked.
+                raise NameError( "\n".join([ "ConfigManager::func_update_arguments:Certain arguments can not be updated with a pipeline config file.",
+                                            "These keys include: " ] + lstr_locked_arguments + [ "Please do not update " + str_config_key_norm + " in the pipeline config file. " ] ) )
             lstr_updated_arguments.append( str_config_key_norm )
             str_variable = dict_args_info[ str_config_key_norm ][ Arguments.C_STR_VARIABLE_NAME ]
             str_config_type = dict_args_info[ str_config_key_norm ][ Arguments.C_STR_TYPE ]
@@ -121,6 +125,10 @@ class ConfigManager( object ):
         ## if it is there update with it.
         for str_resource_key, str_resource_value in self.config.items( C_STR_RESOURCES_SECTION ):
             str_resource_key_norm = self.func_normalize_argument( str_resource_key, dict_args_key )
+            if str_resource_key_norm in lstr_locked_arguments:
+                # Check to make sure the key is not locked.
+                raise NameError( "\n".join([ "ConfigManager::func_update_arguments:Certain arguments can not be updated with a pipeline config file.",
+                                            "These keys include: " ] + lstr_locked_arguments + [ "Please do not update " + str_resource_key_norm + " in the pipeline config file. " ] ) )
             str_resource_variable = dict_args_info[ str_resource_key_norm ][ Arguments.C_STR_VARIABLE_NAME ]
             lstr_updated_arguments.append( str_resource_key_norm )
             if str_resource_value in dict_resource_info:
@@ -133,6 +141,10 @@ class ConfigManager( object ):
             i_number_sample_items = len( lstr_sample_arguments )
             for str_sample_key, str_sample_value in self.config.items( C_STR_SAMPLE_FILE_SECTION ):
                 str_sample_key_norm = self.func_normalize_argument( str_sample_key, dict_args_key )
+                if str_sample_key_norm in lstr_locked_arguments:
+                    # Check to make sure the key is not locked.
+                    raise NameError( "\n".join([ "ConfigManager::func_update_arguments:Certain arguments can not be updated with a pipeline config file.",
+                                                 "These keys include: " ] + lstr_locked_arguments + [ "Please do not update " + str_sample_key_norm + " in the pipeline config file. " ]) )
                 str_sample_variable = dict_args_info[ str_sample_key_norm ][ Arguments.C_STR_VARIABLE_NAME ]
                 lstr_updated_arguments.append( str_sample_key_norm )
                 i_sample_item_index = int( str_sample_value ) - 1
