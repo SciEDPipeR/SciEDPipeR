@@ -89,6 +89,8 @@ class DependencyTree:
             self.__lstr_terminal_products = [ cmd_cur for cmd_cur in self.graph_commands.func_get_terminal_products() ]
         return self.__lstr_terminal_products
 
+
+    # TODO Test
     def __func_update_state_to_start( self ):
         """
         Updates the internal state of the Dependency Tree and types of files being tracked
@@ -159,6 +161,7 @@ class DependencyTree:
         return False
 
 
+    # Tested
     def func_complete_command( self, cmd_cur, f_wait = None, f_test = False ):
         """
         Checks that the products are made for the command and then
@@ -211,6 +214,7 @@ class DependencyTree:
         return False
 
 
+    # Tested
     def func_get_commands( self ):
         """
         Returns a breadthwise iterator of the internal commands.
@@ -274,6 +278,7 @@ class DependencyTree:
         """
 
         return self.func_paths_made( cmd_cur.lstr_dependencies )
+
 
     # Tested 
     def func_dependency_is_needed( self, cmd_dependency ):
@@ -390,13 +395,16 @@ class DependencyTree:
         return str_product in self.lstr_terminal_products
     
 
+    # TODO Test
     def func_remove_wait( self ):
         """
         Turn off the wait for looking for products.
         """
         
         self.li_waits_for_products = [0]
-        
+
+
+    # Tested 
     def func_show_active_dependencies( self ):
         """
         Show the dependencies that are still active.
@@ -407,12 +415,17 @@ class DependencyTree:
         
         return ", ".join( sorted( self.dict_dependencies.keys() ) )            
 
+
+    # TODO Test
     def func_get_clean_level( self, str_path ):
         return self.graph_commands.func_get_vertex( str_path ).i_clean  
+
 
     def __str__( self ):
         return "Graph{" + str( len( self.graph_commands ) ) + "}"
 
+
+    # Used in testing
     def func_detail( self ):
         """
         String representation of the internal state of the object.

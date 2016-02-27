@@ -9,6 +9,8 @@ __status__ = "Development"
 
 import Command
 import json
+import os
+import ParentScript
 import unicodedata
 
 # Constants
@@ -34,6 +36,7 @@ class Struct:
 
   def __init__( self, **args ):
     self.__dict__.update( args )
+
 
   def __str__( self ):
      """
@@ -124,8 +127,10 @@ class JSONManager( object ):
             hndl_out.write( str_json )
     return str_json
 
+
+  # TODO Test and 4 space
   @classmethod
-  def func_pipeline_to_wdl( self, lcmd_commands, str_workflow = "custom", str_file = None ):
+  def func_pipeline_to_wdl( self, dt_tree_graph, str_file, args_pipe, str_workflow = "custom" ):
     """
     Change a list of commands to a WDL output
 
@@ -137,68 +142,130 @@ class JSONManager( object ):
               : String
     """
 
+    str_output_dir_variable = "${" + ParentScript.C_STR_OUTPUT_DIR + "}"
+
+    # Simple JSON file for inputs
+    lstr_json_input = [ ]
+
+    # Periods are used as a special character in WDL, make sure the
+    # Script name has no period in it.
+    str_workflow = str_workflow.replace(".","_")
+
+    # Workflow
+    lstr_workflow = []
+    lstr_workflow_inputs = []
+
     # List of tasks for workflow
     # [ { name : name_value,
     #     products : { out1 : file_name, out2 : file_name },
     #     dependencies : {in1 : file_name, in2 : file_name } } ]
     ldict_tasks = []
 
+    # The original arguments as a dict
+    dict_original_arguments = vars( args_pipe )
+
     # List of dicts describing files used in the pipeline
-    ldict_resources = {}
+    # Changes the product name to the variable name in the WDL pipeline
+    dict_resources = {}
+
+    # Global increment for dependencies
+    i_dependency_count = 1
+
+    # Get the paths of the inputs and outputs to the dependency tree.
+    lstr_terminal_inputs = [ rsc_cur.str_id for rsc_cur in dt_tree_graph.graph_commands.func_get_input_files() ]
+    lstr_terminal_products = [ rsc_cur.str_id for rsc_cur in dt_tree_graph.graph_commands.func_get_terminal_products() ]
+
+    # Arguments that are used in any commands
+    set_used_arguments = set()
 
     # For each command.
     str_wdl = ""
-    for cmd_cur in lcmd_commands:
+    for cmd_cur in dt_tree_graph.func_get_commands():
 
       #Check to make sure the list has something in it
       if not cmd_cur:
         continue
 
+      lstr_task_inputs = []
+      lstr_cur_used_args = []
+
+      # Make a WDL comamnd that will be updated when products and dependecies are updated.
+      # Add command to WDL
+      str_cur_cmd_wdl = "\n".join([ "  " + C_STR_COMMAND + " {",
+                                    "    " + cmd_cur.str_id,
+                                    "  }"])
+
+      # Check for used arguments
+      for str_arg in dict_original_arguments.keys():
+          if "${" + str_arg + "}" in str_cur_cmd_wdl:
+              lstr_cur_used_args.append( str_arg )
+      
+
+      # Indicate if the command has either inputs or outputs
+      f_has_prod_dep = 0 < ( len( cmd_cur.lstr_products ) + len( cmd_cur.lstr_dependencies ) )
+      lstr_workflow.append( "  call " + cmd_cur.str_name + ( " { input: " if f_has_prod_dep else "" ))
+
       # Update tasks and extract data to a format useful.
       cur_command_dict = { "name" : cmd_cur.str_name, "products" : {}, "dependencies" : {}}
       i_product_count = 1
-      i_dependency_count = 1
       for cur_prod in cmd_cur.lstr_products:
-        cur_command_dict[ "products" ][ "out" + str( i_product_count ) ] = cur_prod.str_id
+        str_prod_token = "out" + str( i_product_count )
+        cur_command_dict[ "products" ][ str_prod_token ] = "${" + "prod" + str( i_product_count ) + "}"
+        str_cur_cmd_wdl = str_cur_cmd_wdl.replace( cur_prod.str_id, str_output_dir_variable + os.path.sep + "${" + "prod" + str( i_product_count ) + "}" )
+        lstr_json_input.append( "  \""+str_workflow+"."+cmd_cur.str_name+"." + "prod" + str( i_product_count ) + "\"" + "=\""+cur_prod.str_id+"\"" )
+        dict_resources[ cur_prod.str_id ] = "${" + cmd_cur.str_name + "." + str_prod_token + "}"
         i_product_count = i_product_count + 1
       for cur_dep in cmd_cur.lstr_dependencies:
-        cur_command_dict[ "dependencies" ][ "in" + str( i_dependency_count ) ] = cur_dep.str_id
+        str_dep_token = "in" + str( i_dependency_count )
+        cur_command_dict[ "dependencies" ][ "input_" + str( i_dependency_count ) ] = cur_dep.str_id
+        if cur_dep.str_id in lstr_terminal_inputs:
+          lstr_workflow_inputs.append( "  File dependency_" + str( i_dependency_count ) + " " + str_output_dir_variable + os.path.sep + "${" + str_dep_token + "}" )
+          lstr_json_input.append( "  \""+str_workflow+"." + str_dep_token + "\"" + "=\""+cur_dep.str_id+"\"" )
+          dict_resources[ cur_dep.str_id ] = "${dependency_" + str( i_dependency_count ) + "}"
+        lstr_task_inputs.append( "    " + "input_" + str( i_dependency_count ) + "=" + dict_resources.get( cur_dep.str_id, cur_dep.str_id ) )
+        str_cur_cmd_wdl = str_cur_cmd_wdl.replace( cur_dep.str_id, "input_" + str( i_dependency_count ) )
         i_dependency_count = i_dependency_count + 1
-      ldict_tasks.append( cur_command_dict )
 
+      # Add arguments to task inputs
+      lstr_task_inputs.extend( [ "    " + str_used_arg + "=" + str_used_arg for str_used_arg in lstr_cur_used_args ] )
+      
+
+      lstr_workflow.append( ",\n".join( lstr_task_inputs ) )
+      if f_has_prod_dep:
+          lstr_workflow.append( "  }" )
       # Add task to WDL
       str_wdl = str_wdl + C_STR_TASK + " " + cmd_cur.str_name + " {\n"
 
       # Add dependencies as inputs to WDL
       for str_file_count, str_file_name in cur_command_dict[ "dependencies" ].items():
-        str_wdl = str_wdl + "  " + C_STR_FILE + " " + str_file_count + " " + str_file_name + "\n"
+        str_wdl = str_wdl + "  " + C_STR_FILE + " " + str_file_count + "\n"
 
-      # Add command to WDL
-      str_wdl = str_wdl + "\n".join([ "  " + C_STR_COMMAND + " {",
-                                      "    " + cmd_cur.str_id,
-                                      "  }"])
+      # Add updated command.
+      str_wdl = str_wdl + str_cur_cmd_wdl
 
       # Add products as outputs to WDL
       str_wdl = str_wdl + "  " + C_STR_OUTPUT + " {\n"
       for str_file_out_count, str_file_out_name in cur_command_dict[ "products" ].items():
-        str_wdl = str_wdl + "    " + C_STR_OUTPUT + " " + str_file_out_count + " " + str_file_out_name
+        str_wdl = str_wdl + "    " + C_STR_FILE + " " + str_file_out_count + " " + str_file_out_name
       str_wdl = str_wdl + "\n  }\n}\n"
 
-    # Make workflow
-    str_wdl = str_wdl + "\n" + C_STR_WORKFLOW  + " " + str_workflow + " {\n"
-    for dict_cur_task in ldict_tasks:
-      str_wdl = str_wdl + "  call " + dict_cur_task[ "name" ]
+      # Update globaly used arguments
+      set_used_arguments = set_used_arguments or set( lstr_cur_used_args )
 
-      # Add output
-      if dict_cur_task[ "dependencies" ]:
-        str_wdl = str_wdl + " { " + C_STR_INPUT + ": "
-        lstr_workflow_inputs = []
-        for str_dep_position, str_dep_value in dict_cur_task[ "dependencies" ].items():
-          lstr_workflow_inputs.append( str_dep_position + "=" + str_dep_value )
-        str_wdl = str_wdl + ", ".join( lstr_workflow_inputs ) + " }\n"
-      else:
-        str_wdl = str_wdl + "\n"
-    str_wdl = str_wdl + "}"
+    # Add workflow
+    print set_used_arguments
+    str_wdl = str_wdl + C_STR_WORKFLOW  + " " + str_workflow + " {\n\n  "
+    str_wdl = str_wdl + ",\n  ".join( [ arg_key for arg_key, arg_value in dict_original_arguments.items() if arg_key in set_used_arguments ] )
+    str_wdl = str_wdl + "\n" + "\n".join( lstr_workflow_inputs ) + "\n"
+    str_wdl = str_wdl + "\n" + "\n".join( lstr_workflow )
+
+    # Add JSON file
+    str_wdl = str_wdl + "\n\n{\n"
+    str_wdl = str_wdl + ",\n".join( [ "  \"" + str_workflow + "." + arg_key + "\"" + "=\"" + str( arg_value ) + "\""
+                                      for arg_key, arg_value in dict_original_arguments.items() if arg_key in set_used_arguments ] )
+    if ( len( dict_original_arguments ) > 0 ) and ( len( list( set_used_arguments ) ) > 0 ):
+        str_wdl = str_wdl + ","
+    str_wdl = str_wdl + "\n" + ",\n".join( lstr_json_input ).replace( str_output_dir_variable + os.path.sep, "" ) + "\n}"
 
     # Make string and return.
     # Write to file it requested.

@@ -48,6 +48,7 @@ class Resource( Graph.Vertex ):
         self.str_type = STR_TYPE
         self.str_status = STR_NOT_MADE
 
+
     # Tested
     def __str__( self ):
         return " ".join( [ "PATH:", str( self.str_id ) + ",",
@@ -56,14 +57,18 @@ class Resource( Graph.Vertex ):
                           "PARENTS:", str( sorted( [ str( vtx_parent.str_id ) for vtx_parent in self.func_get_parents() ] ) ),
                           "CHILDREN:", str( sorted( [ str( vtx_child.str_id ) for vtx_child in self.func_get_children() ] ) ) ] )
 
+
     def __eq__( self, other ):
         if ( not isinstance( other, Resource )):
             return False
         return self.str_id == other.str_id
 
+
     def __hash__( self ):
         return hash( self.str_id )
 
+
+    # Tested
     def func_get_dependencies( self ):
         """
         Get the parents / dependencies this file is dependent on.
@@ -74,6 +79,8 @@ class Resource( Graph.Vertex ):
                 lrsc_return.append( rsc_dep )
         return lrsc_return
 
+
+    # TODO Test
     def func_get_size( self ):
         """
         Gets the size of the file in a human readable format.
@@ -96,6 +103,7 @@ class Resource( Graph.Vertex ):
             i_magnitude = i_magnitude + 1
             i_size_bytes = i_size_bytes / 1024.0
         return str( round( i_size_bytes, 2 ) ) + " " + Resource.SIZES[ i_magnitude ]
+
 
     # Tested
     @classmethod

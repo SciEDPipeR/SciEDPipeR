@@ -533,7 +533,9 @@ class Pipeline:
         except Exception as e:
             self.logr_logger.error( " ".join( [ "Pipeline.func_mkdirs: Received an error while creating the", str_dir, "directory. Stopping analysis, premature termination of pipeline. Error = ", str( e ) ] ) )
         return False
-    
+
+
+    # Tested
     def func_get_file_time_stamp( self, str_file_path ):
         """
         Gets the time stamp from a file as a float.
@@ -543,6 +545,7 @@ class Pipeline:
         * return : float
         """
         return os.path.getmtime( str_file_path )
+
 
     # Tested, could test more (products)
     def func_paths_are_from_valid_run( self, cmd_command, f_dependencies, i_fuzzy_time = None ):
@@ -730,9 +733,10 @@ class Pipeline:
         return True
 
 
+    # Tested
     def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, f_self_organize_commands = True,
                            li_wait = None, lstr_copy = None, str_move = None, str_compression_mode = None,
-                           str_compression_type = "gz", i_time_stamp_wiggle = None, str_wdl = None ):
+                           str_compression_type = "gz", i_time_stamp_wiggle = None, str_wdl = None, args_original = None ):
         """
         Runs all commands in serial and logs the time each took.
         Will NOT stop on error but will attempt all commands.
@@ -790,17 +794,21 @@ class Pipeline:
                 # Make all the directories needed for the commands
                 self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
 
-        # Make a wdl file
-        if str_wdl:
-            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Not running pipeline. Writing WDL to file:", str_wdl ] ) )
-            JSONManager.JSONManager.func_pipeline_to_wdl( lcmd_commands = lcmd_commands, str_workflow = self.str_name, str_file = str_wdl )
-            return True
-
         # Load up the commands and build the dependency tree
         # This skips special commands
         dt_dependencies = DependencyTree.DependencyTree( [ cmd_cur for cmd_cur in lcmd_commands 
                                                           if not self.func_is_special_command( cmd_cur ) ],
                                                           self.logr_logger )
+
+        # Make a wdl file
+        if str_wdl:
+            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Not running pipeline. Writing WDL to file:", str_wdl ] ) )
+            JSONManager.JSONManager.func_pipeline_to_wdl( dt_tree_graph = dt_dependencies, 
+                                                          str_workflow = self.str_name, 
+                                                          str_file = str_wdl,
+                                                          args_pipe = args_original )
+            return True
+
         # Manage the wait for checking for products
         # Set the wait for checking for products
         if not li_wait is None:
@@ -815,6 +823,7 @@ class Pipeline:
         sstr_made_dependencies_to_compress = set()
 
         # Turn on graph organized commands if needed.
+        # This allows the commands to be organized by the DAG not by the user.
         if f_self_organize_commands:
             lcmd_commands = dt_dependencies.func_get_commands()
         for cmd_command in lcmd_commands:

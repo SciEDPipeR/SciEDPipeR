@@ -197,6 +197,7 @@ class Command( Graph.Vertex ):
         """
         return self.func_set_resource_clean_level( lstr_file, i_level )
 
+    # Tested
     def func_set_resource_clean_level( self, lstr_file, i_level ):
         """
         Add a cleaning level for a list of files that are resources.

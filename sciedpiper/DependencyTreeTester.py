@@ -1362,6 +1362,7 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_equals(str_answer, str_result)
 
 
+# Test func_get_commands
     def test_func_get_commands_no_command( self ):
         """ Tests the commands returned when no command is in the graph """
 

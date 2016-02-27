@@ -175,24 +175,31 @@ class DependencyGraphTester( ParentPipelineTester.ParentPipelineTester ):
         lstr_commands_group_4 = [ 17 ]
         cmd_cur = itr_commands.next()
         if not cmd_cur.str_id in lstr_commands_group_1:
+            print cmd_cur.str_id
             self.func_test_true( False )
         cmd_cur = itr_commands.next()
         if not cmd_cur.str_id in lstr_commands_group_1:
+            print cmd_cur.str_id
             self.func_test_true( False )
         cmd_cur = itr_commands.next()
         if not cmd_cur.str_id in lstr_commands_group_1:
+            print cmd_cur.str_id
             self.func_test_true( False )
         cmd_cur = itr_commands.next()
         if not cmd_cur.str_id in lstr_commands_group_2:
+            print cmd_cur.str_id
             self.func_test_true( False )
         cmd_cur = itr_commands.next()
         if not cmd_cur.str_id in lstr_commands_group_3:
+            print cmd_cur.str_id
             self.func_test_true( False )
         cmd_cur = itr_commands.next()
         if not cmd_cur.str_id in lstr_commands_group_3:
+            print cmd_cur.str_id
             self.func_test_true( False )
         cmd_cur = itr_commands.next()
         if not cmd_cur.str_id in lstr_commands_group_4:
+            print cmd_cur.str_id
             self.func_test_true( False )
         self.func_test_true( True )
 

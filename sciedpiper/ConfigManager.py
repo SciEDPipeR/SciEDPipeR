@@ -40,7 +40,7 @@ class ConfigManager( object ):
         self.config = ConfigParser.RawConfigParser()
         self.config.read( str_configuration_file_path )
 
-
+    # TODO Test
     def _func_type_cast( self, str_type_string, str_value ):
 
         if str_value == "None":
@@ -59,6 +59,7 @@ class ConfigManager( object ):
             raise TypeError( "ConfigManager::_func_type_cast:Unknown type string. Type =" + str( str_type_string ) )
 
 
+    # TODO Test
     def func_normalize_argument( self, str_argument, dict_args_normalized ):
         """ Takes an argument (short or long form) and normalizes the argument to one of the possible arguments.
             If the argument is not found, an exception (NameError) is raised.
@@ -72,6 +73,7 @@ class ConfigManager( object ):
         return dict_args_normalized[ str_argument ]
 
 
+    # TODO Test
     def func_update_arguments( self, args_parsed, dict_args_info, lstr_sample_arguments = None, lstr_locked_arguments = []):
 
         if not args_parsed:
@@ -176,6 +178,7 @@ class ConfigManager( object ):
         return args_parsed
 
 
+    # TODO Test
     def func_update_env_path( self ):
         # Read in the path updates
         for str_config_key, str_config_value in self.config.items( C_STR_PATH_SECTION ):
@@ -186,6 +189,7 @@ class ConfigManager( object ):
         return None
 
 
+    # TODO Test
     def func_update_python_path( self ):
         # Read in the python path updates
         for str_config_key, str_config_value in self.config.items( C_STR_PATH_SECTION ):
@@ -200,6 +204,7 @@ class ConfigManager( object ):
         return None
 
 
+    # TODO Test
     def func_update_script_path( self, str_script_path ):
         # Update the script path or return False indicating that it was not needed.
         for str_config_key, str_config_value in self.config.items( C_STR_PATH_SECTION ):
@@ -208,12 +213,14 @@ class ConfigManager( object ):
         return False
 
 
+    # TODO Test
     def func_get_precommands( self ):
         for str_command_key, str_command_value in self.config.items( C_STR_COMMANDS_SECTION ):
             if str_command_key.lower() == C_STR_PRECOMMANDS_SECTION.lower():
                 return str_command_value
 
 
+    # TODO Test
     def func_get_postcommands( self ):
         for str_command_key, str_command_value in self.config.items( C_STR_COMMANDS_SECTION ):
             if str_command_key.lower() == C_STR_POSTCOMMANDS_SECTION.lower():
