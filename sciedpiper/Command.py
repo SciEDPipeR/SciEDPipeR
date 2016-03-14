@@ -151,14 +151,14 @@ class Command(Graph.Vertex):
             dict_cur[STR_DEPENDENCIES_JSON] = []
             for vtx_dep in self.lstr_dependencies:
                 dict_cur[STR_DEPENDENCIES_JSON].append({STR_PATH_JSON: vtx_dep.str_id,
-                                              STR_CLEAN_JSON: DICT_CLEAN_TO_KEY[vtx_dep.i_clean]})
+                                                        STR_CLEAN_JSON: DICT_CLEAN_TO_KEY[vtx_dep.i_clean]})
 
         # Add products and clean levels
         if len(self.lstr_products) > 0:
             dict_cur[STR_PRODUCTS_JSON] = []
             for vtx_prod in self.lstr_products:
                 dict_cur[STR_PRODUCTS_JSON].append({STR_PATH_JSON: vtx_prod.str_id,
-                                             STR_CLEAN_JSON: DICT_CLEAN_TO_KEY[vtx_prod.i_clean]})
+                                                    STR_CLEAN_JSON: DICT_CLEAN_TO_KEY[vtx_prod.i_clean]})
 
         return dict_cur
 
