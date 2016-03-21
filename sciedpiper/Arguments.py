@@ -32,6 +32,7 @@ class Arguments(object):
     Consolidates code involving arguments.
     """
 
+    # Tested 3-21-2016 6 tests
     @classmethod
     def func_extract_argument_info(cls, args):
         """
