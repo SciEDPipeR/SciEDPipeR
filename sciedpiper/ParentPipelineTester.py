@@ -90,10 +90,11 @@ class ParentPipelineTester(unittest.TestCase):
         if str_path:
             if not os.path.exists( str_path ):
                 with open( str_path, "w" ) as hndle_open:
-                    cur_time = calendar.timegm( time.gmtime() )
-                    hndle_open.write( str( cur_time  ) + "\n" )
-                    hndle_open.write( str( time.ctime( cur_time ) ) + "\n" )
-                    hndle_open.write( str_message if str_message else str_path )
+                    if str_message != "":
+                        cur_time = calendar.timegm( time.gmtime() )
+                        hndle_open.write( str( cur_time  ) + "\n" )
+                        hndle_open.write( str( time.ctime( cur_time ) ) + "\n" )
+                        hndle_open.write( str_message if str_message else str_path )
                 return True
         return False
     

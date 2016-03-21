@@ -449,6 +449,89 @@ class ResourceTester( ParentPipelineTester.ParentPipelineTester ):
         str_result = ";".join([ cur_rsc.str_id for cur_rsc in sorted( lrsc_deps ) ])
         self.func_test_equals( str_answer, str_result )
 
+    # Test func_get_size
+    def test_func_get_size_for_empty_file(self):
+        """
+        Test get size for empty file.
+        """
+        str_file = os.path.join(self.str_test_directory, "test_func_get_size_for_empty_file.txt")
+        str_answer = "0.0 B"
+        self.func_make_dummy_dir(self.str_test_directory)
+        self.func_make_dummy_file(str_file, "")
+        str_size = Resource.Resource(str_path=str_file, f_is_product=True).func_get_size()
+        self.func_remove_files([str_file])
+        self.func_remove_dirs([self.str_test_directory])
+        self.func_test_equals(str_answer, str_size)
+
+    def test_func_get_size_for_a_sentence_file(self):
+        """
+        Test get size for a sentence file.
+        """
+        str_file = os.path.join(self.str_test_directory, "test_func_get_size_for_a_sentence_file.txt")
+        str_answer = "55.0 B"
+        self.func_make_dummy_dir(self.str_test_directory)
+        self.func_make_dummy_file(str_file, "This is a sentence.")
+        str_size = Resource.Resource(str_path=str_file, f_is_product=True).func_get_size()
+        self.func_remove_files([str_file])
+        self.func_remove_dirs([self.str_test_directory])
+        self.func_test_equals(str_answer, str_size)
+
+    def test_func_get_size_for_empty_dir(self):
+        """
+        Test get size for empty directories.
+        """
+        str_dir = os.path.join(self.str_test_directory, "test_func_get_size_for_empty_dir")
+        str_answer = "68.0 B"
+        self.func_make_dummy_dir(self.str_test_directory)
+        self.func_make_dummy_dir(str_dir)
+        str_size = Resource.Resource(str_path=str_dir, f_is_product=True).func_get_size()
+        self.func_remove_dirs([str_dir, self.str_test_directory])
+        self.func_test_equals(str_answer, str_size)
+
+    def test_func_get_size_for_dir_one_file(self):
+        """
+        Test get size for empty directories.
+        """
+        str_dir = os.path.join(self.str_test_directory,
+                               "test_func_get_size_for_dir_one_file")
+        str_file = os.path.join(self.str_test_directory,
+                               "test_func_get_size_for_dir_one_file",
+                               "file_one.txt")
+        str_answer = "150.0 B"
+        self.func_make_dummy_dir(self.str_test_directory)
+        self.func_make_dummy_dir(str_dir)
+        self.func_make_dummy_file(str_file, "File_one.txt")
+        str_size = Resource.Resource(str_path=str_dir, f_is_product=True).func_get_size()
+        self.func_remove_files([str_file])
+        self.func_remove_dirs([str_dir, self.str_test_directory])
+        self.func_test_equals(str_answer, str_size)
+
+    def test_func_get_size_for_dir_three_file(self):
+        """
+        Test get size for empty directories.
+        """
+        str_dir = os.path.join(self.str_test_directory,
+                               "test_func_get_size_for_dir_three_file")
+        str_file_1 = os.path.join(self.str_test_directory,
+                               "test_func_get_size_for_dir_three_file",
+                               "file_one.txt")
+        str_file_2 = os.path.join(self.str_test_directory,
+                               "test_func_get_size_for_dir_three_file",
+                               "file_two.txt")
+        str_file_3 = os.path.join(self.str_test_directory,
+                               "test_func_get_size_for_dir_three_file",
+                               "file_three.txt")
+        str_answer = "316.0 B"
+        self.func_make_dummy_dir(self.str_test_directory)
+        self.func_make_dummy_dir(str_dir)
+        self.func_make_dummy_file(str_file_1, "File_one.txt")
+        self.func_make_dummy_file(str_file_2, "File_two.txt")
+        self.func_make_dummy_file(str_file_3, "File_three.txt")
+        str_size = Resource.Resource(str_path=str_dir, f_is_product=True).func_get_size()
+        self.func_remove_files([str_file_1, str_file_2, str_file_3])
+        self.func_remove_dirs([str_dir, self.str_test_directory])
+        self.func_test_equals(str_answer, str_size)
+
 #Creates a suite of tests
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase( ResourceTester )

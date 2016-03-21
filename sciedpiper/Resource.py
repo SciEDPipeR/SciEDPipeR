@@ -92,12 +92,12 @@ class Resource(Graph.Vertex):
                 lrsc_return.append(rsc_dep)
         return lrsc_return
 
-    # TODO Test
+    # Test
     def func_get_size(self):
         """
         Gets the size of the file in a human readable format.
 
-        :return name: Humand readable string for the file's sample size.
+        :return name: Human readable string for the file's sample size.
         :return type: String
         """
 
