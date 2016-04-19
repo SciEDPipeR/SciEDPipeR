@@ -55,7 +55,8 @@ LSTR_CLEAN_LEVELS = Resource.LSTR_CLEAN_LEVELS
 
 class Command(Graph.Vertex):
     """
-    Represents a command line call. Keeps together command, dependency, and products information.
+    Represents a command line call. Keeps together command, dependency,
+    and products information.
     """
 
     # Tested
@@ -64,8 +65,8 @@ class Command(Graph.Vertex):
         """
         Initializer.
         All paths should be absolute paths.
-        If given relative paths, the current working directory will be added on to the path to
-        make the file path absolute.
+        If given relative paths, the current working directory will be
+        added on to the path to make the file path absolute.
 
         * str_cur_command : String
                             Command to execute
@@ -92,7 +93,8 @@ class Command(Graph.Vertex):
             rsc_prod.func_add_parent(self)
 
         # Controls updating the commandlines pas flags
-        # This often needs to be true when adding a sciedpiper script with an update command.
+        # This often needs to be true when adding a sciedpiper script with
+        # an update command.
         self.f_stop_update_at_flags = False
 
     # Used in testing
@@ -125,7 +127,8 @@ class Command(Graph.Vertex):
         Returns true if there is a command with both dependencies and products.
 
         * Return : Boolean
-                   True indicates the Command has entries for command, dependencies, and products
+                   True indicates the Command has entries for command,
+                   dependencies, and products
         """
 
         return self.str_id and self.lstr_dependencies and self.lstr_products
@@ -137,7 +140,8 @@ class Command(Graph.Vertex):
         {Command.USTR_COMMAND_JSON: str_cur_command,
          Command.USTR_DEPENDENCIES_JSON: [{Command.USTR_PATH:str_path,
                                            Command.USTR_CLEAN: CLEAN}....],
-         Command.USTR_PRODUCTS_JSON: [{Command.USTR_PATH:str_path,  Command.USTR_CLEAN:CLEAN}...]}
+         Command.USTR_PRODUCTS_JSON: [{Command.USTR_PATH:str_path,
+                                       Command.USTR_CLEAN:CLEAN}...]}
 
         * return : Dict representation of Command as described above.
                  : Dict
@@ -241,11 +245,11 @@ class Command(Graph.Vertex):
 
         # Make sure are absolute paths
         lstr_file = Resource.Resource.func_make_paths_absolute(lstr_file)
-
         # Allow all files to be added as long as they are known dependencies
         for vtx_file in self.lstr_dependencies + self.lstr_products:
             if vtx_file.str_id in lstr_file:
                 vtx_file.i_clean = i_level
+
         return self
 
     # Tested

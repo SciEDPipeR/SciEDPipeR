@@ -182,10 +182,17 @@ class Graph:
       for vtx_child in vtx_cur.func_get_children():
         # Make sure you did not already see the child
         if not vtx_child in dict_visited:
-          # If this is the first time we see the vertex, add to cache and indicate it is visited.
-          dq_cache.append( vtx_child )
-          dict_visited[ vtx_child ] = None
-          list_node_ordered.append( vtx_child )
+          # If we have not put this vertex in the cache, 
+          # We add it to the graph if all of it's other parents have been seen,
+          # add to cache and indicate it is visited.
+          f_store = True
+          for vtx_cur_parent in vtx_child.func_get_parents():
+              if (not vtx_cur_parent in dict_visited) and (not vtx_cur_parent == vtx_cur):
+                  f_store = False
+          if f_store:
+              dq_cache.append( vtx_child )
+              dict_visited[ vtx_child ] = None
+              list_node_ordered.append( vtx_child )
     return iter( list_node_ordered )
 
 

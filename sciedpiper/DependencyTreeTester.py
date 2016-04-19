@@ -1690,6 +1690,167 @@ class DependencyTreeTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_test_true( True )
 
 
+    def test_func_get_clean_level_for_never(self):
+        """
+        Test func_get_clean_level for a command with never status
+        """
+
+        str_env = os.path.join( self.str_test_directory, "test_func_get_clean_level_for_never" ) + os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_answer = str(Resource.CLEAN_NEVER)
+
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ],
+                                      [ str_product_3 ] )
+        cmd_test_2.func_set_resource_clean_level([str_product_1], Resource.CLEAN_NEVER)
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3 ] )
+        str_result = str(dt_tree.func_get_clean_level(str_product_1))
+        self.func_test_equals(str_answer, str_result)
+
+    def test_func_get_clean_level_for_inter(self):
+        """
+        Test func_get_clean_level for a command with intermediate status
+        """
+
+        str_env = os.path.join( self.str_test_directory, "test_func_get_clean_level_for_inter" ) + os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_answer = str(Resource.CLEAN_AS_TEMP)
+
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ],
+                                      [ str_product_3 ] )
+        cmd_test_1.func_set_resource_clean_level([str_dependency_1], Resource.CLEAN_AS_TEMP)
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3 ] )
+        str_result = str(dt_tree.func_get_clean_level(str_dependency_1))
+        self.func_test_equals(str_answer, str_result)
+
+    def test_func_get_clean_level_for_always(self):
+        """
+        Test func_get_clean_level for a command with always status
+        """
+        str_env = os.path.join( self.str_test_directory, "test_func_get_clean_level_for_always" ) + os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_answer = str(Resource.CLEAN_ALWAYS)
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ],
+                                      [ str_product_3 ] )
+        cmd_test_3.func_set_resource_clean_level([str_product_2], Resource.CLEAN_ALWAYS)
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3 ] )
+        str_result = str(dt_tree.func_get_clean_level(str_product_2))
+        self.func_test_equals(str_answer, str_result)
+
+
+    def test_func_remove_wait_for_not_removed(self):
+        """
+        Test func_remove_wait for not removing wait
+        """
+
+        str_env = os.path.join( self.str_test_directory, "test_func_remove_wait_for_not_removed" ) + os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_answer = "[5, 15, 40]"
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ],
+                                      [ str_product_3 ] )
+        cmd_test_3.func_set_resource_clean_level(str_product_2, Resource.CLEAN_ALWAYS)
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3 ] )
+        str_result = str(dt_tree.li_waits_for_products)
+        self.func_test_equals(str_answer, str_result)
+
+
+    def test_func_remove_wait_for_removing(self):
+        """
+        Test func_remove_wait for removing wait
+        """
+        str_env = os.path.join( self.str_test_directory, "test_func_remove_wait_for_removed" ) + os.path.sep
+        str_dependency_1 = str_env + "Dependency_1"
+        str_product_1 = str_env + "Products_1"
+        str_product_2 = str_env + "Products_2"
+        str_product_3 = str_env + "Products_3"
+        str_answer = "[0]"
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ],
+                                      [ str_product_3 ] )
+        cmd_test_3.func_set_resource_clean_level(str_product_2, Resource.CLEAN_ALWAYS)
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3 ] )
+        dt_tree.func_remove_wait()
+        str_result = str(dt_tree.li_waits_for_products)
+        self.func_test_equals(str_answer, str_result)
+
+
+    def test_func_update_state_to_start(self):
+        """
+        Test func_update_state_to_start for simple case (just checking)
+        """
+        str_env = os.path.join( self.str_test_directory, "test_func_update_state_to_start" ) + os.path.sep
+        str_dependency_1 = os.sep + "Dependency_1"
+        str_product_1 = os.sep + "Products_1"
+        str_product_2 = os.sep + "Products_2"
+        str_product_3 = os.sep + "Products_3"
+        str_answer = "".join(["Graph{ Graph:VERTEX{ ID=/Dependency_1;Parents=['_i_am_Groot_'];",
+                              "Children=['Command_1'];Type=RESOURCE };",
+                              "VERTEX{ ID=/Products_1;Parents=['Command_1'];Children=['Command_2'];Type=RESOURCE };",
+                              "VERTEX{ ID=/Products_2;Parents=['Command_2'];Children=['Command_3'];Type=RESOURCE };",
+                              "VERTEX{ ID=/Products_3;Parents=['Command_3'];Children=[];Type=RESOURCE };",
+                              "Command: Command_1; Dependencies: PATH: /Dependency_1, CLEAN: 2, ",
+                              "Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']; ",
+                              "Products: PATH: /Products_1, CLEAN: 2, ",
+                              "Product PARENTS: ['Command_1'] ",
+                              "CHILDREN: ['Command_2'];Command: Command_2; ",
+                              "Dependencies: PATH: /Products_1, CLEAN: 2, ",
+                              "Product PARENTS: ['Command_1'] CHILDREN: ['Command_2']; ",
+                              "Products: PATH: /Products_2, CLEAN: 2, ",
+                              "Product PARENTS: ['Command_2'] CHILDREN: ['Command_3'];",
+                              "Command: Command_3; Dependencies: PATH: /Products_2, CLEAN: 2, ",
+                              "Product PARENTS: ['Command_2'] CHILDREN: ['Command_3']; ",
+                              "Products: PATH: /Products_3, CLEAN: 2, ",
+                              "Product PARENTS: ['Command_3'] CHILDREN: [];",
+                              "VERTEX{ ID=_i_am_Groot_;Parents=[];Children=['/Dependency_1'];Type=VERTEX }}\n",
+                              "Products{ ['/Products_1', '/Products_2', '/Products_3']}\n",
+                              "Dependencies{ ['/Dependency_1', '/Products_1', '/Products_2']}\n",
+                              "Inputs{ ['/Dependency_1']}\n",
+                              "Terminal_Products{ ['/Products_3']}\n",
+                              "[\"PATH: /Dependency_1, CLEAN: 2, Dependency PARENTS: ['_i_am_Groot_'] CHILDREN: ['Command_1']\"]\n",
+                              "[\"PATH: /Products_3, CLEAN: 2, Product PARENTS: ['Command_3'] CHILDREN: []\"]"])
+        cmd_test_1 = Command.Command( "Command_1", [ str_dependency_1 ],
+                                      [ str_product_1 ] )
+        cmd_test_2 = Command.Command( "Command_2", [ str_product_1 ],
+                                      [ str_product_2 ] )
+        cmd_test_3 = Command.Command( "Command_3", [ str_product_2 ],
+                                      [ str_product_3 ] )
+        dt_tree = DependencyTree.DependencyTree( [ cmd_test_1, cmd_test_2, cmd_test_3 ] )
+        str_result = "\n".join([dt_tree.func_detail(),
+                                str(sorted([str(vtx_input) for vtx_input in dt_tree.lstr_inputs])),
+                                str(sorted([str(vtx_dep) for vtx_dep in dt_tree.lstr_terminal_products]))])
+        self.func_test_equals(str_answer, str_result)
+
+
 #Creates a suite of tests
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase( DependencyTreeTester )

@@ -195,14 +195,14 @@ class ParentPipelineTester(unittest.TestCase):
             if os.path.exists( str_file ):
                 os.remove( str_file )
 
-
     def func_test_error( self, *params ):
         """
         Handles testing for a situation where an error is expected.
         """
 
-        self.assertRaises( params[0], params[1], *params[2:] )
-
+        with self.assertRaises( params[0], params[1], *params[2:] ):
+            self.assertTrue(true)
+        self.assertTrue(false)
 
     def func_test_equals( self, str_answer, str_result ):
         """

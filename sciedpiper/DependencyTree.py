@@ -90,7 +90,7 @@ class DependencyTree:
         return self.__lstr_terminal_products
 
 
-    # TODO Test
+    # Test
     def __func_update_state_to_start( self ):
         """
         Updates the internal state of the Dependency Tree and types of files being tracked
@@ -138,6 +138,9 @@ class DependencyTree:
         
         # Only allow complete commands with product, dependencies, and commands to be handled.
         if cmd_cur.func_is_valid():
+            # Holds resource clean levels not default
+            dict_clean_levels = {}
+
             # Each command should be unique
             if cmd_cur in self.graph_commands:
                 return False
@@ -146,9 +149,31 @@ class DependencyTree:
             # Add dependencies
             for vtx_dependency in cmd_cur.lstr_dependencies:
                 self.graph_commands.func_merge_vertex( vtx_dependency )
+                i_new_clean = vtx_dependency.i_clean
+                if not vtx_dependency.str_id in dict_clean_levels:
+                    dict_clean_levels[ vtx_dependency.str_id ] = i_new_clean
+                i_stored_clean = dict_clean_levels[ vtx_dependency.str_id ]
+                if i_new_clean != Resource.CLEAN_DEFAULT:
+                    if i_stored_clean == Resource.CLEAN_DEFAULT:
+                        dict_clean_levels[ vtx_dependency.str_id ] = i_new_clean
+                    else:
+                        dict_clean_levels[ vtx_dependency.str_id ] = min( i_new_clean, i_stored_clean)
             # Add products
             for vtx_product in cmd_cur.lstr_products:
                 self.graph_commands.func_merge_vertex( vtx_product )
+                i_new_clean = vtx_product.i_clean
+                if not vtx_product.str_id in dict_clean_levels:
+                    dict_clean_levels[ vtx_product.str_id ] = i_new_clean
+                i_stored_clean = dict_clean_levels[ vtx_dependency.str_id ]
+                if i_new_clean != Resource.CLEAN_DEFAULT:
+                    if i_stored_clean == Resource.CLEAN_DEFAULT:
+                        dict_clean_levels[ vtx_poduct.str_id ] = i_new_clean
+                    else:
+                        dict_clean_levels[ vtx_dependency.str_id ] = min( i_new_clean, i_stored_clean )
+
+            # Make sure the resource clean levels are preserved.
+            for str_resource_id, i_set_clean in dict_clean_levels.items():
+                self.graph_commands.func_get_vertex(str_resource_id).i_clean = i_set_clean
  
             # Indicate the terminal, dependencies, and products need to be recalculated 
             self.__lstr_terminal_products = None
@@ -187,7 +212,7 @@ class DependencyTree:
         if self.func_products_are_made( cmd_cur, f_wait = f_wait ) or f_test:
             self.logr_logger.info( "DependencyTree.func_complete_command: Products are made" )
             for str_product in cmd_cur.lstr_products:
-                self.logr_logger.info( "DependencyTree.func_complete_command: " + str_product.str_name + " " + str_product.func_get_size() )
+                self.logr_logger.info( "DependencyTree.func_complete_command: " + str_product.str_id + " " + str_product.func_get_size() )
  
             # Update the dependency relationships
             if not self.func_remove_dependency_relationships( cmd_cur ):
@@ -395,7 +420,7 @@ class DependencyTree:
         return str_product in self.lstr_terminal_products
     
 
-    # TODO Test
+    # Tested
     def func_remove_wait( self ):
         """
         Turn off the wait for looking for products.
@@ -416,7 +441,7 @@ class DependencyTree:
         return ", ".join( sorted( self.dict_dependencies.keys() ) )            
 
 
-    # TODO Test
+    # Tested
     def func_get_clean_level( self, str_path ):
         return self.graph_commands.func_get_vertex( str_path ).i_clean  
 

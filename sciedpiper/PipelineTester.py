@@ -624,6 +624,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur = Command.Command("command", [ str_dependency ], [ str_product ])
         f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = True )
         self.func_remove_files( [ str_product, str_dependency, str_dependency_ok ] )
+        self.func_remove_dirs( [ str_env ] )
         self.func_test_true( f_result )
     
 
@@ -651,6 +652,7 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = True )
         self.func_remove_files( [ str_dependency, str_dependency_ok, str_dependency_2, str_dependency_2_ok, 
                                  str_dependency_3, str_dependency_3_ok, str_product ] )
+        self.func_remove_dirs( [ str_env ] )
         self.func_test_true( f_result )
 
     def test_func_paths_are_from_valid_run_not_ran_dependency_for_products( self ):
@@ -2195,11 +2197,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( f_files_equal and f_clean )
 
-    def nottest_func_run_commands_for_linear_workflow_shuffled( self ):
+    def test_func_run_commands_for_linear_workflow_shuffled( self ):
         """
-
-        In the process of adding this feature.
-
         Tests running commands with three commands.
         Three commands shuffled.
         So they also should not be cleaned.
@@ -2296,9 +2295,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_test_2 = Command.Command( " ".join( [ "cat",str_dependency_3,">",str_product_2 ] ), 
                                       [ str_dependency_3 ],
                                       [ str_product_2 ] )
-        cmd_test_3 = Command.Command( " ".join( [ "cat",str_product_1,">",str_product_3,
-                                                  ";cat ",str_product_1," > ",str_product_4,
-                                                  ";cat ",str_product_1," > ",str_product_5,";" ] ), 
+        cmd_test_3 = Command.Command( " ".join( [ "cat",str_product_1,"1>",str_product_3,
+                                                  "2>",str_product_4,"&>",str_product_5 ] ), 
                                       [ str_product_1, str_product_2 ],
                                       [ str_product_3, str_product_4, str_product_5 ] )
         cmd_test_4 = Command.Command( " ".join( [ "cat",str_product_5,">",str_product_6 ] ), 

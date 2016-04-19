@@ -12,34 +12,37 @@ __email__="ttickle@broadinstitute.org"
 __status__="Development"
 
 
-#import CommandlineTester
-#import CommandTester
-#import CompressionTester
-#import DependencyGraphTester
-#import DependencyTreeTester
-import ResourceTester
-#import FunctionalTester
-#import GraphTester
+import ArgumentsTester
+import CommandlineTester
+import CommandTester
+import CompressionTester
+import ConfigManagerTester
+import DependencyGraphTester
+import DependencyTreeTester
+#import Dispatcher
+import FunctionalTester
+import GraphTester
 #import JSONManagerTester
-#import PipelineTester
+import PipelineTester
+import ResourceTester
 import unittest
 
 
 # Calls all unit tests as a regression suite.
 suite=unittest.TestSuite()
-#suite.addTest(ArgumentsTester.suite()) # 1 method
-#suite.addTest(CommandlineTester.suite()) #Done
-#suite.addTest(CommandTester.suite()) #Done
-#suite.addTest(CompressionTester.suite()) #Done
-#suite.addTest(ConfigMangerTester.suite()) # 8 methods
-#suite.addTest(DependencyGraphTester.suite()) # Done
-#suite.addTest(DependencyTreeTester.suite()) # 3 methods
-#suite.addTest(DispatcherTester.suite()) # 5 methods
-#suite.addTest(FunctionalTester.suite()) # Make sure func_run_commands istested for self organizing
-#suite.addTest(GraphTester.suite()) # Done
-#suite.addTest(JSONManagerTester.suite()) # 1 method
-#suite.addTest(PipelineTester.suite()) # Make sure func_run_commands is tested for self organizing
-suite.addTest(ResourceTester.suite()) # 1 test
+#suite.addTest(ArgumentsTester.suite()) # Running
+#suite.addTest(CommandlineTester.suite()) # Running
+#suite.addTest(CommandTester.suite()) # Running
+#suite.addTest(CompressionTester.suite()) # Running
+#suite.addTest(ConfigManagerTester.suite()) # 1 methods ok for now.
+#suite.addTest(DependencyGraphTester.suite()) # Running
+#suite.addTest(DependencyTreeTester.suite()) # Running
+##suite.addTest(DispatcherTester.suite()) # 5 methods
+suite.addTest(FunctionalTester.suite()) # 10 functions
+#suite.addTest(GraphTester.suite()) # Running
+##suite.addTest(JSONManagerTester.suite()) # 1 method, push Read JSON to parent script. ok for now.
+#suite.addTest(PipelineTester.suite()) # Running
+#suite.addTest(ResourceTester.suite()) # Running
 
 runner = unittest.TextTestRunner()
 runner.run(suite)

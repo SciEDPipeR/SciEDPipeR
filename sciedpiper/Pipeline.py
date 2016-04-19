@@ -487,7 +487,6 @@ class Pipeline:
         * lstr_paths : Paths for which all dirs will be made.
                      : List of paths
         """
-
         if not lstr_paths:
             return
 
@@ -510,7 +509,6 @@ class Pipeline:
         * Return : Boolean
                    True indicates all directories either existed or were created. 
         """
-        
         # Test mode checks to see if directories exist
         if not self.f_execute:
             self.logr_logger.debug( "Pipeline.func_mkdirs: Checking folders exists, making any that do not." )
@@ -554,7 +552,7 @@ class Pipeline:
         This translates to checking for a small invisible file (the "ok file" ) stored with the file
         which has timestamp information. Making sure the resources of interest and their parent dependencies
         have these ok files. If i_fuzzy_time is an actual number, this will 
-        also make sure that, when checking a resouce, the parent dependency's time stamp is checked
+        also make sure that, when checking a resource, the parent dependency's time stamp is checked
         to make sure the parent has an earlier time stamp.
         Can check either if the products or the dependencies of the command are valid.
         
@@ -764,7 +762,6 @@ class Pipeline:
         * Return : Boolean
                    True indicates no error occurred
         """
-
         # Check incoming parameters
         if not lcmd_commands or not len( lcmd_commands ) or not str_output_dir:
             return False
@@ -784,7 +781,6 @@ class Pipeline:
         str_current_path_for_abs_paths = os.getcwd()
         if not str_output_dir[ 0 ] == os.path.sep:
             str_output_dir = os.path.join( str_current_path_for_abs_paths, str_output_dir )
-
         # Update the paths of commands before the dependency tree is made, otherwise they will not match the current state of the commands
         for cmd_command in lcmd_commands:
             # Update the command with a path if needed.
@@ -793,13 +789,11 @@ class Pipeline:
             if str_wdl is None:
                 # Make all the directories needed for the commands
                 self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
-
         # Load up the commands and build the dependency tree
         # This skips special commands
         dt_dependencies = DependencyTree.DependencyTree( [ cmd_cur for cmd_cur in lcmd_commands 
                                                           if not self.func_is_special_command( cmd_cur ) ],
                                                           self.logr_logger )
-
         # Make a wdl file
         if str_wdl:
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Not running pipeline. Writing WDL to file:", str_wdl ] ) )
@@ -807,7 +801,7 @@ class Pipeline:
                                                           str_workflow = self.str_name, 
                                                           str_file = str_wdl,
                                                           args_pipe = args_original )
-            return True
+            return(True)
 
         # Manage the wait for checking for products
         # Set the wait for checking for products
@@ -827,7 +821,6 @@ class Pipeline:
         if f_self_organize_commands:
             lcmd_commands = dt_dependencies.func_get_commands()
         for cmd_command in lcmd_commands:
-
             # Log the start
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
             # Do not execute if the products are already made.
@@ -934,11 +927,9 @@ class Pipeline:
                     sstr_made_dependencies_to_compress = sstr_made_dependencies_to_compress - sstr_removed
             if self.f_execute:
                 self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Time::", str( round( time.time() - d_start ) ) ] ) )
-            
             # Indicate failure
             if ( not f_success ) and self.f_execute:
                 self.logr_logger.error( "Pipeline.func_run_commands: The last command was not successful. Pipeline run failed." )
-       
         # Log successful completion
         if f_success:
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Successfully ended pipeline", self.str_name ] ) )
