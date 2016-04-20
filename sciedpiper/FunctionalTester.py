@@ -12,6 +12,7 @@ import os
 import ParentPipelineTester
 import ParentScript
 import Pipeline
+import time
 import unittest
 
 class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
@@ -19,8 +20,9 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     End-to_end tests for the App. Starting at command line.
     """
 
-    str_script = os.path.join("sciedpiper/ExampleScript.py")
-    str_script_shuffled = os.path.join("sciedpiper/ExampleShuffledScript.py")
+    str_script = os.path.join("sciedpiper","ExampleScript.py")
+    str_script_shuffled = os.path.join("sciedpiper","ExampleShuffledScript.py")
+    str_script_timestamp = os.path.join("sciedpiper","ExampleTimeStamp.py")
     str_python = "/usr/bin/python2.7"
     str_log_file_name = "test.log"
  
@@ -45,7 +47,6 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         str_dir_4 = os.path.join(str_dir_1, "dir4")
         str_dir_5 = os.path.join(str_dir_1, "dir5")
         str_dir_6 = os.path.join(str_dir_2, "dir6")
-        
         str_file_1 = os.path.join(str_dir_1, "file1.txt")
         str_file_2 = os.path.join(str_dir_4, "file2.txt")
         str_file_2_ok = os.path.join(str_dir_4, ".file2.txt.ok")
@@ -364,10 +365,151 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test timestamp for no stale
     ####
+    def test_app_for_timestamp_no_stale(self):
+        """
+        Test the scenario where the example script does not replace
+        any files for timestamping.
+        """
+        # Create test environment
+        str_env = os.path.join(self.str_test_directory,
+                               "test_app_for_time_stamp")
+        str_log = os.path.join(str_env, self.str_log_file_name)
+        str_job_log = os.path.join(str_env,
+                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+        self.func_make_dummy_dir(str_env)
+        lstr_dirs = [os.path.join(str_env, "dir1"),
+                     os.path.join(str_env, "dir2"),
+                     os.path.join(str_env, "dir3"),
+                     os.path.join(str_env, "dir1", "dir4"),
+                     os.path.join(str_env, "dir1", "dir5"),
+                     os.path.join(str_env, "dir2", "dir6")]
+        lstr_files = [os.path.join(str_env, "dir1", "file1.txt"),
+                      os.path.join(str_env, "dir1", "dir4", "file2.txt"),
+                      os.path.join(str_env, "dir1", "dir4", ".file2.txt.ok"),
+                      os.path.join(str_env, "dir1", "dir4", "file3.txt"),
+                      os.path.join(str_env, "dir1", "dir4", ".file3.txt.ok"),
+                      os.path.join(str_env, "dir2", "dir6", "file4.txt"),
+                      os.path.join(str_env, "dir3", "file5.txt"),
+                      os.path.join(str_env, "dir3", "file6.txt"),
+                      os.path.join(str_env, "dir3", ".file6.txt.ok"),
+                      os.path.join(str_env, "dir3", "file7.txt"),
+                      os.path.join(str_env, "dir3", ".file7.txt.ok")]
+        dict_file_dirs = self.func_get_example_script_dirs_files(str_env)
+        for str_dir in sorted(lstr_dirs):
+            self.func_make_dummy_dir(str_dir)
+        for str_file in sorted(lstr_files):
+            self.func_make_dummy_file(str_file,"Notdeleted")
+        # Call Example script
+        str_command = " ".join([self.str_python,
+                                self.str_script_timestamp,
+                                "--timestamp",
+                                "5",
+                                "--example",
+                                "test_app_for_time_stamp",
+                                "--log",
+                                str_log,
+                                "--out_dir",
+                                str_env])
+        x_result = Commandline.Commandline().func_CMD(str_command)
+        # Check test environment for results
+        dict_env = self.func_get_example_script_dirs_files(str_env)
+        f_success = sum([os.path.exists(str_path) 
+                         for str_path in dict_env["files"] + dict_env["directories"]] 
+                       ) == len(dict_env["files"] + dict_env["directories"])
+        f_success = f_success and x_result
+        for str_file_made in lstr_files:
+            with open(str_file_made,"r") as hndl_check_file:
+                str_file_key = hndl_check_file.read().split("\n")[-1]
+                f_success = f_success and str_file_key == "Notdeleted"
+
+        # Destroy environment
+        self.func_clean_up_example_script(str_env)
+        self.func_remove_dirs([str_env])
+        # Evaluate
+        self.func_test_true(f_success)
 
     ####
     ## Test timestamp for some files replaced
     ####
+    def test_app_for_timestamp_replace_files(self):
+        """
+        Test the scenario where the example script replaces some
+        files due to time stamp eventhough they exist.
+        """
+        # Create test environment
+        str_env = os.path.join(self.str_test_directory,
+                               "test_app_for_timestamp_replace_files")
+        str_log = os.path.join(str_env, self.str_log_file_name)
+        str_job_log = os.path.join(str_env,
+                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+        str_file_3 = os.path.join(str_env, "dir1", "dir4", "file3.txt")
+        str_file_3_ok = os.path.join(str_env, "dir1", "dir4", ".file3.txt.ok")
+        str_file_7 = os.path.join(str_env, "dir3", "file7.txt")
+        str_file_7_ok = os.path.join(str_env, "dir3", ".file7.txt.ok")
+        self.func_make_dummy_dir(str_env)
+        lstr_dirs = [os.path.join(str_env, "dir1"),
+                     os.path.join(str_env, "dir2"),
+                     os.path.join(str_env, "dir3"),
+                     os.path.join(str_env, "dir1", "dir4"),
+                     os.path.join(str_env, "dir1", "dir5"),
+                     os.path.join(str_env, "dir2", "dir6")]
+        lstr_files = [os.path.join(str_env, "dir1", "file1.txt"),
+                      os.path.join(str_env, "dir1", "dir4", "file2.txt"),
+                      os.path.join(str_env, "dir1", "dir4", ".file2.txt.ok"),
+                      str_file_3,
+                      str_file_3_ok,
+                      os.path.join(str_env, "dir2", "dir6", "file4.txt"),
+                      os.path.join(str_env, "dir3", "file5.txt"),
+                      os.path.join(str_env, "dir3", "file6.txt"),
+                      os.path.join(str_env, "dir3", ".file6.txt.ok"),
+                      str_file_7,
+                      str_file_7_ok]
+        dict_file_dirs = self.func_get_example_script_dirs_files(str_env)
+        for str_dir in sorted(lstr_dirs):
+            self.func_make_dummy_dir(str_dir)
+        for str_file in sorted(lstr_files):
+            self.func_make_dummy_file(str_file,"Notdeleted")
+        # Throw off timing
+        self.func_remove_files([str_file_3, str_file_3_ok])
+        time.sleep(5)
+        self.func_make_dummy_file(str_file_3,
+                                  "NEW") 
+        self.func_make_dummy_file(str_file_3_ok,
+                                  "NEW") 
+        # Call Example script
+        str_command = " ".join([self.str_python,
+                                self.str_script_timestamp,
+                                "--timestamp",
+                                "3",
+                                "--example",
+                                "test_app_for_time_stamp",
+                                "--log",
+                                str_log,
+                                "--out_dir",
+                                str_env])
+        x_result = Commandline.Commandline().func_CMD(str_command)
+        # Check test environment for results
+        dict_env = self.func_get_example_script_dirs_files(str_env)
+        f_success = sum([os.path.exists(str_path) 
+                         for str_path in dict_env["files"] + dict_env["directories"]] 
+                       ) == len(dict_env["files"] + dict_env["directories"])
+        f_success = f_success and x_result
+        for str_file_made in lstr_files:
+            with open(str_file_made,"r") as hndl_check_file:
+                str_file_key = hndl_check_file.read().split("\n")[-1]
+                if str_file_made in [str_file_3,
+                                     str_file_3_ok,
+                                     str_file_7]:
+                    f_success = f_success and str_file_key == "NEW"
+                elif str_file_made in [str_file_7_ok]:
+                    f_success = f_success and str_file_key == ""
+                else:
+                    f_success = f_success and str_file_key == "Notdeleted"
+        # Destroy environment
+        self.func_clean_up_example_script(str_env)
+        self.func_remove_dirs([str_env])
+        # Evaluate
+        self.func_test_true(f_success)
 
     ####
     ## Test compression and archiving

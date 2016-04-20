@@ -325,6 +325,14 @@ class DependencyTree:
             return len( self.dict_dependencies.get( str_dependency, [] ) ) > 0
         return False
 
+    def func_is_input(self,rsc_check):
+        if rsc_check:
+            str_cur_id = rsc_check.str_id
+            for rsc_input in self.lstr_inputs:
+                if rsc_input.str_id == str_cur_id:
+                    return True
+        return False
+
 
     # Tested
     def func_is_used_intermediate_file( self, rsc_check ):
