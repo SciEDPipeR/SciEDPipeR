@@ -45,7 +45,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         Gets the standard files and dirs make by the ExampleScript.py.
         They are returned in an order which can be used for file / dir deletion.
         """
-        
+
         str_dir_1 = os.path.join(str_output_dir, "dir1")
         str_dir_2 = os.path.join(str_output_dir, "dir2")
         str_dir_3 = os.path.join(str_output_dir, "dir3")
@@ -63,11 +63,10 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         str_file_6_ok = os.path.join(str_dir_3, ".file6.txt.ok")
         str_file_7 = os.path.join(str_dir_3, "file7.txt")
         str_file_7_ok = os.path.join(str_dir_3, ".file7.txt.ok")
-
         str_job_log = os.path.join(str_output_dir,
                                    ParentScript.C_STR_JOB_LOGGER_NAME)
         str_log = os.path.join(str_output_dir, self.str_log_file_name)
-        
+
         return({"files": [str_file_1, str_file_2, str_file_3,
                           str_file_4, str_file_5, str_file_6, str_file_7,
                           str_file_2_ok, str_file_3_ok, str_file_6_ok,
@@ -75,10 +74,62 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                 "directories": [str_dir_4, str_dir_5, str_dir_6,
                                 str_dir_1, str_dir_2, str_dir_3]})
 
+    def func_get_sample_script_dirs_files(self, str_output_dir, str_sample_name, str_bash_name):
+        """
+        Gets the standard files and dirs make by the ExampleScript.py
+        when using a sample file.
+        They are returned in an order which can be used for file / dir deletion.
+        """
+
+        # Dirs specific to the sample
+        str_dir_sample = os.path.join(str_output_dir, str_sample_name)
+        str_dir_1 = os.path.join(str_output_dir, str_sample_name, "dir1")
+        str_dir_2 = os.path.join(str_output_dir, str_sample_name, "dir2")
+        str_dir_3 = os.path.join(str_output_dir, str_sample_name, "dir3")
+        str_dir_4 = os.path.join(str_dir_1, "dir4")
+        str_dir_5 = os.path.join(str_dir_1, "dir5")
+        str_dir_6 = os.path.join(str_dir_2, "dir6")
+
+        # Generic Dirs
+        str_dir_log = os.path.join(str_output_dir, ParentScript.C_STR_LOG_DIR)
+
+        # Files specific to the sample
+        str_log = os.path.join(str_dir_log,
+                               str_sample_name+".log")
+        str_sample_job_log = os.path.join(str_output_dir, str_sample_name, ParentScript.C_STR_JOB_LOGGER_NAME)
+        str_sample_bash = os.path.join(str_output_dir, str_sample_name, str_bash_name)
+        str_sample_log = os.path.join(str_output_dir, str_sample_name, str_sample_name+"_job.log")
+        str_sample_err = os.path.join(str_output_dir, str_sample_name, str_sample_name+"_job.err")
+        str_file_1 = os.path.join(str_dir_1, "file1.txt")
+        str_file_2 = os.path.join(str_dir_4, "file2.txt")
+        str_file_2_ok = os.path.join(str_dir_4, ".file2.txt.ok")
+        str_file_3 = os.path.join(str_dir_4, "file3.txt")
+        str_file_3_ok = os.path.join(str_dir_4, ".file3.txt.ok")
+        str_file_4 = os.path.join(str_dir_6, "file4.txt")
+        str_file_5 = os.path.join(str_dir_3, "file5.txt")
+        str_file_6 = os.path.join(str_dir_3, "file6.txt")
+        str_file_6_ok = os.path.join(str_dir_3, ".file6.txt.ok")
+        str_file_7 = os.path.join(str_dir_3, "file7.txt")
+        str_file_7_ok = os.path.join(str_dir_3, ".file7.txt.ok")
+
+        # Generic files
+        str_job_log = os.path.join(str_output_dir,
+                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+
+        return({"sample_files": [str_file_1, str_file_2, str_file_3,
+                          str_file_4, str_file_5, str_file_6, str_file_7,
+                          str_file_2_ok, str_file_3_ok, str_file_6_ok,
+                          str_file_7_ok, str_log, str_sample_job_log,
+                          str_sample_bash, str_sample_log, str_sample_err],
+                "generic_files": [str_job_log],
+                "sample_directories": [str_dir_4, str_dir_5, str_dir_6,
+                                str_dir_1, str_dir_2, str_dir_3, str_dir_sample],
+                "generic_directories": [str_dir_log]})
+
     ####
     ## Baseline test
     ###
-    def nottest_app_for_vanilla_base_run(self):
+    def test_app_for_vanilla_base_run(self):
         """
         Test the scenario where the example script is ran on all defaults.
         """
@@ -111,7 +162,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test self-organizing
     ####
-    def nottest_app_for_shuffled_commands_run_success(self):
+    def test_app_for_shuffled_commands_run_success(self):
         """
         Test the scenario where the example script is written with commands
         out of order and allowed to reorder.
@@ -142,7 +193,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def nottest_app_for_shuffled_commands_run_fail(self):
+    def test_app_for_shuffled_commands_run_fail(self):
         """
         Test the scenario where the example script is written with commands
         out of order and not allowed to reorder.
@@ -177,7 +228,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test cleaning
     ####
-    def nottest_app_for_run_clean_with_intermediary(self):
+    def test_app_for_run_clean_with_intermediary(self):
         """
         Test the scenario where the example script is ran with clean
         intermediary mode.
@@ -234,7 +285,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def nottest_app_for_run_self_organize_clean_with_intermediary(self):
+    def test_app_for_run_self_organize_clean_with_intermediary(self):
         """
         Test the scenario where the example script is ran with clean intermediary mode.
         This is also using self-organizing.
@@ -293,7 +344,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test outputing JSON
     ####
-    def nottest_app_for_output_json(self):
+    def test_app_for_output_json(self):
         """
         Test the scenario where the example script is not ran but instead a
         json file is created.
@@ -352,13 +403,13 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
 
     ####
-    ## Testing graph output
+    ## Testing graph output, dot format.
     ####
 
     ####
     ## Test config file
     ####
-    def nottest_app_for_config_file(self):
+    def test_app_for_config_file(self):
         """
         Test the scenario where the example script is with a configfile.
         The --example will be overwritten and so should be different than
@@ -391,10 +442,10 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         f_success = f_success and x_result
         for str_path in dict_env["files"]:
             str_ext = os.path.splitext(str_path)[1]
-            if(str_path not in [str_log, str_job_log] and (str_ext!=".ok")):
+            if(str_ext==".txt"):
                 with open(str_path, "r") as hndl_read:
-                    str_message = hndl_read.read()
-                    f_success = f_success and (str_message==str_message)
+                    str_new_message = hndl_read.read()
+                    f_success = f_success and (str_new_message=="test_app_for_config_file")
         # Destroy environment
         self.func_clean_up_example_script(str_env)
         self.func_remove_files([os.path.join(str_env,"ExampleConfig.sh"),
@@ -407,7 +458,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test job running 1 sample local
     ####
-    def fixtest_app_for_config_and_one_sample(self):
+    def test_app_for_config_and_one_sample(self):
         """
         Test the scenario where the example script is with a config file
         and a sample file with one sample.
@@ -438,23 +489,24 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 str_env])
         x_result = Commandline.Commandline().func_CMD(str_command)
         # Check test environment for results
-        dict_env = self.func_get_example_script_dirs_files(str_env)
+        dict_env = self.func_get_sample_script_dirs_files(str_env, "sample_one", "ExampleOneSample.sh")
+        lstr_check = dict_env["sample_files"] + dict_env["generic_files"]
+        lstr_check.extend(dict_env["sample_directories"])
+        lstr_check.extend(dict_env["generic_directories"])
         f_success = sum([os.path.exists(str_path) 
-                         for str_path in dict_env["files"] + dict_env["directories"]] 
-                       ) == len(dict_env["files"] + dict_env["directories"])
+                         for str_path in lstr_check] 
+                       ) == len(lstr_check)
         f_success = f_success and x_result
-        for str_path in dict_env["files"]:
+        for str_path in dict_env["sample_files"]:
             str_ext = os.path.splitext(str_path)[1]
-            if(str_path not in [str_log, str_job_log] and (str_ext!=".ok")):
+            if(str_ext==".txt"):
                 with open(str_path, "r") as hndl_read:
                     str_message = hndl_read.read()
-                    f_success = f_success and (str_message==str_message)
+                    f_success = f_success and (str_message=="sample_one")
         # Destroy environment
-        #self.func_clean_up_example_script(str_env)
-        #self.func_remove_files([os.path.join(str_env,"ExampleConfig.sh"),
-        #                        os.path.join(str_env,"ExampleScript_job.err"),
-        #                        os.path.join(str_env,"ExampleScript_job.log")])
-        #self.func_remove_dirs([str_env])
+        self.func_remove_files(dict_env["sample_files"]+dict_env["generic_files"])
+        self.func_remove_dirs(sorted(dict_env["sample_directories"]+dict_env["generic_directories"]+[str_env],reverse=True))
+
         # Evaluate
         self.func_test_true(f_success)
 
@@ -491,30 +543,36 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 str_env])
         x_result = Commandline.Commandline().func_CMD(str_command)
         # Check test environment for results
-        dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([os.path.exists(str_path) 
-                         for str_path in dict_env["files"] + dict_env["directories"]] 
-                       ) == len(dict_env["files"] + dict_env["directories"])
-        f_success = f_success and x_result
-        for str_path in dict_env["files"]:
-            str_ext = os.path.splitext(str_path)[1]
-            if(str_path not in [str_log, str_job_log] and (str_ext!=".ok")):
-                with open(str_path, "r") as hndl_read:
-                    str_message = hndl_read.read()
-                    f_success = f_success and (str_message==str_message)
-        # Destroy environment
-        #self.func_clean_up_example_script(str_env)
-        #self.func_remove_files([os.path.join(str_env,"ExampleConfig.sh"),
-        #                        os.path.join(str_env,"ExampleScript_job.err"),
-        #                        os.path.join(str_env,"ExampleScript_job.log")])
-        #self.func_remove_dirs([str_env])
+        f_success = True
+        lstr_generic_files_to_remove = []
+        for str_sample in ["sample_one","sample_two","sample_three"]:
+            dict_env = self.func_get_sample_script_dirs_files(str_env, str_sample, "ExampleThreeSample.sh")
+            lstr_check = dict_env["sample_files"] + dict_env["generic_files"]
+            lstr_check.extend(dict_env["sample_directories"])
+            lstr_check.extend(dict_env["generic_directories"])
+            f_success = sum([os.path.exists(str_path) 
+                             for str_path in lstr_check] 
+                           ) == len(lstr_check)
+            f_success = f_success and x_result
+            for str_path in dict_env["sample_files"]:
+                str_ext = os.path.splitext(str_path)[1]
+                if(str_ext==".txt"):
+                    with open(str_path, "r") as hndl_read:
+                        str_message = hndl_read.read()
+                        f_success = f_success and (str_message==str_sample)
+            # Destroy environment
+            lstr_generic_files_to_remove.extend(dict_env["generic_files"])
+            self.func_remove_files(dict_env["sample_files"])
+            self.func_remove_dirs(sorted(dict_env["sample_directories"],reverse=True))
         # Evaluate
+        self.func_remove_files(list(set(lstr_generic_files_to_remove)))
+        self.func_remove_dirs(sorted(dict_env["generic_directories"]+[str_env],reverse=True))
         self.func_test_true(f_success)
 
     ####
     ## Test timestamp for no stale
     ####
-    def nottest_app_for_timestamp_no_stale(self):
+    def test_app_for_timestamp_no_stale(self):
         """
         Test the scenario where the example script does not replace
         any files for timestamping.
@@ -580,7 +638,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test timestamp for some files replaced
     ####
-    def nottest_app_for_timestamp_replace_files(self):
+    def test_app_for_timestamp_replace_files(self):
         """
         Test the scenario where the example script replaces some
         files due to time stamp eventhough they exist.
@@ -663,7 +721,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test compression and archiving
     ####
-    def nottest_app_for_run_with_no_compression(self):
+    def test_app_for_run_with_no_compression(self):
         """
         Test the scenario where the example script is ran with no compression.
         """
@@ -703,7 +761,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
  
-    def nottest_app_for_run_with_compression_archive(self):
+    def test_app_for_run_with_compression_archive(self):
         """
         Test the scenario where the example script is ran with compression, archive mode.
         """
@@ -747,7 +805,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def nottest_app_for_run_with_compression_first_level(self):
+    def test_app_for_run_with_compression_first_level(self):
         """
         Test the scenario where the example script is ran with compression, first level mode.
         """
@@ -806,7 +864,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def nottest_app_for_run_with_compression_intermediary(self):
+    def test_app_for_run_with_compression_intermediary(self):
         """
         Test the scenario where the example script is ran with compression, intermediary mode.
         """
@@ -870,7 +928,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def nottest_app_for_run_with_archiving_move(self):
+    def test_app_for_run_with_archiving_move(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a move.
         """
@@ -915,7 +973,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def nottest_app_for_run_with_archiving_copy(self):
+    def test_app_for_run_with_archiving_copy(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to two locations.
         """
@@ -970,7 +1028,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def nottest_app_for_run_with_archiving_copy_move(self):
+    def test_app_for_run_with_archiving_copy_move(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to one location.
         The output directory is then moved to another.
@@ -1026,7 +1084,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
         
-    def nottest_app_for_run_with_archiving_copy_move_compress(self):
+    def test_app_for_run_with_archiving_copy_move_compress(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to one location.
         The output directory is then moved to another. The output directory in this case is compressed into one archive
