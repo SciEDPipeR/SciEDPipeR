@@ -11,8 +11,8 @@ __status__ = "Development"
 
 #import inspect
 import os
-import sciedpiper.Command as Command
-import sciedpiper.ParentScript as ParentScript
+import Command as Command
+import ParentScript as ParentScript
 
 class ExampleScript( ParentScript.ParentScript ):
     """
@@ -86,12 +86,15 @@ class ExampleScript( ParentScript.ParentScript ):
         str_file_5 = os.path.join( str_dir_3, "file5.txt" )
         str_file_6 = os.path.join( str_dir_3, "file6.txt" )
         str_file_7 = os.path.join( str_dir_3, "file7.txt" )
-        with open( str_file_1, "w" ) as hndl_file1:
-            hndl_file1.write( args_parsed.str_new_variable_to_play_with )
-        with open( str_file_4, "w" ) as hndl_file4:
-            hndl_file4.write( args_parsed.str_new_variable_to_play_with )
-        with open( str_file_5, "w" ) as hndl_file5:
-            hndl_file5.write( args_parsed.str_new_variable_to_play_with )
+        if not os.path.exists(str_file_1):
+            with open( str_file_1, "w" ) as hndl_file1:
+                hndl_file1.write( args_parsed.str_new_variable_to_play_with )
+        if not os.path.exists(str_file_4):
+            with open( str_file_4, "w" ) as hndl_file4:
+                hndl_file4.write( args_parsed.str_new_variable_to_play_with )
+        if not os.path.exists(str_file_5):
+            with open( str_file_5, "w" ) as hndl_file5:
+                hndl_file5.write( args_parsed.str_new_variable_to_play_with )
         
         # Make commands
         # Make other files given the dependency tree

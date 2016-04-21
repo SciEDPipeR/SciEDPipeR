@@ -175,9 +175,6 @@ class Pipeline:
             f_file_check = True
             for str_copy_path in lstr_destination:
                 # Check that destination exists
-                print "STR COPY PATH"
-                print str_copy_path+":"
-                print "*********"
                 if not str_copy_path or not os.path.exists( str_copy_path ) or not os.path.isdir( str_copy_path ):
                     self.logr_logger.error( "Pipeline.func_copy_move: Did not copy files. The following copy destination " +
                                               "either did not exist or was not a directory: " + str( str_copy_path ) )

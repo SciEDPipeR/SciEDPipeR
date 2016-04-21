@@ -2,7 +2,7 @@
 
 
 __author__ = "Timothy Tickle"
-__copyright__ = "Copyright 2016"
+__copyright__ = "Copyright 2014"
 __credits__ = [ "Timothy Tickle", "Brian Haas" ]
 __license__ = "MIT"
 __maintainer__ = "Timothy Tickle"
@@ -11,15 +11,14 @@ __status__ = "Development"
 
 #import inspect
 import os
-import sciedpiper.Command as Command
-import sciedpiper.ParentScript as ParentScript
+import Command as Command
+import ParentScript as ParentScript
 
 class ExampleScript( ParentScript.ParentScript ):
     """
     An example script to run as a test or use as an example.
     This script creates a small directory hierarchy and
     creates files in those directories. Output dir is given by arguments.
-    This exmaple has the commands not in order.
     
     output_dir - dir1 - dir4 - file2.txt
                              - file3.txt
@@ -55,9 +54,8 @@ class ExampleScript( ParentScript.ParentScript ):
         """
 
         arg_raw.prog = "ExampleScript.py"
-        arg_raw.description = "Shuffled Example Script."
+        arg_raw.description = "New Example Description."
         arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )        
-
 
     def func_make_commands( self, args_parsed, cur_pipeline ):
         """
@@ -95,19 +93,19 @@ class ExampleScript( ParentScript.ParentScript ):
         
         # Make commands
         # Make other files given the dependency tree
-        cmd_1 = Command.Command(str_cur_command = "cat " + str_file_1 + " > " + str_file_2,
-                                lstr_cur_dependencies = [str_file_1],
-                                lstr_cur_products = [str_file_2])
-        cmd_2 = Command.Command(str_cur_command = "cat " + str_file_2 + " > " + str_file_3,
-                                lstr_cur_dependencies = [str_file_2],
-                                lstr_cur_products = [str_file_3])
-        cmd_3 = Command.Command(str_cur_command = "cat " + str_file_5 + " > " + str_file_6,
-                                lstr_cur_dependencies = [str_file_5], 
-                                lstr_cur_products = [str_file_6])
-        cmd_4 = Command.Command(str_cur_command = "cat " + str_file_3 + " > " + str_file_7,
-                                lstr_cur_dependencies = [str_file_3, str_file_6], 
-                                lstr_cur_products = [str_file_7])
-        lcmd_commands = [cmd_4, cmd_2, cmd_1, cmd_3]
+        lcmd_commands = []
+        lcmd_commands.extend( [ Command.Command( str_cur_command = "cat " + str_file_1 + " > " + str_file_2,
+                                               lstr_cur_dependencies = [ str_file_1 ], 
+                                               lstr_cur_products = [ str_file_2 ] ),
+                             Command.Command( str_cur_command = "cat " + str_file_2 + " > " + str_file_3,
+                                               lstr_cur_dependencies = [ str_file_2 ], 
+                                               lstr_cur_products = [ str_file_3 ] ),
+                             Command.Command( str_cur_command = "cat " + str_file_5 + " > " + str_file_6,
+                                               lstr_cur_dependencies = [ str_file_5 ], 
+                                               lstr_cur_products = [ str_file_6 ] ),
+                             Command.Command( str_cur_command = "cat " + str_file_3 + " > " + str_file_7,
+                                               lstr_cur_dependencies = [ str_file_3, str_file_6 ], 
+                                               lstr_cur_products = [ str_file_7 ] ) ] )
         return lcmd_commands
     
     

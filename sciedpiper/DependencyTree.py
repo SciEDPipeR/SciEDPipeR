@@ -137,7 +137,7 @@ class DependencyTree:
         """
         
         # Only allow complete commands with product, dependencies, and commands to be handled.
-        if cmd_cur.func_is_valid():
+        if cmd_cur and cmd_cur.func_is_valid():
             # Holds resource clean levels not default
             dict_clean_levels = {}
 

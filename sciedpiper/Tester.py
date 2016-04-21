@@ -22,7 +22,7 @@ import DependencyTreeTester
 #import Dispatcher
 import FunctionalTester
 import GraphTester
-#import JSONManagerTester
+import JSONManagerTester
 import PipelineTester
 import ResourceTester
 import unittest
@@ -30,19 +30,19 @@ import unittest
 
 # Calls all unit tests as a regression suite.
 suite=unittest.TestSuite()
-#suite.addTest(ArgumentsTester.suite()) # Running
-#suite.addTest(CommandlineTester.suite()) # Running
-#suite.addTest(CommandTester.suite()) # Running
-#suite.addTest(CompressionTester.suite()) # Running
-#suite.addTest(ConfigManagerTester.suite()) # 1 methods ok for now.
-#suite.addTest(DependencyGraphTester.suite()) # Running
-#suite.addTest(DependencyTreeTester.suite()) # Running
-##suite.addTest(DispatcherTester.suite()) # 5 methods
-suite.addTest(FunctionalTester.suite()) # 10 functions
-#suite.addTest(GraphTester.suite()) # Running
-##suite.addTest(JSONManagerTester.suite()) # 1 method, push Read JSON to parent script. ok for now.
-#suite.addTest(PipelineTester.suite()) # Running
-#suite.addTest(ResourceTester.suite()) # Running
+suite.addTest(ArgumentsTester.suite())
+suite.addTest(CommandlineTester.suite())
+suite.addTest(CommandTester.suite()) # Running
+suite.addTest(CompressionTester.suite())
+suite.addTest(ConfigManagerTester.suite()) # 1 methods but ok for now.
+suite.addTest(DependencyGraphTester.suite())
+suite.addTest(DependencyTreeTester.suite())
+##suite.addTest(DispatcherTester.suite()) # 5 methods, local works
+#suite.addTest(FunctionalTester.suite()) # 3 methods but ok for now
+suite.addTest(GraphTester.suite())
+suite.addTest(JSONManagerTester.suite()) # 1 method, push Read JSON to parent script. Fix sort.
+suite.addTest(PipelineTester.suite())
+suite.addTest(ResourceTester.suite())
 
 runner = unittest.TextTestRunner()
 runner.run(suite)

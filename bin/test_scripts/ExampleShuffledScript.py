@@ -11,8 +11,8 @@ __status__ = "Development"
 
 #import inspect
 import os
-import sciedpiper.Command as Command
-import sciedpiper.ParentScript as ParentScript
+import Command as Command
+import ParentScript as ParentScript
 
 class ExampleScript( ParentScript.ParentScript ):
     """

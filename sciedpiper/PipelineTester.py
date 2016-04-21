@@ -580,7 +580,8 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         """ Test for an invalid command, None """
         
         cmd_cur = None
-        self.func_test_true( not Pipeline.Pipeline("test_func_paths_are_from_valid_run_invalid_command_1").func_paths_are_from_valid_run( cmd_cur, f_dependencies = True ))
+        dt_dependencies = DependencyTree.DependencyTree([None])
+        self.func_test_true( not Pipeline.Pipeline("test_func_paths_are_from_valid_run_invalid_command_1").func_paths_are_from_valid_run(cmd_cur, dt_deps=dt_dependencies, f_dependencies=True))
  
  
 #    def test_func_paths_are_from_valid_run_invalid_command_2( self ):
@@ -603,7 +604,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_dependency_ok )
         self.func_make_dummy_file( str_product )
         cmd_cur = Command.Command("command", [ str_dependency ], [ str_product ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = True )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=True )
         self.func_remove_files( [ str_dependency, str_dependency_ok, str_product ] )
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( f_result )
@@ -622,7 +625,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_dependency_ok )
         self.func_make_dummy_file( str_product )
         cmd_cur = Command.Command("command", [ str_dependency ], [ str_product ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = True )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=True )
         self.func_remove_files( [ str_product, str_dependency, str_dependency_ok ] )
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( f_result )
@@ -649,7 +654,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_dependency_3_ok )
         self.func_make_dummy_file( str_product )
         cmd_cur = Command.Command("command", [ str_dependency, str_dependency_2, str_dependency_3 ], [ str_product ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = True )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=True )
         self.func_remove_files( [ str_dependency, str_dependency_ok, str_dependency_2, str_dependency_2_ok, 
                                  str_dependency_3, str_dependency_3_ok, str_product ] )
         self.func_remove_dirs( [ str_env ] )
@@ -667,7 +674,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_product_1 )
         self.func_make_dummy_file( str_product_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1 ], [ str_product_1 ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=False)
         self.func_remove_files( [ str_dependency_1, str_product_1, str_product_1_ok ] )
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( not f_result )
@@ -688,7 +697,10 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1 ], [ str_product_1 ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = 0 )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=False,
+                                                              i_fuzzy_time=0)
         self.func_remove_files( [ str_dependency_1, str_dependency_1_ok, str_product_1, str_product_1_ok ] )
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( not f_result )
@@ -713,7 +725,10 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1 ], [ str_product_1 ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = i_fuzzy )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=False,
+                                                              i_fuzzy_time=i_fuzzy)
         self.func_remove_files( [ str_dependency_1, str_dependency_1_ok, str_product_1, str_product_1_ok ] )
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( not f_result )
@@ -738,7 +753,10 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         time.sleep(i_wait)
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1 ], [ str_product_1 ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = i_fuzzy )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=False,
+                                                              i_fuzzy_time=i_fuzzy)
         self.func_remove_files( [ str_dependency_1, str_dependency_1_ok, str_product_1, str_product_1_ok ] )
         self.func_remove_dirs( [ str_env ] )
         self.func_test_true( f_result )
@@ -767,7 +785,10 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         self.func_make_dummy_file( str_dependency_1 )
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1, str_dependency_2 ], [ str_product_1 ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = i_fuzzy )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=False,
+                                                              i_fuzzy_time=i_fuzzy)
         self.func_remove_files( [ str_dependency_1, str_dependency_1_ok, 
                                   str_dependency_2, str_dependency_2_ok,
                                   str_product_1, str_product_1_ok ] )
@@ -798,7 +819,10 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         time.sleep(i_wait)
         self.func_make_dummy_file( str_dependency_1_ok )
         cmd_cur = Command.Command("command", [ str_dependency_1, str_dependency_2 ], [ str_product_1 ])
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_cur, f_dependencies = False, i_fuzzy_time = i_fuzzy )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_cur,
+                                                              dt_deps=DependencyTree.DependencyTree([cmd_cur]),
+                                                              f_dependencies=False,
+                                                              i_fuzzy_time=i_fuzzy)
         self.func_remove_files( [ str_dependency_1, str_dependency_1_ok, 
                                   str_dependency_2, str_dependency_2_ok,
                                   str_product_1, str_product_1_ok ] )
@@ -828,7 +852,9 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         cmd_cur2 = Command.Command("command2", [ str_dep_dep_1, str_dep_dep_2 ], [ str_dependency_1 ])
         dt_tree = DependencyTree.DependencyTree( [ cmd_cur2, cmd_cur ] )
         cmd_check = dt_tree.graph_commands.func_get_vertex( "command2" )
-        f_result = cur_pipeline.func_paths_are_from_valid_run( cmd_check, f_dependencies = True )
+        f_result = cur_pipeline.func_paths_are_from_valid_run(cmd_check,
+                                                              dt_deps=dt_tree,
+                                                              f_dependencies=True )
         self.func_remove_files( [ str_dep_dep_1, str_dep_dep_2, str_dep_dep_2_ok,
                                   str_dependency_1, str_dependency_1_ok, str_product_1, str_product_1_ok ] )
         self.func_remove_dirs( [ str_env ] )
@@ -2060,30 +2086,31 @@ class PipelineTester( ParentPipelineTester.ParentPipelineTester ):
         """
         cur_pipe = Pipeline.Pipeline( str_name = "test_func_run_commands_for_three_commands_not_ran_parent" )
         str_env = os.path.join( self.str_test_directory, "test_func_run_commands_for_three_commands_not_ran_parent" )
-        str_file_1 = os.path.join( str_env, "test_func_run_commands_file_1.txt" )
-        str_file_2 = os.path.join( str_env, "test_func_run_commands_file_2.txt" )
-        str_file_3 = os.path.join( str_env, "test_func_run_commands_file_3.txt" )
-        str_file_4 = os.path.join( str_env, "test_func_run_commands_file_4.txt" )
         self.func_make_dummy_dir( str_env )
-        self.func_make_dummy_file( str_file_1 )
-        self.func_make_dummy_file( str_file_2 )
-        self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_2 ) )
-        self.func_make_dummy_file( str_file_3 )
+        str_file_3 = os.path.join( str_env, "test_func_run_commands_file_3.txt" )
+        self.func_make_dummy_file( str_file_3, "delete" )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_3 ) )
-        self.func_make_dummy_file( str_file_4 )
+        str_file_4 = os.path.join( str_env, "test_func_run_commands_file_4.txt" )
+        self.func_make_dummy_file( str_file_4, "delete" )
         self.func_make_dummy_file( cur_pipe.func_get_ok_file_path( str_file_4 ) )
-        cur_cmd_1 = Command.Command( " ".join( [ "cat", str_file_1, ">", str_file_2 ] ),
+        time.sleep(2)
+        str_file_1 = os.path.join( str_env, "test_func_run_commands_file_1.txt" )
+        self.func_make_dummy_file( str_file_1 )
+        str_file_2 = os.path.join( str_env, "test_func_run_commands_file_2.txt" )
+        self.func_make_dummy_file( str_file_2, "delete" )
+        cur_cmd_1 = Command.Command( " ".join( [ "cp", str_file_1, str_file_2 ] ),
                                      [ str_file_1 ],
                                      [ str_file_2 ])
-        cur_cmd_2 = Command.Command( " ".join( [ "cat", str_file_2, ">", str_file_3 ] ),
+        cur_cmd_2 = Command.Command( " ".join( [ "cp", str_file_2, str_file_3 ] ),
                                      [ str_file_2 ],
                                      [ str_file_3 ])
-        cur_cmd_3 = Command.Command( " ".join( [ "cat", str_file_3, ">", str_file_4 ] ),
-                                     [ str_file_2 ],
-                                     [ str_file_3 ])
-        cur_pipe.func_run_commands( [ cur_cmd_1, cur_cmd_2, cur_cmd_3 ], str_env, f_clean = False, li_wait = [0,0,0] )
+        cur_cmd_3 = Command.Command( " ".join( [ "cp", str_file_3, str_file_4 ] ),
+                                     [ str_file_3 ],
+                                     [ str_file_4 ])
+        cur_pipe.func_run_commands( [ cur_cmd_1, cur_cmd_2, cur_cmd_3 ], str_env, f_clean = False, li_wait = [0,0,0], i_time_stamp_wiggle = 0 )
         f_files_equal = self.func_are_files_equivalent( str_file_1, str_file_2 )
-        f_files_equal = f_files_equal and not self.func_are_files_equivalent( str_file_1, str_file_3 )
+        f_files_equal = f_files_equal and self.func_are_files_equivalent( str_file_1, str_file_3 )
+        f_files_equal = f_files_equal and self.func_are_files_equivalent( str_file_1, str_file_4 )
         f_clean = os.path.exists( str_file_1 )
         f_clean = f_clean and os.path.exists( str_file_2 )
         f_clean = f_clean and os.path.exists( str_file_3 )

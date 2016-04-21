@@ -57,7 +57,6 @@ class ExampleScript( ParentScript.ParentScript ):
         arg_raw.description = "New Example Description."
         arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )        
 
-
     def func_make_commands( self, args_parsed, cur_pipeline ):
         """
         Allows:

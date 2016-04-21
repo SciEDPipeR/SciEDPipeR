@@ -309,7 +309,7 @@ class ConfigManagerTester(ParentPipelineTester.ParentPipelineTester):
         str_config_file = os.path.join(str_env, self.str_config_default)
         self.func_make_dummy_dir(str_env)
         str_script = ""
-        x_answer = False
+        x_answer = str_script
         self.func_create_test_config(str_config_file, self.str_config_content)
         cfmg_test = ConfigManager.ConfigManager(str_config_file)
         x_result = cfmg_test.func_update_script_path(str_script)

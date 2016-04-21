@@ -1,0 +1,3 @@
+sample_one	/path/to/sample/11	/path/to/sample/12
+sample_two	/path/to/sample/21	/path/to/sample/22
+sample_three	/path/to/sample/31	/path/to/sample/32
