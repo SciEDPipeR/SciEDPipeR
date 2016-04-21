@@ -175,6 +175,9 @@ class Pipeline:
             f_file_check = True
             for str_copy_path in lstr_destination:
                 # Check that destination exists
+                print "STR COPY PATH"
+                print str_copy_path+":"
+                print "*********"
                 if not str_copy_path or not os.path.exists( str_copy_path ) or not os.path.isdir( str_copy_path ):
                     self.logr_logger.error( "Pipeline.func_copy_move: Did not copy files. The following copy destination " +
                                               "either did not exist or was not a directory: " + str( str_copy_path ) )
@@ -547,7 +550,11 @@ class Pipeline:
 
 
     # Tested, could test more (products)
-    def func_paths_are_from_valid_run( self, cmd_command, f_dependencies, dt_deps, i_fuzzy_time = None ):
+    def func_paths_are_from_valid_run(self,
+                                      cmd_command,
+                                      f_dependencies,
+                                      dt_deps,
+                                      i_fuzzy_time=-1):
         """
         Check to make sure the file is from a command that completed, not one that prematurely ended.
         This translates to checking for a small invisible file (the "ok file" ) stored with the file
@@ -599,7 +606,7 @@ class Pipeline:
                 # This section is if the time stamp checking is on
                 # Check the time stamps of all parents/dependencies of the current resource
                 # Any issue will cause this command to be reran / invalidating the resource for rerun.
-                if not i_fuzzy_time is None:
+                if((not i_fuzzy_time is None) or (i_fuzzy_time >= 0)):
                     i_parent_time_stamp = self.func_get_file_time_stamp( rsc_parent_dep.str_id )
                     if ( i_parent_time_stamp - i_fuzzy_time ) > i_target_product_time_stamp:
                         self.logr_logger.error( " ".join( [ "Pipeline.func_paths_are_from_valid_run: Parent dependency was older than the target product.",

@@ -30,12 +30,13 @@ C_STR_CONFIG_EXTENSION = ".config"
 C_STR_JOB_DIR = "jobs"
 C_STR_JOB_LOGGER_NAME = "JobRunner.log"
 C_STR_JOB_SYSTEM_DEST = "str_job_system"
+C_STR_LOG_DIR = "logs"
 C_STR_OUTPUT_DIR = "str_file_base"
 C_STR_NO_PIPELINE_CONFIG_ARG = "--no_pipeline_config"
 C_STR_PIPELINE_CONFIG_FILE_ARG = "--pipeline_config_file"
 C_STR_SAMPLE_FILE_ARG = "--sample_file"
 C_STR_SAMPLE_FILE_DEST = "str_sample_file"
-
+C_STR_SCRIPT_LOG = "str_log_file"
 
 # Keys for alignment return (dicts)
 INDEX_CMD = "cmd"
@@ -207,7 +208,7 @@ class ParentScript:
         grp_builtin.add_argument("-g",
                                  "--log",
                                  metavar="Optional_logging_file",
-                                 dest="str_log_file",
+                                 dest=C_STR_SCRIPT_LOG,
                                  default=None,
                                  help="".join(["Optional log file, if not ",
                                                "given logging will be to the ",
@@ -282,14 +283,16 @@ class ParentScript:
                                                "commands)."]))
         grp_builtin.add_argument("--timestamp",
                                  dest="i_time_stamp_diff",
-                                 default=None,
+                                 default=-1,
                                  type=float,
                                  help="".join(["Using this will turn on ",
                                                "timestamp and will require the",
                                                " parent to be atleast this ",
                                                "amount or more younger than a",
                                                " product in order to ",
-                                               "invalidate the product."]))
+                                               "invalidate the product. A ",
+                                               "negative value will be ",
+                                               "ignored."]))
         grp_builtin.add_argument("-u",
                                  "--update_command",
                                  dest="str_update_classpath",
@@ -472,6 +475,17 @@ class ParentScript:
         # Parse arguments from command line
         self.ns_arguments = prsr_arguments.parse_args()
 
+        # Need to make sure if a string value is written as None
+        # that it is not recorded as 'None'
+        # Need to check lists too because of nargs.
+        for str_item, x_value in vars(self.ns_arguments).items():
+            if x_value == "None":
+                setattr(self.ns_arguments, str_item, None)
+            if isinstance(x_value, type([])):
+                x_value = [None if x_item == "None" else x_item for x_item in x_value]
+                x_value = [x_item for x_item in x_value if x_item]
+                setattr(self.ns_arguments, str_item, x_value)
+
         # Min value for threads is 1
         self.ns_arguments.i_number_jobs = max(self.ns_arguments.i_number_jobs, 1)
 
@@ -622,8 +636,8 @@ class ParentScript:
         str_full_script_name = os.path.join(self.ns_arguments.str_file_base,
                                             os.path.basename(str_updated_script_path))
         str_full_script_name = os.path.splitext(str_full_script_name)[0]+".sh"
-
         return(self.dspr_cur.func_make_run_script(str_full_script_name,
+                                                  os.path.abspath(str_updated_script_path),
                                                   self.ns_arguments,
                                                   self.dict_args_info,
                                                   str_additional_env_path,
@@ -675,7 +689,6 @@ class ParentScript:
         require a bash script to be made, for most updates we try to do this
         way so a record of the command is kept. 
         """
-
         str_script_to_run = None
         # Read in the config file and check to see if there are updates
         self.ns_arguments.str_file_base = self.str_orig_output_dir
@@ -684,7 +697,7 @@ class ParentScript:
         str_updated_script_path = None
         str_precommands = None
         str_postcommands = None
-        if os.path.exists(self.str_possible_config_file):
+        if os.path.exists(self.str_possible_config_file) and self.ns_arguments.f_use_pipeline_config:
             cur_config_manager = ConfigManager.ConfigManager(self.str_possible_config_file)
             self.ns_arguments = cur_config_manager.func_update_arguments(args_parsed=self.ns_arguments,
                                                                          dict_args_info=self.dict_args_info,
@@ -700,20 +713,24 @@ class ParentScript:
         ParentScript.func_make_output_dir(self.ns_arguments)
         ## Make the script in the output directory
         str_script_to_run = None
-        if str_updated_script_path:
+        if(str_additional_env_path or
+           str_additional_python_path or
+           str_updated_script_path or
+           str_precommands or 
+           str_postcommands):
             str_script_to_run = self.func_make_script(str_additional_env_path = str_additional_env_path,
                                                       str_additional_python_path = str_additional_python_path,
                                                       str_updated_script_path = str_updated_script_path,
                                                       str_precommands = str_precommands, 
                                                       str_postcommands = str_postcommands,
-                                                      str_sample_name = lstr_sample_info[0] if lstr_sample_info else None)
+                                                      str_sample_name = lstr_sample_info[0] if lstr_sample_info else self.func_base_file(self.prog))
         # Return script to run. 
         return(str_script_to_run)
 
     # TODO Test
     def func_get_job_commands(self):
         """
-        Updated the command per sample and return a list of commands to run.
+        Update the command per sample and return a list of commands to run.
         This triggers the creation of bash scripts to run the commands given
         the provided sample information.
         """

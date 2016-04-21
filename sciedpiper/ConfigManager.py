@@ -19,6 +19,7 @@ import sys
 C_STR_ARGUMENTS_SECTION = "ARGUMENTS_OVER_WRITE"
 C_STR_COMMANDS_SECTION = "COMMANDS"
 C_STR_PATH_SECTION = "PATH"
+C_STR_PYTHONPATH = "PYTHONPATH"
 C_STR_ENV_PATH_SECTION = "ENV_PATH"
 C_STR_SCRIPT_PATH_SECTION = "SCRIPT_PATH"
 C_STR_PYTHON_PATH_SECTION = "PYTHON_PATH"
@@ -89,7 +90,6 @@ class ConfigManager(object):
                               lstr_locked_arguments=[]):
         if not args_parsed:
             return {}
-
         # List of updated arguments
         lstr_updated_arguments = []
 
@@ -102,11 +102,12 @@ class ConfigManager(object):
                     for str_flag in dict_values[Arguments.C_STR_OPTION_STRINGS]:
                         dict_args_key[str_flag] = str_key
                         dict_args_key[str_flag.lstrip("-")] = str_key
+
         # Arguments section
         # For each entry in the Arguments section, update the argparser
         # Type cast as need and normalize argument.
         # Store updated argument
-        if(C_STR_ARGUMENTS_SECTION in self.config):
+        if(self.config.has_section(C_STR_ARGUMENTS_SECTION)):
             for str_config_key, str_config_value in self.config.items(C_STR_ARGUMENTS_SECTION):
                 if not str_config_key in dict_args_key:
                     # If the argument not found from the config file in the pipeline arguments, except.
@@ -155,7 +156,7 @@ class ConfigManager(object):
         # Should be unique from both the arguments and resource section.
         if lstr_sample_arguments:
             i_number_sample_items = len(lstr_sample_arguments)
-            if(not C_STR_SAMPLE_FILE_SECTION in self.config):
+            if not self.config.has_section(C_STR_SAMPLE_FILE_SECTION):
                 raise ValueError("".join(["ConfigManager::func_update_argument",
                                           "s:: Please provide a config file ",
                                           "with a ", C_STR_SAMPLE_FILE_SECTION,
@@ -177,11 +178,23 @@ class ConfigManager(object):
                         lstr_sample_arguments[i_sample_item_index])
 
             # Update the output directory with the sample name.
+            # Update any argument with the output directory in it to
+            # the new output directory
             ParentScript.ParentScript.func_make_output_dir(args_parsed)
+            str_new_output_dir = os.path.join(args_parsed.str_file_base,lstr_sample_arguments[0])
+            if hasattr(args_parsed,
+                       ParentScript.C_STR_SCRIPT_LOG):
+                str_log_file = getattr(args_parsed, ParentScript.C_STR_SCRIPT_LOG)
+                if(str_log_file.startswith(args_parsed.str_file_base)):
+                    str_log_dir = os.path.join(args_parsed.str_file_base,ParentScript.C_STR_LOG_DIR)
+                    if not os.path.isdir(str_log_dir):
+                        os.mkdir(str_log_dir)
+                    setattr(args_parsed,
+                            ParentScript.C_STR_SCRIPT_LOG,
+                            os.path.join(str_log_dir,lstr_sample_arguments[0]+".log"))
             setattr(args_parsed,
                     ParentScript.C_STR_OUTPUT_DIR,
-                    os.path.join(args_parsed.str_file_base,
-                                 lstr_sample_arguments[0]))
+                    str_new_output_dir)
 
             # Remove the sample file from the args incase a script is made
             # This will otherwise make an inf loop
@@ -216,23 +229,23 @@ class ConfigManager(object):
             if str_config_key.lower() == C_STR_ENV_PATH_SECTION.lower():
                 os.environ[C_STR_PATH_SECTION] = str_current_path + ":" + str_config_value.rstrip(os.sep)
                 return(str_config_value.rstrip(os.sep))
-        return(os.environ[C_STR_PATH_SECTION])
+        return(str_current_path)
 
     # Tested
     def func_update_python_path( self ):
-        str_current_path = os.environ[C_STR_PATH_SECTION] if C_STR_PATH_SECTION in os.environ else ""
+        str_current_path = os.environ[C_STR_PYTHONPATH] if C_STR_PYTHONPATH in os.environ else ""
         if(not self.config.has_section(C_STR_PATH_SECTION)):
             return(str_current_path)
         # Read in the python path updates
         for str_config_key, str_config_value in self.config.items(C_STR_PATH_SECTION):
             # Update PATH with str_config_value
-            if str_config_key.lower() == C_STR_PYTHON_PATH_SECTION.lower():
-                if C_STR_PATH_SECTION in os.environ:
-                    os.environ[C_STR_PATH_SECTION] = str_current_path + ":" + str_config_value.rstrip(os.sep)
+            if str_config_key.lower() == C_STR_PYTHON_PATH_SECTION.lower() and str_config_value:
+                if C_STR_PYTHONPATH in os.environ:
+                    os.environ[C_STR_PYTHONPATH] = str_current_path + ":" + str_config_value.rstrip(os.sep)
                 else:
-                    os.environ[C_STR_PATH_SECTION] = str_config_value.rstrip(os.sep)
+                    os.environ[C_STR_PYTHONPATH] = str_config_value.rstrip(os.sep)
                 return str_config_value.rstrip(os.sep)
-        return(os.environ[C_STR_PATH_SECTION])
+        return(str_current_path)
 
     # Tested
     def func_update_script_path( self, str_script_path ):

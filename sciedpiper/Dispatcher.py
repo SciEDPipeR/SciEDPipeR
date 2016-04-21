@@ -7,6 +7,7 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 import Arguments
+import sys
 import os
 import ParentScript
 
@@ -19,7 +20,7 @@ C_STR_SGE = "sge"
 C_LSTR_BSUB_CHOICES = [C_STR_BSUB, C_STR_LSF]
 C_LSTR_QSUB_CHOICES = [C_STR_QSUB, C_STR_SGE]
 C_LSTR_LOCAL_CHOICES = [C_STR_LOCAL]
-C_LSTR_DISPATCH_CHOICES = C_LSTR_LOCAL_CHOICES + C_LSTR_QSUB_CHOICES
+C_LSTR_DISPATCH_CHOICES = C_LSTR_LOCAL_CHOICES #+ C_LSTR_QSUB_CHOICES
 
 
 class Runner:
@@ -34,6 +35,7 @@ class Runner:
         self.str_error = ""
         self.str_error_file = None
         self.str_log_file = None
+        self.str_current_python = sys.executable
 
     # TODO Test
     def func_build_arguments(self, args_name_space, dict_args_info):
@@ -129,10 +131,12 @@ class LocalRunner(Runner):
     def func_update_command(self,
                             str_command,
                             args_name_space):
-        return(str_command)
+        return(" ".join([self.str_current_python,
+                         str_command]))
 
     def func_make_run_script(self,
-                             str_full_script_name,                        
+                             str_full_script_name,
+                             str_full_pipeline_script,
                              args_name_space,                             
                              dict_args_info,                              
                              str_additional_env_path,                     
@@ -140,8 +144,9 @@ class LocalRunner(Runner):
                              str_precommands,                             
                              str_postcommands,                            
                              str_sample_name):
+
         # Start script name with arguments
-        lstr_script_call = [self.func_update_command(str_full_script_name,
+        lstr_script_call = [self.func_update_command(str_full_pipeline_script,
                                                      args_name_space)]
         lstr_script_call.extend(self.func_build_arguments(args_name_space,
                                                           dict_args_info))
@@ -151,17 +156,17 @@ class LocalRunner(Runner):
         self.str_error_file = os.path.join(args_name_space.str_file_base,
                                            str_sample_name + "_job.err")
         # Make / write script body
+        lstr_script_call = [str_token.strip() if str_token.strip() != "" else '" "' for str_token in lstr_script_call]
+        lstr_script_call.extend([" 1> ",self.str_log_file," 2> ",self.str_error_file])
+        str_script_call = " ".join(lstr_script_call)
         lstr_script = ["#!/usr/bin/env bash",
                        "",
-                       "PATH=$PATH:"+str_additional_env_path,
-                       "PYTHONPATH=$PYTHONPATH:"+str_additional_python_path,
+                       "PATH="+str_additional_env_path+":$PATH",
+                       "PYTHONPATH="+str_additional_python_path+":$PYTHONPATH",
                        "",
                        str_precommands,
                        "",
-                       " ".join(lstr_script_call.extend([" 1> ",
-                                                         self.str_log_file,
-                                                         " 2> ",
-                                                         self.str_error_file])),
+                       str_script_call, 
                        "",
                        str_postcommands]
         # Write to file that is later called on command line
@@ -199,7 +204,9 @@ class QSUBRunner(Runner):
 
         if not str_command:
             return(None)
-        return(" ".join(["qsub", str_command]))
+        return(" ".join(["qsub",
+                         self.str_current_python,
+                         str_command]))
 
 
     # TODO Test

@@ -21,8 +21,13 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     """
 
     str_script = os.path.join("sciedpiper","ExampleScript.py")
+    str_script_config = os.path.join("sciedpiper","ExampleConfig.py")
     str_script_shuffled = os.path.join("sciedpiper","ExampleShuffledScript.py")
     str_script_timestamp = os.path.join("sciedpiper","ExampleTimeStamp.py")
+    str_script_one_sample = os.path.join("sciedpiper","ExampleOneSample.py")
+    str_sample_one_file = os.path.join("sciedpiper","ExampleOneSample.sample.txt")
+    str_script_three_sample = os.path.join("sciedpiper","ExampleThreeSample.py")
+    str_sample_three_file = os.path.join("sciedpiper","ExampleThreeSample.sample.txt")
     str_python = "/usr/bin/python2.7"
     str_log_file_name = "test.log"
  
@@ -63,17 +68,17 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                    ParentScript.C_STR_JOB_LOGGER_NAME)
         str_log = os.path.join(str_output_dir, self.str_log_file_name)
         
-        return({ "files" : [str_file_1, str_file_2, str_file_3,
-                            str_file_4, str_file_5, str_file_6, str_file_7,
-                            str_file_2_ok, str_file_3_ok, str_file_6_ok,
-                            str_file_7_ok, str_job_log, str_log],
+        return({"files": [str_file_1, str_file_2, str_file_3,
+                          str_file_4, str_file_5, str_file_6, str_file_7,
+                          str_file_2_ok, str_file_3_ok, str_file_6_ok,
+                          str_file_7_ok, str_job_log, str_log],
                 "directories": [str_dir_4, str_dir_5, str_dir_6,
-                                str_dir_1, str_dir_2, str_dir_3] })
+                                str_dir_1, str_dir_2, str_dir_3]})
 
     ####
     ## Baseline test
     ###
-    def test_app_for_vanilla_base_run(self):
+    def nottest_app_for_vanilla_base_run(self):
         """
         Test the scenario where the example script is ran on all defaults.
         """
@@ -106,7 +111,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test self-organizing
     ####
-    def test_app_for_shuffled_commands_run_success(self):
+    def nottest_app_for_shuffled_commands_run_success(self):
         """
         Test the scenario where the example script is written with commands
         out of order and allowed to reorder.
@@ -137,7 +142,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def test_app_for_shuffled_commands_run_fail(self):
+    def nottest_app_for_shuffled_commands_run_fail(self):
         """
         Test the scenario where the example script is written with commands
         out of order and not allowed to reorder.
@@ -172,7 +177,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test cleaning
     ####
-    def test_app_for_run_clean_with_intermediary(self):
+    def nottest_app_for_run_clean_with_intermediary(self):
         """
         Test the scenario where the example script is ran with clean
         intermediary mode.
@@ -229,7 +234,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def test_app_for_run_self_organize_clean_with_intermediary(self):
+    def nottest_app_for_run_self_organize_clean_with_intermediary(self):
         """
         Test the scenario where the example script is ran with clean intermediary mode.
         This is also using self-organizing.
@@ -288,7 +293,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test outputing JSON
     ####
-    def test_app_for_output_json(self):
+    def nottest_app_for_output_json(self):
         """
         Test the scenario where the example script is not ran but instead a
         json file is created.
@@ -351,21 +356,165 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
 
     ####
-    ## Test config file with resource file
+    ## Test config file
     ####
+    def nottest_app_for_config_file(self):
+        """
+        Test the scenario where the example script is with a configfile.
+        The --example will be overwritten and so should be different than
+        what is set up here. If it is not changed this test will catch it,
+        this is how it checks for the config file being used.
+        """
+        # Create test environment
+        str_env = os.path.join(self.str_test_directory,
+                               "test_app_for_config_file")
+        self.func_make_dummy_dir(str_env)
+        str_log = os.path.join(str_env, self.str_log_file_name)
+        str_job_log = os.path.join(str_env,
+                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+        str_message = "should_not_show_up"
+        # Call Example script
+        str_command = " ".join([self.str_python,
+                                self.str_script_config,
+                                "--example",
+                                str_message,
+                                "--log",
+                                str_log,
+                                "--out_dir",
+                                str_env])
+        x_result = Commandline.Commandline().func_CMD(str_command)
+        # Check test environment for results
+        dict_env = self.func_get_example_script_dirs_files(str_env)
+        f_success = sum([os.path.exists(str_path) 
+                         for str_path in dict_env["files"] + dict_env["directories"]] 
+                       ) == len(dict_env["files"] + dict_env["directories"])
+        f_success = f_success and x_result
+        for str_path in dict_env["files"]:
+            str_ext = os.path.splitext(str_path)[1]
+            if(str_path not in [str_log, str_job_log] and (str_ext!=".ok")):
+                with open(str_path, "r") as hndl_read:
+                    str_message = hndl_read.read()
+                    f_success = f_success and (str_message==str_message)
+        # Destroy environment
+        self.func_clean_up_example_script(str_env)
+        self.func_remove_files([os.path.join(str_env,"ExampleConfig.sh"),
+                                os.path.join(str_env,"ExampleScript_job.err"),
+                                os.path.join(str_env,"ExampleScript_job.log")])
+        self.func_remove_dirs([str_env])
+        # Evaluate
+        self.func_test_true(f_success)
 
     ####
     ## Test job running 1 sample local
     ####
+    def fixtest_app_for_config_and_one_sample(self):
+        """
+        Test the scenario where the example script is with a config file
+        and a sample file with one sample.
+        The --example will be overwritten and so should be different than
+        what is set up here. If it is not changed this test will catch it,
+        this is how it checks for the config file being used. The sample file
+        is checked because it will lend it's name to the sample directory.
+        """
+
+        # Create test environment
+        str_env = os.path.join(self.str_test_directory,
+                               "test_app_for_config_sample_file")
+        self.func_make_dummy_dir(str_env)
+        str_log = os.path.join(str_env, self.str_log_file_name)
+        str_job_log = os.path.join(str_env,
+                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+        str_message = "should_not_show_up"
+        # Call Example script
+        str_command = " ".join([self.str_python,
+                                self.str_script_one_sample,
+                                "--example",
+                                str_message,
+                                "--sample_file",
+                                self.str_sample_one_file,
+                                "--log",
+                                str_log,
+                                "--out_dir",
+                                str_env])
+        x_result = Commandline.Commandline().func_CMD(str_command)
+        # Check test environment for results
+        dict_env = self.func_get_example_script_dirs_files(str_env)
+        f_success = sum([os.path.exists(str_path) 
+                         for str_path in dict_env["files"] + dict_env["directories"]] 
+                       ) == len(dict_env["files"] + dict_env["directories"])
+        f_success = f_success and x_result
+        for str_path in dict_env["files"]:
+            str_ext = os.path.splitext(str_path)[1]
+            if(str_path not in [str_log, str_job_log] and (str_ext!=".ok")):
+                with open(str_path, "r") as hndl_read:
+                    str_message = hndl_read.read()
+                    f_success = f_success and (str_message==str_message)
+        # Destroy environment
+        #self.func_clean_up_example_script(str_env)
+        #self.func_remove_files([os.path.join(str_env,"ExampleConfig.sh"),
+        #                        os.path.join(str_env,"ExampleScript_job.err"),
+        #                        os.path.join(str_env,"ExampleScript_job.log")])
+        #self.func_remove_dirs([str_env])
+        # Evaluate
+        self.func_test_true(f_success)
 
     ####
     ## Test job running for 3 samples local
     ####
+    def test_app_for_config_and_three_sample(self):
+        """
+        Test the scenario where the example script is with a config file
+        and a sample file with three sample.
+        The --example will be overwritten and so should be different than
+        what is set up here. If it is not changed this test will catch it,
+        this is how it checks for the config file being used. The sample file
+        is checked because it will lend it's name to the sample directory.
+        """
+        # Create test environment
+        str_env = os.path.join(self.str_test_directory,
+                               "test_app_for_config_and_three_sample")
+        self.func_make_dummy_dir(str_env)
+        str_log = os.path.join(str_env, self.str_log_file_name)
+        str_job_log = os.path.join(str_env,
+                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+        str_message = "should_not_show_up"
+        # Call Example script
+        str_command = " ".join([self.str_python,
+                                self.str_script_three_sample,
+                                "--example",
+                                str_message,
+                                "--sample_file",
+                                self.str_sample_three_file,
+                                "--log",
+                                str_log,
+                                "--out_dir",
+                                str_env])
+        x_result = Commandline.Commandline().func_CMD(str_command)
+        # Check test environment for results
+        dict_env = self.func_get_example_script_dirs_files(str_env)
+        f_success = sum([os.path.exists(str_path) 
+                         for str_path in dict_env["files"] + dict_env["directories"]] 
+                       ) == len(dict_env["files"] + dict_env["directories"])
+        f_success = f_success and x_result
+        for str_path in dict_env["files"]:
+            str_ext = os.path.splitext(str_path)[1]
+            if(str_path not in [str_log, str_job_log] and (str_ext!=".ok")):
+                with open(str_path, "r") as hndl_read:
+                    str_message = hndl_read.read()
+                    f_success = f_success and (str_message==str_message)
+        # Destroy environment
+        #self.func_clean_up_example_script(str_env)
+        #self.func_remove_files([os.path.join(str_env,"ExampleConfig.sh"),
+        #                        os.path.join(str_env,"ExampleScript_job.err"),
+        #                        os.path.join(str_env,"ExampleScript_job.log")])
+        #self.func_remove_dirs([str_env])
+        # Evaluate
+        self.func_test_true(f_success)
 
     ####
     ## Test timestamp for no stale
     ####
-    def test_app_for_timestamp_no_stale(self):
+    def nottest_app_for_timestamp_no_stale(self):
         """
         Test the scenario where the example script does not replace
         any files for timestamping.
@@ -431,7 +580,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test timestamp for some files replaced
     ####
-    def test_app_for_timestamp_replace_files(self):
+    def nottest_app_for_timestamp_replace_files(self):
         """
         Test the scenario where the example script replaces some
         files due to time stamp eventhough they exist.
@@ -514,7 +663,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     ####
     ## Test compression and archiving
     ####
-    def test_app_for_run_with_no_compression(self):
+    def nottest_app_for_run_with_no_compression(self):
         """
         Test the scenario where the example script is ran with no compression.
         """
@@ -554,7 +703,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
  
-    def test_app_for_run_with_compression_archive(self):
+    def nottest_app_for_run_with_compression_archive(self):
         """
         Test the scenario where the example script is ran with compression, archive mode.
         """
@@ -598,7 +747,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def test_app_for_run_with_compression_first_level(self):
+    def nottest_app_for_run_with_compression_first_level(self):
         """
         Test the scenario where the example script is ran with compression, first level mode.
         """
@@ -657,7 +806,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def test_app_for_run_with_compression_intermediary(self):
+    def nottest_app_for_run_with_compression_intermediary(self):
         """
         Test the scenario where the example script is ran with compression, intermediary mode.
         """
@@ -721,7 +870,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def test_app_for_run_with_archiving_move(self):
+    def nottest_app_for_run_with_archiving_move(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a move.
         """
@@ -766,7 +915,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def test_app_for_run_with_archiving_copy(self):
+    def nottest_app_for_run_with_archiving_copy(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to two locations.
         """
@@ -821,7 +970,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
 
-    def test_app_for_run_with_archiving_copy_move(self):
+    def nottest_app_for_run_with_archiving_copy_move(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to one location.
         The output directory is then moved to another.
@@ -877,7 +1026,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Evaluate
         self.func_test_true(f_success)
         
-    def test_app_for_run_with_archiving_copy_move_compress(self):
+    def nottest_app_for_run_with_archiving_copy_move_compress(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to one location.
         The output directory is then moved to another. The output directory in this case is compressed into one archive
