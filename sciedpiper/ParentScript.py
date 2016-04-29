@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 
 __author__ = "Timothy Tickle"
@@ -570,32 +572,32 @@ class ParentScript:
                                         " Start Running job ",
                                         str_current_job]))
             # Run a sample
-            try:
-                f_return = self.func_run_sample(lstr_sample_data)
-                if f_return:
-                    self.logr_job.info("".join(["ParentScript.func_run_jobs",
-                                                "_locally:: Ran WITHOUT error,",
-                                                " job",
-                                                str_current_job]))
-                else:
-                    self.logr_job.info("".join(["ParentScript.func_run_jobs_",
-                                                "locally:: An ERROR occured ",
-                                                "while running job",
-                                                str_current_job]))
-                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
-                                            "locally:: End Running job",
+#            try:
+            f_return = self.func_run_sample(lstr_sample_data)
+            if f_return:
+                self.logr_job.info("".join(["ParentScript.func_run_jobs",
+                                            "_locally:: Ran WITHOUT error,",
+                                            " job",
                                             str_current_job]))
+            else:
+                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+                                            "locally:: An ERROR occured ",
+                                            "while running job",
+                                            str_current_job]))
+            self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+                                        "locally:: End Running job",
+                                        str_current_job]))
 
-                f_error_occured = f_error_occured or (not f_return)
-            except Exception as e:
-                f_error_occured = True
-                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
-                                            "locally:: Serious error occured ",
-                                            "for job", str_current_job]))
-                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
-                                            "locally:: Exception for job",
-                                            str_current_job,
-                                            "\n" + str(e)]))
+            f_error_occured = f_error_occured or (not f_return)
+#            except Exception as e:
+#                f_error_occured = True
+#                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+#                                            "locally:: Serious error occured ",
+#                                            "for job", str_current_job]))
+#                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+#                                            "locally:: Exception for job",
+#                                            str_current_job,
+#                                            "\n" + str(e)]))
 
         if f_error_occured:
             exit(999)

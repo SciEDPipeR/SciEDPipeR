@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 """
 Functions involving sending commands to the commandline.
 """
-
 import logging
 import os
 import subprocess as sp

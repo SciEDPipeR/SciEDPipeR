@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
@@ -212,8 +215,11 @@ class DependencyTree:
         if self.func_products_are_made( cmd_cur, f_wait = f_wait ) or f_test:
             self.logr_logger.info( "DependencyTree.func_complete_command: Products are made" )
             for str_product in cmd_cur.lstr_products:
-                self.logr_logger.info( "DependencyTree.func_complete_command: " + str_product.str_id + " " + str_product.func_get_size() )
- 
+                str_product_size = ""
+                if os.path.exists(str_product.str_id):
+                    str_product_size = str_product.func_get_size()
+                self.logr_logger.info( "DependencyTree.func_complete_command: " + str_product.str_id + " " + str_product_size )
+
             # Update the dependency relationships
             if not self.func_remove_dependency_relationships( cmd_cur ):
                 self.logr_logger.error( "DependencyTree.func_complete_command: Could not update dependency relationships." )

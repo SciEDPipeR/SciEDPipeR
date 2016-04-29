@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 
 """
@@ -131,7 +133,7 @@ class Resource(Graph.Vertex):
                  : List of paths all relative
                  : On bad data like empty list, the input is just returned.
         """
-
+        print(lstr_paths)
         lstr_return_list = []
 
         # Handle in case a string is accidently given

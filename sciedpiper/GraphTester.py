@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2015"
@@ -19,7 +23,7 @@ class GraphTester( ParentPipelineTester.ParentPipelineTester ):
 
 # Graph building functions
     def func_make_one_cycle_graph( self ):
- 
+
       cur_graph = Graph.Graph()
       vtx_22 = Graph.Vertex( 22 )
       vtx_23 = Graph.Vertex( 23 )

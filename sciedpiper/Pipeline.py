@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
@@ -31,8 +35,8 @@ STR_COMPRESSION_NONE = "none"
 STR_COMPRESSION_ARCHIVE = "archive"
 STR_COMPRESSION_FIRST_LEVEL_ONLY = "level1"
 STR_COMPRESSION_AS_YOU_GO = "realtime"
-LSTR_COMPRESSION_HANDLING_CHOICES = [ STR_COMPRESSION_NONE, STR_COMPRESSION_ARCHIVE, 
-                                     STR_COMPRESSION_FIRST_LEVEL_ONLY, 
+LSTR_COMPRESSION_HANDLING_CHOICES = [ STR_COMPRESSION_NONE, STR_COMPRESSION_ARCHIVE,
+                                     STR_COMPRESSION_FIRST_LEVEL_ONLY,
                                      STR_COMPRESSION_AS_YOU_GO ]
 
 
@@ -40,7 +44,7 @@ class Pipeline:
     """
     This object is an aggregation of functions needed to simply and easily create analysis pipelines.
     """
-    
+
     c_lstr_special_commands = [ "cd", "rm", "mkdir" ]
     """
     These are special commands which should not be handled by subproc but should be
@@ -53,9 +57,9 @@ class Pipeline:
                         str_log_to_file = None,
                         str_log_level = logging.INFO,
                         str_update_source_path = None ):
-        """ 
+        """
         Initiator has an optional parameter to set logging for a specific file.
-        
+
         * str_name : String
                      Name of the pipeline, currently used in logging
 
@@ -68,16 +72,16 @@ class Pipeline:
         """
         self.cmdl_execute = Commandline.Commandline( str_name )
         """ Simple interface for running commandline """
-        
+
         self.f_execute = True
         """ If made false, the pipeline documents itself but does not execute """
 
         self.f_use_bash = False
-        """ 
+        """
         If made true, will tell the commandline to be ran in bash (for bash specific commands).
         If true will reduce the range of OS this can be ran on, not WIndows for instance.
         """
-        
+
         self.f_archive = True
         """
         If made True, archiving (copying and moving the output directory is allowed if requested.
@@ -86,14 +90,14 @@ class Pipeline:
 
         self.str_name = str_name
         """ Pipeline name """
-        
+
         self.str_prefix_command = ""
         """ A prefix to add to all commands, used to make commands bsub commands """
-        
+
         #Lastly make logger
         self.str_log_file = str_log_to_file
         """ File to log to """
-        
+
         self.logr_logger = self.func_make_logger( str_log_file = self.str_log_file, str_logging_level = str_log_level )
         """ Logger for the pipeline. """
 
@@ -109,20 +113,20 @@ class Pipeline:
     def func_check_files_exist( self, lstr_files ):
         """
         Makes sure files exist before starting
-        
+
         * lstr_files : List of strings ( file paths )
                        Each file path will be checked to see if it points
                        to a real file. If not an error will be logged and false returned.
-        
+
         * Return : Boolean
                    True indicates all files exist.
         """
 
         self.logr_logger.debug( "Pipeline.func_check_files_exist: Checking that files exist." )
-        
+
         if not lstr_files:
             return False
-        
+
         # Check for the files existing
         # If they do return true else indicate in logging and return false.
         f_success = True
@@ -136,13 +140,13 @@ class Pipeline:
     def func_copy_move( self, lstr_destination, str_archive, f_copy, f_test = False ):
         """
         Either moves a path to a location or copies a path to several locations.
-        
+
         * lstr_destination : Absolute path(s) to copy / move location. When moving a list of 1 path should be provided.
                            : List of strings
         * str_archive : The absolute path that will be moved.
                       : String
-        * f_copy : True indicates copy mode ( where the original archive will not be deleted and where multiple 
-                   destinations can be copied to ). False indicates move mode ( where the original archive will 
+        * f_copy : True indicates copy mode ( where the original archive will not be deleted and where multiple
+                   destinations can be copied to ). False indicates move mode ( where the original archive will
                    be deleted and only one destination will be copied to ).
                  : Boolean
         * f_test : True indicates a test run occurs, no real copy / move action is made but the destination location
@@ -150,11 +154,11 @@ class Pipeline:
                  : Boolean
         * return : Indicator of success ( True, success; False, failure )
         """
-        
+
         # Check inputs
         if not lstr_destination or not str_archive:
             return False
-        
+
         # Check to make sure the path to archive is valid.
         if not f_test and ( not str_archive or not os.path.exists( str_archive ) ):
             self.logr_logger.error( "Pipeline.func_copy_move: Could not move the following path, does not exist:" + str_archive )
@@ -170,7 +174,7 @@ class Pipeline:
             if len( lstr_destination ) < 1:
                 self.logr_logger.error( "Pipeline.func_copy_move: No location was provided to copy to" )
                 return False
-            
+
             # Check each destination directory, if any are invalid, not existing, or not a directory, do not copy
             f_file_check = True
             for str_copy_path in lstr_destination:
@@ -181,12 +185,12 @@ class Pipeline:
                     f_file_check = False
             if not f_file_check:
                 return False
-            
+
             # Copy to each directory
-            for str_copy_path in lstr_destination:                
+            for str_copy_path in lstr_destination:
                 str_copy_file = os.path.join( str_copy_path, os.path.basename( str_archive ) )
                 if f_test:
-                    self.logr_logger.info( "Pipeline.func_copy_move: Will attempt to copy " + 
+                    self.logr_logger.info( "Pipeline.func_copy_move: Will attempt to copy " +
                                            str_archive + " to " + str_copy_file )
                 else:
                     # Copy
@@ -205,7 +209,7 @@ class Pipeline:
             return f_successfully_completed
         else:
             if not len( lstr_destination ) == 1:
-                self.logr_logger.error( "Pipeline.func_copy_move: Expected only one move location. " + 
+                self.logr_logger.error( "Pipeline.func_copy_move: Expected only one move location. " +
                                        "If you need to move the output directory to multiple locations " +
                                        "please use the copy argument multiple times for multiple destinations "+
                                        " or the copy and move argument for a copy and a move." )
@@ -215,12 +219,12 @@ class Pipeline:
             if not str_move_destination or not os.path.exists( str_move_destination ) or not os.path.isdir( str_move_destination ):
                 # Log problem with destination path
                 self.logr_logger.error( "Pipeline.func_copy_move: Skipped the following move destination. " +
-                                              "Either did not exist or was not a directory: " + 
+                                              "Either did not exist or was not a directory: " +
                                               str_move_destination )
                 return False
             # Move and check
             str_move_file = os.path.join( str_move_destination, os.path.basename( str_archive ) )
-            
+
             if f_test:
                 self.logr_logger.info( "Pipeline.func_copy_move: Will attempt to move " +
                                        str_archive + " to " + str_move_file )
@@ -239,7 +243,7 @@ class Pipeline:
         """
         Makes each command a bsub command.
         The commands will not run at once but will run one after the other using bsub.
-        
+
         * str_memory : String
                        The max amount of memory a task will use, this ammount will be requested
 
@@ -249,16 +253,16 @@ class Pipeline:
         self.logr_logger.debug( "Pipeline.func_do_bsub: BSUBing files")
         lstr_bsub_logging = [] if not self.str_log_file else [ "-o ", os.path.splitext( self.str_log_file )[0], ".out ",
                                                               " -e ", os.path.splitext( self.str_log_file )[0], ".err " ]
-        self.str_prefix_command = "".join( [ "bsub -N " ] + 
-                                           lstr_bsub_logging + 
-                                           [ "-q ", str_queue, " -K -R \"rusage[mem=", str( str_memory ), "]\" " ] ) 
+        self.str_prefix_command = "".join( [ "bsub -N " ] +
+                                           lstr_bsub_logging +
+                                           [ "-q ", str_queue, " -K -R \"rusage[mem=", str( str_memory ), "]\" " ] )
 
 
     # Tested
     def func_do_special_command( self, cmd_cur, f_test = False ):
         """
         Perform a special command as opposed to using sub proc.
-        
+
         * cmd_cur : Command
                     Handles commands which can not use subproc.
 
@@ -268,28 +272,28 @@ class Pipeline:
         """
 
         str_cmd = cmd_cur.str_id.split(" ")[0].lower()
-        
+
         # Handle cd
         if str_cmd == "cd":
             if f_test:
                 return True
             str_path = cmd_cur.str_id.split(" ")[ 1 ]
-            
+
             # Handle relative paths
             if not str_path[ 0 ] == os.path.sep:
                 str_path = os.path.join( os.getcwd(), str_path )
             self.logr_logger.debug( " ".join( [ "Pipeline.func_do_special_command: chdir to", str_path ] ) )
-            
+
             # If in execute mode actually perform command
             self.logr_logger.info( "".join( [ "Pipeline.func_do_special_command: Moving to ", str_path, 
                                                 " which exists." if os.path.exists( str_path ) else " which does NOT exist." ] ) )
-            
+
             try:
                 os.chdir( str_path )
             except OSError:
                 return False
             return True
-        
+
         # Handle rm
         elif( str_cmd == "rm"):
             self.logr_logger.warning( " ".join( [ "Pipeline.func_do_special_command: We would prefer rm not be used as a command.",
@@ -307,8 +311,8 @@ class Pipeline:
                                               "This is NOT an error." ] ))
             return True
         return False
-    
-    
+
+
     def func_make_logger( self, str_log_file = None, str_logging_level = logging.INFO ):
         """
         Sets up the logger for the pipeline.
@@ -348,17 +352,17 @@ class Pipeline:
         Make the file path for an "ok" file, currently used
         as an invisible file indicating a file is valid for use
         being produced from a command that completed without error.
-        
+
         * str_path : String
                      Path of file to base the ok file on
-                     
+
         * Return : String
                    A path for an ok file. This does not create the file.
         """
 
         if not str_path:
             return ".ok"
-        str_path, str_file = os.path.split( str_path ) 
+        str_path, str_file = os.path.split( str_path )
         return( os.path.join( str_path, "".join( [ ".", str_file, ".ok" ] ) if str_file else ".ok" ) )
 
 
@@ -366,20 +370,20 @@ class Pipeline:
     def func_handle_gzip( self, lstr_files ):
         """
         Changes the name of the file to a command to uncompress the file if it is compressed.
-    
+
         lstr_files : List of strings
                    : Paths to files that may or may not be gzipped.
-               
+
         Return : lstr_files
-               : List of file paths updated to commands that will uncompress the files if needed           
+               : List of file paths updated to commands that will uncompress the files if needed
         """
 
         if not lstr_files:
             return lstr_files
-        
+
         # Handle in case a string is accidently given
         if isinstance( lstr_files, basestring ):
-            lstr_files = [ lstr_files ] 
+            lstr_files = [ lstr_files ]
 
         # If gzipped files are used then let pipeline know so the bash shell is used
         lstr_return_string = []
@@ -390,11 +394,11 @@ class Pipeline:
             else:
                 lstr_return_string.append( str_uncompress_files )
         return lstr_return_string
-    
+
 
 #    def func_check_installed( self, lstr_programs ):
 #        """ Checks that each of the programs are installed. """
-#        
+#
 #        # Test mode does nothing
 #        if not self.f_execute:
 #            return True
@@ -415,16 +419,16 @@ class Pipeline:
     def func_is_special_command( self, cmd_cur ):
         """
         Check to see if the command is a special command which should not be handled as a subprocess.
-        
+
         An example would be cd which uses os commands.
-        
+
         cmd_cur : Command
                   Command to be checked to see if it needs special handling outside of subproc.
 
         Return : Boolean
                  True indicates the command needs special handling
         """
-        
+
         return cmd_cur.str_id.split(" ")[0].lower() in Pipeline.c_lstr_special_commands
 
 
@@ -432,51 +436,51 @@ class Pipeline:
     def func_is_valid_path_for_removal( self, str_path, str_output_directory ):
         """
         Checks if a file or directory is valid for deletion.
-        
+
         Here this is defined as being in the output directory and the output directory not being '/'
-        
+
         Note: The output directory must be an absolute path
-        
+
         * str_path : String
                    : Path to remove
-                   
+
         * str_output_directory : String
                                : Directory that bounds the deletion area
-                               
+
         * Return : Boolean
                  : True indicates the path is valid for deletion
         """
-        
+
         # Ignore invalid states
         if ( not str_path ) or ( not str_output_directory ):
             return False
-        
+
         # Check to make sure the output directory is an absolute path
         if not str_output_directory[ 0 ] == os.path.sep:
             return False
-        
+
         # Check to make sure the file/directory is an absolute path
         if not str_path[ 0 ] == os.path.sep:
             return False
-        
+
         # Resolve the paths as absolute paths ( in case of craziness like /path/path2/../path3/.. )
         str_output_directory = os.path.abspath( str_output_directory )
         str_path = os.path.abspath( str_path )
-        
+
         # Make sure both paths are not in the invalid directories to delete
         if str_output_directory in LSTR_INVALID_OUTPUT_DIRECTORIES or str_path in LSTR_INVALID_OUTPUT_DIRECTORIES:
             return False
-        
+
         # The path must be found in the output dir so the output dir can not be longer than the path
         # They can be equal if the output directory is deleted
         i_out_dir_length = len( str_output_directory )
         if( len( str_path ) < i_out_dir_length ):
             return False
-        
+
         # Check to make sure the output directory is the beginning of the path
         if ( not str_path[0: i_out_dir_length ] == str_output_directory ):
             return False
-        
+
         return True
 
     # 3 tests
@@ -500,14 +504,14 @@ class Pipeline:
 
     # Tested
     def func_mkdirs( self, lstr_directory_paths ):
-        """ 
+        """
         Makes sure all directories exist and if not creates them.
-        
+
         * lstr_directory_paths : List of strings ( paths )
                                  Each path to a directory will be made if it does not exist.
-        
+
         * Return : Boolean
-                   True indicates all directories either existed or were created. 
+                   True indicates all directories either existed or were created.
         """
         # Test mode checks to see if directories exist
         if not self.f_execute:
@@ -518,7 +522,7 @@ class Pipeline:
                 else:
                     self.logr_logger.info( " ".join( [ "Pipeline.func_mkdirs: Test mode:: This directory would be made. ", str_dir ] ) )
             return True
-        
+
         # Execute mode
         try:
             for str_dir in lstr_directory_paths:
@@ -556,11 +560,11 @@ class Pipeline:
         Check to make sure the file is from a command that completed, not one that prematurely ended.
         This translates to checking for a small invisible file (the "ok file" ) stored with the file
         which has timestamp information. Making sure the resources of interest and their parent dependencies
-        have these ok files. If i_fuzzy_time is an actual number, this will 
+        have these ok files. If i_fuzzy_time is an actual number, this will
         also make sure that, when checking a resource, the parent dependency's time stamp is checked
         to make sure the parent has an earlier time stamp.
         Can check either if the products or the dependencies of the command are valid.
-        
+
         * cmd_command : Command
                     Command to check dependencies.
         * f_dependencies : Boolean
@@ -581,7 +585,7 @@ class Pipeline:
         # Given a valid command there are several things to check.
         # 1. If the command has already ran successfully, if not return false and continue
         # 2. We can also check if the state of parents/dependecies are trustworthy
-        # 2a. If time stamping is not on (the value None given) just make sure the parent has had a successful run (ok file exists)  
+        # 2a. If time stamping is not on (the value None given) just make sure the parent has had a successful run (ok file exists)
         # 2b. If time stamping is on (a float value given ) make sure all parents are older than the children.
         # If the state of the parents is not trustworthy delete the ok file for all resources in the command and then return false
         for rsc_file in cmd_command.lstr_dependencies if f_dependencies else cmd_command.lstr_products:
@@ -618,12 +622,12 @@ class Pipeline:
         """
         This handles the deletion of a path and should be the only place in the pipeline deletion can occur.
         Deleting files and directories are both very dangerous operations.
-        
+
         For products, remove all products including ok files. This is used to delete generated files which are errors.
         For dependencies, remove dependencies of the correct cleaning level
         ( Files of the clean level Command.ALWAYS are always cleaned, Command.NEVER are never cleaned )
         Paths can be files or directories, directories are removed in total, including *_all_* contents.
-        
+
         Note the output directory path and the paths in the command to be deleted should be absolute.
 
         To be removed a path must:
@@ -636,14 +640,14 @@ class Pipeline:
 
         * cmd_command : Command
                         Command in which all products listed will be deleted.
-                        
+
         * str_output_directory : String
                                : The output directory for the pipeline run.
                                : The pipeline can only delete in it's output directory
-                        
+
         * dt_dependency_tree : DependencyTree
                              : The dependency tree for the pipeline run, indicates if a file is intermediary
-        
+
         * f_remove_products : Boolean
                             : True removes products, False remove dependencies, True will remove ok files, used to delete error products.
 
@@ -666,7 +670,7 @@ class Pipeline:
         lstr_paths_to_remove = [ rsc_remove.str_id for rsc_remove in lstr_paths_to_remove ]
         # Remove any input file
         lstr_paths_to_remove = list( set( lstr_paths_to_remove ) - set( dt_dependency_tree.lstr_inputs ) )
-        
+
         # If testing, indicate what files would be deleted and return
         if f_test:
             self.logr_logger.info( "".join( [ "In test mode, would have deleted the following paths: ",",".join( lstr_paths_to_remove ) ] ) )
@@ -682,7 +686,7 @@ class Pipeline:
 
         # Handle removing paths
         # For products, remove all products
-        # For dependencies, remove dependencies of the correct cleaning level    
+        # For dependencies, remove dependencies of the correct cleaning level
         # Paths are removed if they:
         # 1. Exist
         # 2. Are valid for removal ( in the output directory )
@@ -712,7 +716,7 @@ class Pipeline:
                     if not dt_dependency_tree.func_is_used_intermediate_file( cur_vertex ):
                         self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Not removing the following path, it is still needed.", str_path ] ) )
                         continue
-            
+
             else:
                 # Remove ok file first to invalidate
                 str_ok = self.func_get_ok_file_path( str_path = str_path )
@@ -732,7 +736,7 @@ class Pipeline:
                 self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Removing the directory:", str_path ] ) )
                 if self.f_execute:
                     shutil.rmtree( str_path )
-        # No errors occurred so returning true                    
+        # No errors occurred so returning true
         return True
 
 
@@ -743,7 +747,7 @@ class Pipeline:
         """
         Runs all commands in serial and logs the time each took.
         Will NOT stop on error but will attempt all commands.
-        
+
         * lcmd_commands : List of commands
                           Each command will be ran in order until completion or failure.
                           Each command will also be logged and timed.
@@ -755,7 +759,7 @@ class Pipeline:
                     True indicates files should be deleted when no longer needed dependent on their clean level.
 
         * f_self_organize_commands : Boolean
-                                     True indicates commmands are ran by the order given by the graph 
+                                     True indicates commmands are ran by the order given by the graph
                                      as opposed to as given by the user.
 
         * li_wait : List of integers
@@ -768,12 +772,13 @@ class Pipeline:
                    True indicates no error occurred
         """
         # Check incoming parameters
-        if not lcmd_commands or not len( lcmd_commands ) or not str_output_dir:
+        if (not lcmd_commands) or (not len(lcmd_commands)) or (not str_output_dir):
+            self.logr_logger.error(" ".join(["Pipeline.func_run_commands: Bad incoming command list"]))
             return False
-        
+
         # Keeps track of success.
         f_success = True
-        
+
         # Manages compression in this run
         cur_compression = Compression.Compression() if str_compression_mode else None
 
@@ -796,14 +801,14 @@ class Pipeline:
                 self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
         # Load up the commands and build the dependency tree
         # This skips special commands
-        dt_dependencies = DependencyTree.DependencyTree( [ cmd_cur for cmd_cur in lcmd_commands 
+        dt_dependencies = DependencyTree.DependencyTree( [ cmd_cur for cmd_cur in lcmd_commands
                                                           if not self.func_is_special_command( cmd_cur ) ],
                                                           self.logr_logger )
         # Make a wdl file
         if str_wdl:
             self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Not running pipeline. Writing WDL to file:", str_wdl ] ) )
-            JSONManager.JSONManager.func_pipeline_to_wdl( dt_tree_graph = dt_dependencies, 
-                                                          str_workflow = self.str_name, 
+            JSONManager.JSONManager.func_pipeline_to_wdl( dt_tree_graph = dt_dependencies,
+                                                          str_workflow = self.str_name,
                                                           str_file = str_wdl,
                                                           args_pipe = args_original )
             return(True)
@@ -815,7 +820,7 @@ class Pipeline:
         # If we are testing only, remove the wait
         if not self.f_execute:
             dt_dependencies.func_remove_wait()
-        
+
         # Run each command until all are completed or a failure occurs.
         # lstr_made_dependencies_to_compress tracks products that are mode which have yet to be compressed.
         # Should be a set
@@ -839,12 +844,12 @@ class Pipeline:
 
                 # Complete the command in case it was not
                 dt_dependencies.func_complete_command( cmd_command, f_wait = False, f_test = not self.f_execute )
-                
+
                 # Add cleaning dependencies
                 if f_clean:
-                    self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir, 
+                    self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir,
                                         dt_dependency_tree = dt_dependencies, f_remove_products = False, f_test = not self.f_execute )
-                    
+
                 # Compress if requested, cleaning is going to remove some files so it is easiest to let that happen,
                 # Then if the file still exists go ahead and compress if needed.
                 # I am at this point trusting all products were made ( because func_complete_command does this )
@@ -872,7 +877,7 @@ class Pipeline:
             # Attempt a command.
             # Start the timing
             d_start = time.time()
- 
+
             # Handle changing directories and other special commands
             if self.func_is_special_command( cmd_command ):
                 f_success = self.func_do_special_command( cmd_command, f_test = not self.f_execute )
@@ -902,13 +907,13 @@ class Pipeline:
                         f_success = False
                 # Add cleaning dependencies if executing and cleaning
                 if f_success and f_clean:
-                    f_success = f_success and self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir, 
+                    f_success = f_success and self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir,
                                         dt_dependency_tree = dt_dependencies, f_remove_products = False, f_test = not self.f_execute )
-                        
+
                 if not f_success:
                     # If the command was not successful, remove all products if cleaning.
                     self.logr_logger.error( " ".join( [ "Pipeline.func_run_commands: Was not successful, deleting products produced by error." ] ) )
-                    
+
                     # Remove products
                     self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir,
                                             dt_dependency_tree = dt_dependencies, f_remove_products = True, f_test = not self.f_execute )
@@ -954,7 +959,6 @@ class Pipeline:
             self.logr_logger.error( "Pipeline.func_run_commands: The pipeline but was unsuccessful. Pipeline run failed." )
             if self.f_execute:
                 return f_success
-                
 
         # Compress output directory
         # Archive
@@ -963,7 +967,7 @@ class Pipeline:
             if str_compression_mode and ( str_compression_mode.lower() in [ STR_COMPRESSION_ARCHIVE.lower(), STR_COMPRESSION_FIRST_LEVEL_ONLY.lower() ] ):
                 str_target_output_directory = cur_compression.func_compress( str_file_path=str_output_dir,
                                                                              str_output_directory = str_output_dir,
-                                                                             str_compression_type = str_compression_type, 
+                                                                             str_compression_type = str_compression_type,
                                                                              str_compression_mode = str_compression_mode.lower(),
                                                                              f_test = not self.f_execute )
             # Move or copy output directory if indicated
@@ -995,7 +999,7 @@ class Pipeline:
         Allows a way to update commands with a path but from the external call incase they can not be put in an env path.
         Will update until the command has an optional argument
         If there are no optional arguments anywhere in the command can be updated (including positional arguments).
-        
+
         * cmd_cur : Command
                   : Command to update (update is permanent)
         * dict_update_cur : Dictionary { 'command', 'path' }
@@ -1025,23 +1029,23 @@ class Pipeline:
         """
         Indicates to the dependency tree object that the products of the given command are valid.
         These products must exist if made valid (this is checked).
-        
+
         * cmd_command : Command
                         Command which contains the products to update.
-                       
+
         * Return : Boolean
                    Indicator of success, if false the status was not updated.
         """
-        
+
         # Return false on invalid data
         if not cmd_command or not cmd_command.func_is_valid():
             self.logr_logger.warning( "Pipeline.func_update_products_validity_status: Received an invalid command to update validity. Did not update." )
             return False
-        
+
         if not dt_tree:
             self.logr_logger.error( "Pipeline.func_update_products_validity_status: Received an invalid dependency tree. Did not update." )
             return False
-        
+
         # Handle making valid by making an ok file for the dir or file (each product)
         if not dt_tree.func_products_are_made( cmd_command ):
             self.logr_logger.error( "Pipeline.func_update_products_validity_status: Was to validate a command's products, some of which were missing. Did not update.")

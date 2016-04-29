@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 """
 Command module focuses on code that abstracts a command line command
 in a pipeline.
 """
 
-import Graph
-import Resource
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
@@ -16,6 +16,9 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
+
+import Graph
+import Resource
 
 DICT_CLEAN_TO_KEY = {Resource.CLEAN_NEVER : "NEVER",
                      Resource.CLEAN_AS_TEMP : "TEMP",
@@ -211,7 +214,7 @@ class Command(Graph.Vertex):
         return vtx_cmd_cur
 
     # Tested
-    def func_set_dependency_level(self, lstr_file, i_level):
+    def func_set_dependency_clean_level(self, lstr_file, i_level):
         """
         Depricated, please use func_set_resource_clean_level().
         """

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2015"
@@ -19,10 +22,10 @@ class ResourceTester( ParentPipelineTester.ParentPipelineTester ):
     """
     Tests the Resource object.
     """
-    
+
     def test_init_for_one_relative_path_product( self ):
         """ Testing init for updating relative path. """
- 
+
         str_path_one = os.path.join( "This","is","a","path1" )
         str_answer = " ".join( [ "PATH:",os.path.join( os.getcwd(), str_path_one )+ ",",
                                  "CLEAN:",str( Resource.CLEAN_DEFAULT ) + ",",
@@ -33,7 +36,7 @@ class ResourceTester( ParentPipelineTester.ParentPipelineTester ):
 
     def test_init_for_one_relative_path_product_connected( self ):
         """ Testing init for resource with parents and children. """
- 
+
         str_path_one = os.path.join( "This","is","a","path1" )
         str_answer = " ".join( [ "PATH:",os.path.join( os.getcwd(), str_path_one )+ ",",
                                  "CLEAN:",str( Resource.CLEAN_DEFAULT ) + ",",

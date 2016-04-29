@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 """
 Utility functions working with arguments.
@@ -11,6 +13,7 @@ __license__ = "MIT"
 __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
+
 
 # Constants
 C_STR_CHOICES = "choices"

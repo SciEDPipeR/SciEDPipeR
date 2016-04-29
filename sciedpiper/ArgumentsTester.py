@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 
 """
 Tests the arguments module.
 """
 
-import argparse
-import Arguments
-import ParentPipelineTester
-import unittest
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2016"
@@ -17,6 +15,12 @@ __license__ = "MIT"
 __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
+
+
+import argparse
+import Arguments
+import ParentPipelineTester
+import unittest
 
 
 class ArgumentsTester(ParentPipelineTester.ParentPipelineTester):
