@@ -55,7 +55,14 @@ class ExampleScript( ParentScript.ParentScript ):
 
         arg_raw.prog = "ExampleScript.py"
         arg_raw.description = "New Example Description."
-        arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )        
+        arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )
+        arg_raw.add_argument("--sample_name", dest = "str_sample_name", default = "sample name", help = "An example sample name text." )
+        arg_raw.add_argument("--file_one", dest = "str_file_one", default = "file one", help = "An example file one text." )
+        arg_raw.add_argument("--file_two", dest = "str_file_two", default = "file two", help = "An example file two text." )
+        arg_raw.add_argument( dest = "str_pos_1", help = "Positional argument 1" )
+        arg_raw.add_argument( dest = "str_pos_2", help = "Positional argument 2" )
+        arg_raw.add_argument( dest = "str_pos_3", help = "Positional argument 3" )
+
 
     def func_make_commands( self, args_parsed, cur_pipeline ):
         """

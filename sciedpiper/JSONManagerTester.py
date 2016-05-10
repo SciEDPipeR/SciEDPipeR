@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2015"
@@ -39,7 +42,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
         lstr_commands = []
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, f_pretty=True )
-        str_answer = json.dumps( { "count": 1, JSONManager.COMMANDS: [], "right": "right.fasta", "outputs": ["file.txt", "file2.txt", "file3.txt"], "setting": 2.3, "left": "left.fasta"}, sort_keys=True, indent=2 )
+        str_answer = json.dumps( { "count": 1, JSONManager.COMMANDS: [], "right": "right.fasta", "outputs": ["file.txt", "file2.txt", "file3.txt"], "setting": 2.3, "left": "left.fasta"}, sort_keys=True, indent=4 )
 
         self.func_test_equals( str_answer, str_result )
 
@@ -53,7 +56,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_products = ["/file/two.txt","/file/three.txt"] ) ]
         dict_arguments = {}
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, f_pretty=True )
-        str_answer = json.dumps( { JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_PATH_JSON: "/file/two.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]},{Command.STR_PATH_JSON: "/file/three.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_DEPENDENCIES_JSON: [ { Command.STR_PATH_JSON: "/file/one.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_COMMAND_JSON: "This is the test command" } ] }, sort_keys=True, indent=2 )
+        str_answer = json.dumps( { JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_PATH_JSON: "/file/two.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT]},{Command.STR_PATH_JSON: "/file/three.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_DEPENDENCIES_JSON: [ { Command.STR_PATH_JSON: "/file/one.txt", Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT ]}], Command.STR_COMMAND_JSON: "This is the test command" } ] }, sort_keys=True, indent=4 )
         self.func_test_equals( str_answer, str_result )
 
     def fixsorttest_func_pipeline_to_json_for_one_command_and_arguments( self ):
@@ -65,7 +68,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                            lstr_cur_products = ["/file/two.txt","/file/three.txt"] ) ]
         dict_arguments = {"left":"left.fasta", "right":"right.fasta", "count":1, "setting":2.3, "outputs":["file.txt", "file2.txt", "file3.txt"] }
         str_result = JSONManager.JSONManager.func_pipeline_to_json( lstr_commands, dict_arguments, f_pretty=True )
-        str_answer = json.dumps( { "count": 1, JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/two.txt" }, { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/three.txt" } ], Command.STR_DEPENDENCIES_JSON: [ { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/one.txt" } ], Command.STR_COMMAND_JSON: "This is the test command" } ], "right": "right.fasta", "outputs": [ "file.txt", "file2.txt", "file3.txt" ], "setting": 2.3, "left": "left.fasta" }, sort_keys=True, indent=2 )
+        str_answer = json.dumps( { "count": 1, JSONManager.COMMANDS: [ { Command.STR_PRODUCTS_JSON: [ { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[ Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/two.txt" }, { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/three.txt" } ], Command.STR_DEPENDENCIES_JSON: [ { Command.STR_CLEAN_JSON: Command.DICT_CLEAN_TO_KEY[Resource.CLEAN_DEFAULT], Command.STR_PATH_JSON: "/file/one.txt" } ], Command.STR_COMMAND_JSON: "This is the test command" } ], "right": "right.fasta", "outputs": [ "file.txt", "file2.txt", "file3.txt" ], "setting": 2.3, "left": "left.fasta" }, sort_keys=True, indent=4 )
         self.func_test_equals( str_answer, str_result )
 
 
@@ -92,7 +95,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                                              Command.STR_COMMAND_JSON: "This is the test command 2" } ], 
                                    "right": "right.fasta", 
                                    "outputs": [ "file.txt", "file2.txt", "file3.txt" ], 
-                                   "setting": 2.3, "left": "left.fasta" }, sort_keys=True, indent=2 )
+                                   "setting": 2.3, "left": "left.fasta" }, sort_keys=True, indent=4 )
         self.func_test_equals( str_answer, str_result )
 
 
@@ -127,7 +130,7 @@ class JSONManagerTester( ParentPipelineTester.ParentPipelineTester ):
                                    "right": "right.fasta",
                                    "outputs": [ "file.txt", "file2.txt", "file3.txt" ], 
                                    "setting": 2.3,
-                                   "left": "left.fasta" }, sort_keys=True, indent=2 )
+                                   "left": "left.fasta" }, sort_keys=True, indent=4 )
         
         # Evaluate
         str_result = ""

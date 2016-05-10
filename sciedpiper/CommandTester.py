@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
@@ -6,7 +9,6 @@ __license__ = "MIT"
 __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
-
 
 import Command
 import os
@@ -504,7 +506,7 @@ class CommandTester( ParentPipelineTester.ParentPipelineTester ):
 
     def test_func_to_dict_for_good_case( self ):
         """ Test for making a dict for good case. """
-  
+
         # Make command
         str_command = "This is a command"
         str_path_one = os.path.join( os.path.sep + "This","is","a","path1" )
@@ -518,17 +520,17 @@ class CommandTester( ParentPipelineTester.ParentPipelineTester ):
         lstr_deps = [ str_path_one, str_path_three, str_path_five, str_path_six, str_path_seven, str_path_eight ]
         lstr_prods = [ str_path_two, str_path_four ]
         cmd_test = Command.Command( str_command, lstr_deps, lstr_prods )
-        
+
         # Answer
         str_answer = "".join([ "{COMMAND : ",str_command,
-            ",MAKES:['{CLEAN:TEMP,PATH:",str_path_two,
-            "}', '{CLEAN:TEMP,PATH:",str_path_four,
-            "}'],NEEDS:['{CLEAN:ALWAYS,PATH:",str_path_six,
-            "}', '{CLEAN:NEVER,PATH:",str_path_one,
-            "}', '{CLEAN:TEMP,PATH:",str_path_three,
-            "}', '{CLEAN:TEMP,PATH:",str_path_five,
-            "}', '{CLEAN:TEMP,PATH:",str_path_seven,
-            "}', '{CLEAN:TEMP,PATH:",str_path_eight,"}']}" ] )
+            ",MAKES:[u'{CLEAN:TEMP,PATH:",str_path_two,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_four,
+            "}'],NEEDS:[u'{CLEAN:ALWAYS,PATH:",str_path_six,
+            "}', u'{CLEAN:NEVER,PATH:",str_path_one,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_three,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_five,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_seven,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_eight,"}']}" ] )
  
         cmd_test.func_set_resource_clean_level( str_path_one, Resource.CLEAN_NEVER )
         cmd_test.func_set_resource_clean_level( [ str_path_three, str_path_five ], Resource.CLEAN_AS_TEMP )
@@ -569,12 +571,12 @@ class CommandTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Answer
         str_answer = "".join([ "{COMMAND : ",str_command,
-            ",NEEDS:['{CLEAN:ALWAYS,PATH:",str_path_six,
-            "}', '{CLEAN:NEVER,PATH:",str_path_one,
-            "}', '{CLEAN:TEMP,PATH:",str_path_three,
-            "}', '{CLEAN:TEMP,PATH:",str_path_five,
-            "}', '{CLEAN:TEMP,PATH:",str_path_seven,
-            "}', '{CLEAN:TEMP,PATH:",str_path_eight,"}']}" ] )
+            ",NEEDS:[u'{CLEAN:ALWAYS,PATH:",str_path_six,
+            "}', u'{CLEAN:NEVER,PATH:",str_path_one,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_three,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_five,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_seven,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_eight,"}']}" ] )
  
         cmd_test.func_set_resource_clean_level( str_path_one, Resource.CLEAN_NEVER )
         cmd_test.func_set_resource_clean_level( [ str_path_three, str_path_five ], Resource.CLEAN_AS_TEMP )
@@ -598,8 +600,8 @@ class CommandTester( ParentPipelineTester.ParentPipelineTester ):
         
         # Answer
         str_answer = "".join([ "{COMMAND : ",str_command,
-            ",MAKES:['{CLEAN:TEMP,PATH:",str_path_two,
-            "}', '{CLEAN:TEMP,PATH:",str_path_four,
+            ",MAKES:[u'{CLEAN:TEMP,PATH:",str_path_two,
+            "}', u'{CLEAN:TEMP,PATH:",str_path_four,
             "}']}" ] )
  
         # Make command

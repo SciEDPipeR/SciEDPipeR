@@ -57,6 +57,7 @@ class ExampleScript( ParentScript.ParentScript ):
         arg_raw.description = "New Example Description."
         arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )        
 
+
     def func_make_commands( self, args_parsed, cur_pipeline ):
         """
         Allows:
@@ -74,7 +75,6 @@ class ExampleScript( ParentScript.ParentScript ):
         str_dir_4 = os.path.join( str_dir_1, "dir4" )
         str_dir_5 = os.path.join( str_dir_1, "dir5" )
         str_dir_6 = os.path.join( str_dir_2, "dir6" )
-        cur_pipeline.func_mkdirs( [ args_parsed.str_file_base, str_dir_1, str_dir_2, str_dir_3, str_dir_4, str_dir_5, str_dir_6 ] )
         
         #Make file names and input files
         str_file_1 = os.path.join( str_dir_1, "file1.txt" )
@@ -84,26 +84,34 @@ class ExampleScript( ParentScript.ParentScript ):
         str_file_5 = os.path.join( str_dir_3, "file5.txt" )
         str_file_6 = os.path.join( str_dir_3, "file6.txt" )
         str_file_7 = os.path.join( str_dir_3, "file7.txt" )
-        with open( str_file_1, "w" ) as hndl_file1:
-            hndl_file1.write( args_parsed.str_new_variable_to_play_with )
-        with open( str_file_4, "w" ) as hndl_file4:
-            hndl_file4.write( args_parsed.str_new_variable_to_play_with )
-        with open( str_file_5, "w" ) as hndl_file5:
-            hndl_file5.write( args_parsed.str_new_variable_to_play_with )
+
+        #Only do commands if not making wdl or running test.
+        if not args_parsed.str_wdl and not args_parsed.f_Test:
+            cur_pipeline.func_mkdirs( [ args_parsed.str_file_base, str_dir_1, str_dir_2, str_dir_3, str_dir_4, str_dir_5, str_dir_6 ] )
+            with open( str_file_1, "w" ) as hndl_file1:
+                hndl_file1.write( args_parsed.str_new_variable_to_play_with )
+            with open( str_file_4, "w" ) as hndl_file4:
+                hndl_file4.write( args_parsed.str_new_variable_to_play_with )
+            with open( str_file_5, "w" ) as hndl_file5:
+                hndl_file5.write( args_parsed.str_new_variable_to_play_with )
         
         # Make commands
         # Make other files given the dependency tree
         lcmd_commands = []
-        lcmd_commands.extend( [ Command.Command( str_cur_command = "cat " + str_file_1 + " > " + str_file_2,
+        lcmd_commands.extend( [ Command.Command( str_name = "1_to_2",
+                                               str_cur_command = "cat " + str_file_1 + " > " + str_file_2,
                                                lstr_cur_dependencies = [ str_file_1 ], 
                                                lstr_cur_products = [ str_file_2 ] ),
-                             Command.Command( str_cur_command = "cat " + str_file_2 + " > " + str_file_3,
+                             Command.Command( str_name = "2_to_3",
+                                               str_cur_command = "cat " + str_file_2 + " > " + str_file_3,
                                                lstr_cur_dependencies = [ str_file_2 ], 
                                                lstr_cur_products = [ str_file_3 ] ),
-                             Command.Command( str_cur_command = "cat " + str_file_5 + " > " + str_file_6,
+                             Command.Command( str_name = "5_to_6",
+                                               str_cur_command = "cat " + str_file_5 + " > " + str_file_6,
                                                lstr_cur_dependencies = [ str_file_5 ], 
                                                lstr_cur_products = [ str_file_6 ] ),
-                             Command.Command( str_cur_command = "cat " + str_file_3 + " > " + str_file_7,
+			     Command.Command( str_name = "3_to_7",
+                                               str_cur_command = "cat " + str_file_3 + " > " + str_file_7,
                                                lstr_cur_dependencies = [ str_file_3, str_file_6 ], 
                                                lstr_cur_products = [ str_file_7 ] ) ] )
         return lcmd_commands

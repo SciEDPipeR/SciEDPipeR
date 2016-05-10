@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
@@ -43,9 +46,8 @@ class DependencyTree:
                    : A logger to use
         """
         
-        self.logr_logger = logging.getLogger() if not logr_cur else logr_cur
+        self.logr_logger = logging.getLogger(__name__) if not logr_cur else logr_cur
         """ Logger, uses the default logger. """
-        
         self.graph_commands = DependencyGraph.DependencyGraph()
         """ Graph holds the relationship between commands. """
 
@@ -90,6 +92,8 @@ class DependencyTree:
             self.__lstr_terminal_products = [ cmd_cur for cmd_cur in self.graph_commands.func_get_terminal_products() ]
         return self.__lstr_terminal_products
 
+
+    # Test
     def __func_update_state_to_start( self ):
         """
         Updates the internal state of the Dependency Tree and types of files being tracked
@@ -136,7 +140,10 @@ class DependencyTree:
         """
         
         # Only allow complete commands with product, dependencies, and commands to be handled.
-        if cmd_cur.func_is_valid():
+        if cmd_cur and cmd_cur.func_is_valid():
+            # Holds resource clean levels not default
+            dict_clean_levels = {}
+
             # Each command should be unique
             if cmd_cur in self.graph_commands:
                 return False
@@ -145,9 +152,31 @@ class DependencyTree:
             # Add dependencies
             for vtx_dependency in cmd_cur.lstr_dependencies:
                 self.graph_commands.func_merge_vertex( vtx_dependency )
+                i_new_clean = vtx_dependency.i_clean
+                if not vtx_dependency.str_id in dict_clean_levels:
+                    dict_clean_levels[ vtx_dependency.str_id ] = i_new_clean
+                i_stored_clean = dict_clean_levels[ vtx_dependency.str_id ]
+                if i_new_clean != Resource.CLEAN_DEFAULT:
+                    if i_stored_clean == Resource.CLEAN_DEFAULT:
+                        dict_clean_levels[ vtx_dependency.str_id ] = i_new_clean
+                    else:
+                        dict_clean_levels[ vtx_dependency.str_id ] = min( i_new_clean, i_stored_clean)
             # Add products
             for vtx_product in cmd_cur.lstr_products:
                 self.graph_commands.func_merge_vertex( vtx_product )
+                i_new_clean = vtx_product.i_clean
+                if not vtx_product.str_id in dict_clean_levels:
+                    dict_clean_levels[ vtx_product.str_id ] = i_new_clean
+                i_stored_clean = dict_clean_levels[ vtx_dependency.str_id ]
+                if i_new_clean != Resource.CLEAN_DEFAULT:
+                    if i_stored_clean == Resource.CLEAN_DEFAULT:
+                        dict_clean_levels[ vtx_poduct.str_id ] = i_new_clean
+                    else:
+                        dict_clean_levels[ vtx_dependency.str_id ] = min( i_new_clean, i_stored_clean )
+
+            # Make sure the resource clean levels are preserved.
+            for str_resource_id, i_set_clean in dict_clean_levels.items():
+                self.graph_commands.func_get_vertex(str_resource_id).i_clean = i_set_clean
  
             # Indicate the terminal, dependencies, and products need to be recalculated 
             self.__lstr_terminal_products = None
@@ -160,6 +189,7 @@ class DependencyTree:
         return False
 
 
+    # Tested
     def func_complete_command( self, cmd_cur, f_wait = None, f_test = False ):
         """
         Checks that the products are made for the command and then
@@ -184,7 +214,12 @@ class DependencyTree:
         self.logr_logger.debug( "DependencyTree.func_complete_command: Checking products" )
         if self.func_products_are_made( cmd_cur, f_wait = f_wait ) or f_test:
             self.logr_logger.info( "DependencyTree.func_complete_command: Products are made" )
- 
+            for str_product in cmd_cur.lstr_products:
+                str_product_size = ""
+                if os.path.exists(str_product.str_id):
+                    str_product_size = str_product.func_get_size()
+                self.logr_logger.info( "DependencyTree.func_complete_command: " + str_product.str_id + " " + str_product_size )
+
             # Update the dependency relationships
             if not self.func_remove_dependency_relationships( cmd_cur ):
                 self.logr_logger.error( "DependencyTree.func_complete_command: Could not update dependency relationships." )
@@ -208,6 +243,16 @@ class DependencyTree:
             rsc_prod.str_status = Resource.STR_ERROR
         cmd_cur.str_status = Command.STR_ERROR
         return False
+
+
+    # Tested
+    def func_get_commands( self ):
+        """
+        Returns a breadthwise iterator of the internal commands.
+        """
+
+        return self.graph_commands.func_get_commands()
+
 
     # Tested
     def func_remove_dependency_relationships( self, cmd_cur):
@@ -265,6 +310,7 @@ class DependencyTree:
 
         return self.func_paths_made( cmd_cur.lstr_dependencies )
 
+
     # Tested 
     def func_dependency_is_needed( self, cmd_dependency ):
         """
@@ -283,6 +329,14 @@ class DependencyTree:
             # Which would indicate those commands have not been completed yet and the
             # dependency is still needed.
             return len( self.dict_dependencies.get( str_dependency, [] ) ) > 0
+        return False
+
+    def func_is_input(self,rsc_check):
+        if rsc_check:
+            str_cur_id = rsc_check.str_id
+            for rsc_input in self.lstr_inputs:
+                if rsc_input.str_id == str_cur_id:
+                    return True
         return False
 
 
@@ -380,13 +434,16 @@ class DependencyTree:
         return str_product in self.lstr_terminal_products
     
 
+    # Tested
     def func_remove_wait( self ):
         """
         Turn off the wait for looking for products.
         """
         
         self.li_waits_for_products = [0]
-        
+
+
+    # Tested 
     def func_show_active_dependencies( self ):
         """
         Show the dependencies that are still active.
@@ -397,12 +454,17 @@ class DependencyTree:
         
         return ", ".join( sorted( self.dict_dependencies.keys() ) )            
 
+
+    # Tested
     def func_get_clean_level( self, str_path ):
         return self.graph_commands.func_get_vertex( str_path ).i_clean  
+
 
     def __str__( self ):
         return "Graph{" + str( len( self.graph_commands ) ) + "}"
 
+
+    # Used in testing
     def func_detail( self ):
         """
         String representation of the internal state of the object.
