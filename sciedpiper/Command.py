@@ -4,6 +4,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+import Graph
+import os
+import Resource
 
 """
 Command module focuses on code that abstracts a command line command
@@ -19,9 +22,6 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
-
-import Graph
-import Resource
 
 DICT_CLEAN_TO_KEY = {Resource.CLEAN_NEVER : "NEVER",
                      Resource.CLEAN_AS_TEMP : "TEMP",
@@ -315,9 +315,12 @@ class Command(Graph.Vertex):
         """
         Gets command relationships in dot file syntax.
         """
-        return(["\""+self.str_id+"\" [shape=box];"] +
-               ["\""+os.path.basename(rsc_dep.str_id)+"\"->\""+self.str_id+"\" [shape=circle];" for rsc_dep in self.lstr_dependencies] +
-               ["\""+self.str_id+"\"->\""+os.path.basename(rsc_prod.str_id)+"\" [shape=circle];" for rsc_prod in self.lstr_products])
+        # Make sure to also base name the command tokens in case one is a file.
+        str_command = " ".join([os.path.basename(str_cmd_token)
+                                for str_cmd_token in self.str_id.split(" ")])
+        return(["\""+str_command+"\" [shape=box];"] +
+               ["\""+os.path.basename(rsc_dep.str_id)+"\"->\""+str_command+"\" [shape=circle];" for rsc_dep in self.lstr_dependencies] +
+               ["\""+str_command+"\"->\""+os.path.basename(rsc_prod.str_id)+"\" [shape=circle];" for rsc_prod in self.lstr_products])
 
     # OK
     def __str__(self):

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 
 __author__ = "Timothy Tickle"
@@ -14,7 +17,7 @@ __status__ = "Development"
 import Command
 import json
 import os
-import ParentScript
+import PipelineRunner
 import unicodedata
 
 # Constants
@@ -45,7 +48,6 @@ class Struct:
   def __str__(self):
      """
      Returns a string with the internal items alphanumerically sorted by name.
- 
      * return: String representation of the internal dict, sorted
                alphanumerically by keys
              : String
@@ -115,7 +117,7 @@ class JSONManager(object):
                    : List
     * dict_args: The parsed arguments for the pipeline
                : Dictionary
-    * str_file: File to output the JSON string if given, either way the 
+    * str_file: File to output the JSON string if given, either way the
                 string is returned.
               : File path
     * returns: JSON representation of pipeline as a string
@@ -162,7 +164,7 @@ class JSONManager(object):
              : String
     """
 
-    str_output_dir_variable = "${" + ParentScript.C_STR_OUTPUT_DIR + "}"
+    str_output_dir_variable = "${" + Arguments.C_STR_OUTPUT_DIR + "}"
 
     # Simple JSON file for inputs
     lstr_json_input = []
@@ -222,10 +224,9 @@ class JSONManager(object):
       for str_arg in dict_original_arguments.keys():
           if "${" + str_arg + "}" in str_cur_cmd_wdl:
               lstr_cur_used_args.append(str_arg)
-      
 
       # Indicate if the command has either inputs or outputs
-      f_has_prod_dep = 0 < (len(cmd_cur.lstr_products) + 
+      f_has_prod_dep = 0 < (len(cmd_cur.lstr_products) +
                             len(cmd_cur.lstr_dependencies))
       lstr_workflow.append("  call " + cmd_cur.str_name + (" { input: " if f_has_prod_dep else ""))
 
@@ -255,7 +256,6 @@ class JSONManager(object):
 
       # Add arguments to task inputs
       lstr_task_inputs.extend(["    " + str_used_arg + "=" + str_used_arg for str_used_arg in lstr_cur_used_args])
-      
 
       lstr_workflow.append(",\n".join(lstr_task_inputs))
       if f_has_prod_dep:

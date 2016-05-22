@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 
 __author__ = "Timothy Tickle"
@@ -14,7 +17,7 @@ __status__ = "Development"
 import Commandline
 import os
 import ParentPipelineTester
-import ParentScript
+import PipelineRunner
 import Pipeline
 import time
 import unittest
@@ -24,32 +27,31 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
     End-to_end tests for the App. Starting at command line.
     """
 
-    str_script = os.path.join("sciedpiper","ExampleScript.py")
-    str_script_config = os.path.join("sciedpiper","ExampleConfig.py")
-    str_script_shuffled = os.path.join("sciedpiper","ExampleShuffledScript.py")
-    str_script_timestamp = os.path.join("sciedpiper","ExampleTimeStamp.py")
-    str_script_one_sample = os.path.join("sciedpiper","ExampleOneSample.py")
-    str_sample_one_file = os.path.join("sciedpiper","ExampleOneSample.sample.txt")
-    str_script_three_sample = os.path.join("sciedpiper","ExampleThreeSample.py")
-    str_sample_three_file = os.path.join("sciedpiper","ExampleThreeSample.sample.txt")
-    str_python = "/usr/bin/python2.7"
+    str_script = os.path.join("sciedpiper","test_scripts","ExampleScript.py")
+    str_script_config = os.path.join("sciedpiper","test_scripts","ExampleConfig.py")
+    str_script_shuffled = os.path.join("sciedpiper","test_scripts","ExampleShuffledScript.py")
+    str_script_timestamp = os.path.join("sciedpiper","test_scripts","ExampleTimeStamp.py")
+    str_script_one_sample = os.path.join("sciedpiper","test_scripts","ExampleOneSample.py")
+    str_sample_one_file = os.path.join("sciedpiper","test_scripts","ExampleOneSample.sample.txt")
+    str_script_three_sample = os.path.join("sciedpiper","test_scripts","ExampleThreeSample.py")
+    str_sample_three_file = os.path.join("sciedpiper","test_scripts","ExampleThreeSample.sample.txt")
+    #str_python = "/usr/bin/python2.7"
+    str_python = "python"
     str_log_file_name = "test.log"
- 
+
     def func_clean_up_example_script(self, str_output_dir):
         """
         Cleans up the directories and files made by the example script.
         """
-        
         dict_structure = self.func_get_example_script_dirs_files(str_output_dir)
         self.func_remove_files(dict_structure["files"])
         self.func_remove_dirs(dict_structure["directories"])
-        
+
     def func_get_example_script_dirs_files(self, str_output_dir):
         """
         Gets the standard files and dirs make by the ExampleScript.py.
         They are returned in an order which can be used for file / dir deletion.
         """
-
         str_dir_1 = os.path.join(str_output_dir, "dir1")
         str_dir_2 = os.path.join(str_output_dir, "dir2")
         str_dir_3 = os.path.join(str_output_dir, "dir3")
@@ -68,7 +70,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         str_file_7 = os.path.join(str_dir_3, "file7.txt")
         str_file_7_ok = os.path.join(str_dir_3, ".file7.txt.ok")
         str_job_log = os.path.join(str_output_dir,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         str_log = os.path.join(str_output_dir, self.str_log_file_name)
 
         return({"files": [str_file_1, str_file_2, str_file_3,
@@ -84,7 +86,6 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         when using a sample file.
         They are returned in an order which can be used for file / dir deletion.
         """
-
         # Dirs specific to the sample
         str_dir_sample = os.path.join(str_output_dir, str_sample_name)
         str_dir_1 = os.path.join(str_output_dir, str_sample_name, "dir1")
@@ -95,12 +96,13 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         str_dir_6 = os.path.join(str_dir_2, "dir6")
 
         # Generic Dirs
-        str_dir_log = os.path.join(str_output_dir, ParentScript.C_STR_LOG_DIR)
+        str_dir_log = os.path.join(str_output_dir, PipelineRunner.C_STR_LOG_DIR)
 
         # Files specific to the sample
         str_log = os.path.join(str_dir_log,
                                str_sample_name+".log")
-        str_sample_job_log = os.path.join(str_output_dir, str_sample_name, ParentScript.C_STR_JOB_LOGGER_NAME)
+        str_sample_job_log = os.path.join(str_output_dir, str_sample_name,
+                                          PipelineRunner.C_STR_JOB_LOGGER_NAME)
         str_sample_bash = os.path.join(str_output_dir, str_sample_name, str_bash_name)
         str_sample_log = os.path.join(str_output_dir, str_sample_name, str_sample_name+"_job.log")
         str_sample_err = os.path.join(str_output_dir, str_sample_name, str_sample_name+"_job.err")
@@ -118,7 +120,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
 
         # Generic files
         str_job_log = os.path.join(str_output_dir,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
 
         return({"sample_files": [str_file_1, str_file_2, str_file_3,
                           str_file_4, str_file_5, str_file_6, str_file_7,
@@ -153,8 +155,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         x_result = Commandline.Commandline().func_CMD(str_command)
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([os.path.exists(str_path) 
-                         for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([os.path.exists(str_path)
+                         for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
         # Destroy environment
@@ -180,6 +182,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 self.str_script_shuffled,
                                 "--example",
                                 "test_app_for_shuffled_cmds",
+                                "--graph_ordered_commands",
                                 "--log",
                                 os.path.join(str_env, self.str_log_file_name),
                                 "--out_dir",
@@ -188,7 +191,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
         f_success = sum([os.path.exists(str_path)
-                        for str_path in dict_env["files"] + dict_env["directories"]] 
+                        for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
         # Destroy environment
@@ -211,7 +214,6 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 self.str_script_shuffled,
                                 "--example",
                                 "test_app_for_shuffled_cmds",
-                                "--user_ordered_commands",
                                 "--log",
                                 os.path.join(str_env, self.str_log_file_name),
                                 "--out_dir",
@@ -220,7 +222,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
         f_success = sum([os.path.exists(str_path)
-                        for str_path in dict_env["files"] + dict_env["directories"]] 
+                        for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = (not f_success) and x_result
         # Destroy environment
@@ -269,13 +271,12 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 str_log_file,
                                 "--out_dir",
                                 str_env,
-                                "--clean",
-                                "--user_ordered_commands"])
+                                "--clean"])
         x_result = Commandline.Commandline().func_CMD(str_command)
 
         # Check test environment for results
         lstr_files_should_exist = [str_file_1, str_file_2_ok,
-                                   str_file_3_ok,  str_file_4, 
+                                   str_file_3_ok,  str_file_4,
                                    str_file_5, str_file_6_ok,
                                    str_file_7, str_file_7_ok,
                                    str_log_file]
@@ -324,6 +325,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "test_app_for_run_self_organize_clean_with_intermediary",
                                 "--log",
                                 str_log_file,
+                                "--graph_ordered_commands",
                                 "--out_dir",
                                 str_env,
                                 "--clean"])
@@ -331,7 +333,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
 
         # Check test environment for results
         lstr_files_should_exist = [str_file_1, str_file_2_ok,
-                                   str_file_3_ok,  str_file_4, 
+                                   str_file_3_ok,  str_file_4,
                                    str_file_5, str_file_6_ok,
                                    str_file_7, str_file_7_ok]
         lstr_files_should_not_exist = [str_file_2, str_file_3, str_file_6]
@@ -358,7 +360,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_json = os.path.join(str_env, "test.json")
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         self.func_make_dummy_dir(str_env)
         # Call Example script
         str_command = " ".join([self.str_python,
@@ -383,8 +385,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 os.path.join(str_dir_4, "file3.txt"),
                                 os.path.join(str_dir_3, "file6.txt"),
                                 os.path.join(str_dir_3, "file7.txt")]
-        f_success = sum([os.path.exists(str_path) 
-                          for str_path in lstr_files_exist] 
+        f_success = sum([os.path.exists(str_path)
+                          for str_path in lstr_files_exist]
                        ) == len(lstr_files_exist)
         f_success = f_success and (sum([os.path.exists(str_path)
                                         for str_path in lstr_files_not_exist]
@@ -426,7 +428,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dir(str_env)
         str_log = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         str_message = "should_not_show_up"
         # Call Example script
         str_command = " ".join([self.str_python,
@@ -440,8 +442,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         x_result = Commandline.Commandline().func_CMD(str_command)
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([os.path.exists(str_path) 
-                         for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([os.path.exists(str_path)
+                         for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
         for str_path in dict_env["files"]:
@@ -478,7 +480,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dir(str_env)
         str_log = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         str_message = "should_not_show_up"
         # Call Example script
         str_command = " ".join([self.str_python,
@@ -493,12 +495,13 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 str_env])
         x_result = Commandline.Commandline().func_CMD(str_command)
         # Check test environment for results
-        dict_env = self.func_get_sample_script_dirs_files(str_env, "sample_one", "ExampleOneSample.sh")
+        dict_env = self.func_get_sample_script_dirs_files(str_env, "sample_one",
+                                                          "ExampleOneSample.sh")
         lstr_check = dict_env["sample_files"] + dict_env["generic_files"]
         lstr_check.extend(dict_env["sample_directories"])
         lstr_check.extend(dict_env["generic_directories"])
-        f_success = sum([os.path.exists(str_path) 
-                         for str_path in lstr_check] 
+        f_success = sum([os.path.exists(str_path)
+                         for str_path in lstr_check]
                        ) == len(lstr_check)
         f_success = f_success and x_result
         for str_path in dict_env["sample_files"]:
@@ -532,7 +535,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dir(str_env)
         str_log = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         str_message = "should_not_show_up"
         # Call Example script
         str_command = " ".join([self.str_python,
@@ -554,8 +557,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
             lstr_check = dict_env["sample_files"] + dict_env["generic_files"]
             lstr_check.extend(dict_env["sample_directories"])
             lstr_check.extend(dict_env["generic_directories"])
-            f_success = sum([os.path.exists(str_path) 
-                             for str_path in lstr_check] 
+            f_success = sum([os.path.exists(str_path)
+                             for str_path in lstr_check]
                            ) == len(lstr_check)
             f_success = f_success and x_result
             for str_path in dict_env["sample_files"]:
@@ -586,7 +589,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                "test_app_for_time_stamp")
         str_log = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         self.func_make_dummy_dir(str_env)
         lstr_dirs = [os.path.join(str_env, "dir1"),
                      os.path.join(str_env, "dir2"),
@@ -624,8 +627,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         x_result = Commandline.Commandline().func_CMD(str_command)
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([os.path.exists(str_path) 
-                         for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([os.path.exists(str_path)
+                         for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
         for str_file_made in lstr_files:
@@ -652,7 +655,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                "test_app_for_timestamp_replace_files")
         str_log = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         str_file_3 = os.path.join(str_env, "dir1", "dir4", "file3.txt")
         str_file_3_ok = os.path.join(str_env, "dir1", "dir4", ".file3.txt.ok")
         str_file_7 = os.path.join(str_env, "dir3", "file7.txt")
@@ -684,9 +687,9 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_remove_files([str_file_3, str_file_3_ok])
         time.sleep(5)
         self.func_make_dummy_file(str_file_3,
-                                  "NEW") 
+                                  "NEW")
         self.func_make_dummy_file(str_file_3_ok,
-                                  "NEW") 
+                                  "NEW")
         # Call Example script
         str_command = " ".join([self.str_python,
                                 self.str_script_timestamp,
@@ -701,8 +704,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         x_result = Commandline.Commandline().func_CMD(str_command)
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([os.path.exists(str_path) 
-                         for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([os.path.exists(str_path)
+                         for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
         for str_file_made in lstr_files:
@@ -729,14 +732,12 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         """
         Test the scenario where the example script is ran with no compression.
         """
-
         # Create test environment
         str_env = os.path.join(self.str_test_directory, "test_app_for_run_with_no_compression")
         self.func_make_dummy_dir(str_env)
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
-        
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         # Call Example script
         str_compression = "none"
         str_command = " ".join([self.str_python,
@@ -750,26 +751,23 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "--compress",
                                 str_compression])
         x_result = Commandline.Commandline().func_CMD(str_command)
-        
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
 
         # Destroy environment
         self.func_clean_up_example_script(str_env)
         self.func_remove_dirs([str_env])
-        
         # Evaluate
         self.func_test_true(f_success)
- 
+
     def test_app_for_run_with_compression_archive(self):
         """
         Test the scenario where the example script is ran with compression, archive mode.
         """
-
         # Create test environment
         str_env = os.path.join(self.str_test_directory,
                                "test_app_for_run_with_compression_archive")
@@ -777,8 +775,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dir(str_env)
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
-        
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         # Call Example script
         str_compression = Pipeline.STR_COMPRESSION_ARCHIVE
         str_command = " ".join([self.str_python,
@@ -792,11 +789,11 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "--compress",
                                 str_compression])
         x_result = Commandline.Commandline().func_CMD(str_command)
-        
+
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([not os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([not os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and os.path.exists(str_archive)
         f_success = f_success and x_result
@@ -805,7 +802,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_clean_up_example_script(str_env)
         self.func_remove_files([str_archive])
         self.func_remove_dirs([str_env])
-        
+
         # Evaluate
         self.func_test_true(f_success)
 
@@ -813,7 +810,6 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         """
         Test the scenario where the example script is ran with compression, first level mode.
         """
-
         # Create test environment
         str_env = os.path.join(self.str_test_directory, "test_app_for_run_with_compression_first_level")
         str_archive_dir1 = os.path.join(str_env, "dir1" + ".tar.gz")
@@ -822,8 +818,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dir(str_env)
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
-        
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         # Call Example script
         str_compression = Pipeline.STR_COMPRESSION_FIRST_LEVEL_ONLY
         str_command = " ".join([self.str_python,
@@ -837,7 +832,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "--compress",
                                 str_compression])
         x_result = Commandline.Commandline().func_CMD(str_command)
-        
+
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
         lstr_should_not_exist = [os.path.join(str_env, "dir1"),
@@ -845,17 +840,17 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                  os.path.join(str_env, "dir3")]
         lstr_should_exist = [str_log_file + ".tar.gz",
                              str_job_log + ".tar.gz"]
-        f_success = sum([not os.path.exists(str_path) 
-                          for str_path in lstr_should_not_exist] 
+        f_success = sum([not os.path.exists(str_path)
+                          for str_path in lstr_should_not_exist]
                        ) == len(lstr_should_not_exist)
-        f_success = (sum([os.path.exists(str_path) 
-                          for str_path in lstr_should_exist] 
+        f_success = (sum([os.path.exists(str_path)
+                          for str_path in lstr_should_exist]
                        ) == len(lstr_should_exist))
         f_success = os.path.exists(str_archive_dir1)
         f_success = os.path.exists(str_archive_dir2)
         f_success = os.path.exists(str_archive_dir3)
         f_success = x_result
-        
+
         # Destroy environment
         self.func_clean_up_example_script(str_env)
         self.func_remove_files(str_archive_dir1)
@@ -864,7 +859,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_remove_files(str_log_file + ".tar.gz")
         self.func_remove_files(str_job_log + ".tar.gz")
         self.func_remove_dirs([str_env])
-        
+
         # Evaluate
         self.func_test_true(f_success)
 
@@ -898,7 +893,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dir(str_env)
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
 
         # Call Example script
         str_compression = Pipeline.STR_COMPRESSION_AS_YOU_GO
@@ -936,15 +931,13 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a move.
         """
-
         # Create test environment
         str_env = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_move")
         str_env_move = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_move_2")
         self.func_make_dummy_dirs([str_env, str_env_move])
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
-        
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         # Call Example script
         str_command = " ".join([self.str_python,
                                 self.str_script,
@@ -957,23 +950,22 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "--move",
                                 str_env_move])
         x_result = Commandline.Commandline().func_CMD(str_command)
-        
+
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([not os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([not os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
-                        
         dict_env = self.func_get_example_script_dirs_files(os.path.join(str_env_move, "test_app_for_run_with_archiving_move"))
-        f_success = f_success and sum([os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = f_success and sum([os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
 
         # Destroy environment
         self.func_clean_up_example_script(os.path.join(str_env_move, "test_app_for_run_with_archiving_move"))
         self.func_remove_dirs([str_env, str_env_move])
-        
+
         # Evaluate
         self.func_test_true(f_success)
 
@@ -981,7 +973,6 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to two locations.
         """
-
         # Create test environment
         str_env = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_copy")
         str_env_copy_2 = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_copy_2")
@@ -989,8 +980,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dirs([str_env, str_env_copy_2, str_env_copy_3])
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
-        
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
         # Call Example script
         str_command = " ".join([self.str_python,
                                 self.str_script,
@@ -1005,21 +995,19 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "--copy",
                                 str_env_copy_3])
         x_result = Commandline.Commandline().func_CMD(str_command)
-        
+
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
-                        
         dict_env = self.func_get_example_script_dirs_files(os.path.join(str_env_copy_2, "test_app_for_run_with_archiving_copy"))
-        f_success = f_success and sum([os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = f_success and sum([os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
-                        
         dict_env = self.func_get_example_script_dirs_files(os.path.join(str_env_copy_3, "test_app_for_run_with_archiving_copy"))
-        f_success = f_success and sum([os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = f_success and sum([os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
 
@@ -1028,7 +1016,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_clean_up_example_script(os.path.join(str_env_copy_2, "test_app_for_run_with_archiving_copy"))
         self.func_clean_up_example_script(os.path.join(str_env_copy_3, "test_app_for_run_with_archiving_copy"))
         self.func_remove_dirs([str_env_copy_2, str_env_copy_3, str_env])
-        
+
         # Evaluate
         self.func_test_true(f_success)
 
@@ -1037,7 +1025,6 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         Test the scenario where the example script is ran with archiving of the output directory using a copy to one location.
         The output directory is then moved to another.
         """
-
         # Create test environment
         str_env = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_copy_move")
         str_env_move = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_copy_move_move")
@@ -1045,8 +1032,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dirs([str_env, str_env_move, str_env_copy])
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
-        
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
+
         # Call Example script
         str_command = " ".join([self.str_python,
                                 self.str_script,
@@ -1061,21 +1048,19 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "--copy",
                                 str_env_copy])
         x_result = Commandline.Commandline().func_CMD(str_command)
-        
+
         # Check test environment for results
         dict_env = self.func_get_example_script_dirs_files(str_env)
-        f_success = sum([not os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = sum([not os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
-                        
         dict_env = self.func_get_example_script_dirs_files(os.path.join(str_env_move, "test_app_for_run_with_archiving_copy_move"))
-        f_success = f_success and sum([os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = f_success and sum([os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
-                        
         dict_env = self.func_get_example_script_dirs_files(os.path.join(str_env_copy, "test_app_for_run_with_archiving_copy_move"))
-        f_success = f_success and sum([os.path.exists(str_path) 
-                          for str_path in dict_env["files"] + dict_env["directories"]] 
+        f_success = f_success and sum([os.path.exists(str_path)
+                          for str_path in dict_env["files"] + dict_env["directories"]]
                        ) == len(dict_env["files"] + dict_env["directories"])
         f_success = f_success and x_result
 
@@ -1084,17 +1069,16 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_clean_up_example_script(os.path.join(str_env_move, "test_app_for_run_with_archiving_copy_move"))
         self.func_clean_up_example_script(os.path.join(str_env_copy, "test_app_for_run_with_archiving_copy_move"))
         self.func_remove_dirs([str_env, str_env_move, str_env_copy])
-        
+
         # Evaluate
         self.func_test_true(f_success)
-        
+
     def test_app_for_run_with_archiving_copy_move_compress(self):
         """
         Test the scenario where the example script is ran with archiving of the output directory using a copy to one location.
         The output directory is then moved to another. The output directory in this case is compressed into one archive
         before moving.
         """
-
         # Create test environment
         str_env = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_copy_move_compress")
         str_env_move = os.path.join(self.str_test_directory, "test_app_for_run_with_archiving_copy_move_compress_move")
@@ -1105,8 +1089,8 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         self.func_make_dummy_dirs([str_env, str_env_move, str_env_copy])
         str_log_file = os.path.join(str_env, self.str_log_file_name)
         str_job_log = os.path.join(str_env,
-                                   ParentScript.C_STR_JOB_LOGGER_NAME)
-        
+                                   PipelineRunner.C_STR_JOB_LOGGER_NAME)
+
         # Call Example script
         str_command = " ".join([self.str_python,
                                 self.str_script,
@@ -1123,7 +1107,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
                                 "--compress",
                                 Pipeline.STR_COMPRESSION_ARCHIVE])
         x_result = Commandline.Commandline().func_CMD(str_command)
-        
+
         # Check test environment for results
         f_success = not os.path.exists(str_env_archive)
         f_success = f_success and os.path.exists(str_env_move_archive)
@@ -1133,7 +1117,7 @@ class FunctionalTester(ParentPipelineTester.ParentPipelineTester):
         # Destroy environment
         self.func_remove_files([str_env_move_archive, str_env_copy_archive])
         self.func_remove_dirs([str_env, str_env_move, str_env_copy])
-        
+
         # Evaluate
         self.func_test_true(f_success)
 

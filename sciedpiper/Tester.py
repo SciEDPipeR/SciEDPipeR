@@ -21,7 +21,7 @@ import CompressionTester
 import ConfigManagerTester
 import DependencyGraphTester
 import DependencyTreeTester
-#import Dispatcher
+##import Dispatcher
 import FunctionalTester
 import GraphTester
 import JSONManagerTester

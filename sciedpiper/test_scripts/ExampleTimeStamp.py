@@ -2,7 +2,7 @@
 
 
 __author__ = "Timothy Tickle"
-__copyright__ = "Copyright 2014"
+__copyright__ = "Copyright 2016"
 __credits__ = [ "Timothy Tickle", "Brian Haas" ]
 __license__ = "MIT"
 __maintainer__ = "Timothy Tickle"
@@ -11,14 +11,15 @@ __status__ = "Development"
 
 #import inspect
 import os
-import sciedpiper.Command as Command
-import sciedpiper.ParentScript as ParentScript
+import Command
+import PipelineRunner
 
-class ExampleScript( ParentScript.ParentScript ):
+class ExampleScript( PipelineRunner.PipelineRunner ):
     """
     An example script to run as a test or use as an example.
     This script creates a small directory hierarchy and
     creates files in those directories. Output dir is given by arguments.
+    This exmaple has the commands not in order.
     
     output_dir - dir1 - dir4 - file2.txt
                              - file3.txt
@@ -54,8 +55,10 @@ class ExampleScript( ParentScript.ParentScript ):
         """
 
         arg_raw.prog = "ExampleScript.py"
-        arg_raw.description = "New Example Description."
-        arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )        
+        arg_raw.description = "Shuffled Example Script."
+        arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )
+        return(arg_raw)
+
 
     def func_make_commands( self, args_parsed, cur_pipeline ):
         """
@@ -68,13 +71,13 @@ class ExampleScript( ParentScript.ParentScript ):
         """
 
         # Make directories and check files that need to exist before beginning
-        str_dir_1 = os.path.join( args_parsed.str_file_base, "dir1" )
-        str_dir_2 = os.path.join( args_parsed.str_file_base, "dir2" )
-        str_dir_3 = os.path.join( args_parsed.str_file_base, "dir3" )
+        str_dir_1 = os.path.join( args_parsed.str_out_dir, "dir1" )
+        str_dir_2 = os.path.join( args_parsed.str_out_dir, "dir2" )
+        str_dir_3 = os.path.join( args_parsed.str_out_dir, "dir3" )
         str_dir_4 = os.path.join( str_dir_1, "dir4" )
         str_dir_5 = os.path.join( str_dir_1, "dir5" )
         str_dir_6 = os.path.join( str_dir_2, "dir6" )
-        cur_pipeline.func_mkdirs( [ args_parsed.str_file_base, str_dir_1, str_dir_2, str_dir_3, str_dir_4, str_dir_5, str_dir_6 ] )
+        cur_pipeline.func_mkdirs( [ args_parsed.str_out_dir, str_dir_1, str_dir_2, str_dir_3, str_dir_4, str_dir_5, str_dir_6 ] )
         
         #Make file names and input files
         str_file_1 = os.path.join( str_dir_1, "file1.txt" )
@@ -84,28 +87,31 @@ class ExampleScript( ParentScript.ParentScript ):
         str_file_5 = os.path.join( str_dir_3, "file5.txt" )
         str_file_6 = os.path.join( str_dir_3, "file6.txt" )
         str_file_7 = os.path.join( str_dir_3, "file7.txt" )
-        with open( str_file_1, "w" ) as hndl_file1:
-            hndl_file1.write( args_parsed.str_new_variable_to_play_with )
-        with open( str_file_4, "w" ) as hndl_file4:
-            hndl_file4.write( args_parsed.str_new_variable_to_play_with )
-        with open( str_file_5, "w" ) as hndl_file5:
-            hndl_file5.write( args_parsed.str_new_variable_to_play_with )
+        if not os.path.exists(str_file_1):
+            with open( str_file_1, "w" ) as hndl_file1:
+                hndl_file1.write( args_parsed.str_new_variable_to_play_with )
+        if not os.path.exists(str_file_4):
+            with open( str_file_4, "w" ) as hndl_file4:
+                hndl_file4.write( args_parsed.str_new_variable_to_play_with )
+        if not os.path.exists(str_file_5):
+            with open( str_file_5, "w" ) as hndl_file5:
+                hndl_file5.write( args_parsed.str_new_variable_to_play_with )
         
         # Make commands
         # Make other files given the dependency tree
-        lcmd_commands = []
-        lcmd_commands.extend( [ Command.Command( str_cur_command = "cat " + str_file_1 + " > " + str_file_2,
-                                               lstr_cur_dependencies = [ str_file_1 ], 
-                                               lstr_cur_products = [ str_file_2 ] ),
-                             Command.Command( str_cur_command = "cat " + str_file_2 + " > " + str_file_3,
-                                               lstr_cur_dependencies = [ str_file_2 ], 
-                                               lstr_cur_products = [ str_file_3 ] ),
-                             Command.Command( str_cur_command = "cat " + str_file_5 + " > " + str_file_6,
-                                               lstr_cur_dependencies = [ str_file_5 ], 
-                                               lstr_cur_products = [ str_file_6 ] ),
-                             Command.Command( str_cur_command = "cat " + str_file_3 + " > " + str_file_7,
-                                               lstr_cur_dependencies = [ str_file_3, str_file_6 ], 
-                                               lstr_cur_products = [ str_file_7 ] ) ] )
+        cmd_1 = Command.Command(str_cur_command = "cat " + str_file_1 + " > " + str_file_2,
+                                lstr_cur_dependencies = [str_file_1],
+                                lstr_cur_products = [str_file_2])
+        cmd_2 = Command.Command(str_cur_command = "cat " + str_file_2 + " > " + str_file_3,
+                                lstr_cur_dependencies = [str_file_2],
+                                lstr_cur_products = [str_file_3])
+        cmd_3 = Command.Command(str_cur_command = "cat " + str_file_5 + " > " + str_file_6,
+                                lstr_cur_dependencies = [str_file_5], 
+                                lstr_cur_products = [str_file_6])
+        cmd_4 = Command.Command(str_cur_command = "cat " + str_file_3 + " > " + str_file_7,
+                                lstr_cur_dependencies = [str_file_3, str_file_6], 
+                                lstr_cur_products = [str_file_7])
+        lcmd_commands = [cmd_4, cmd_2, cmd_1, cmd_3]
         return lcmd_commands
     
     

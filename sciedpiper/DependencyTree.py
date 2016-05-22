@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+import Command
+import DependencyGraph
+import logging
+import os
+import Resource
+import time
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
@@ -10,27 +19,16 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
-import Command
-import DependencyGraph
-import logging
-import os
-import Resource
-import time
-
 class DependencyTree:
     """
     This object manages dependencies tracking for command line.
 
     graph_commands is a graph that holds the commands and how they relate to each other.
-    
     dict_dependencies is a dictionary that holds dependencies and their related commands
     { string_dependency: [ str_command, str_command,...] }
-    
     lstr_products is a list of products added (helps determine currently terminal files).
-    
     lstr_terminal_products is a list of terminal products given current graph state.
     """
-    
     C_INT_DEPENDENCIES_INDEX = 0
     C_INT_PRODUCTS_INDEX = 1
 
@@ -39,13 +37,11 @@ class DependencyTree:
     def __init__( self, lcmd_inital_commands = None, logr_cur = None ):
         """
         Initializer
-        
         * lcmd_iniital_commands : List strings
                                 : List of commands to run
         * logr_cur : Logger
                    : A logger to use
         """
-        
         self.logr_logger = logging.getLogger(__name__) if not logr_cur else logr_cur
         """ Logger, uses the default logger. """
         self.graph_commands = DependencyGraph.DependencyGraph()
@@ -55,7 +51,7 @@ class DependencyTree:
         if lcmd_inital_commands:
             for cmd_cur in lcmd_inital_commands:
                 self.__func_add_command( cmd_cur )
- 
+
         self.li_waits_for_products = [ 5, 15, 40 ]
 
         self.__func_update_state_to_start()
@@ -66,7 +62,6 @@ class DependencyTree:
         """
         Calculate the products if needed and return
         """
-
         if self.__lstr_products is None:
             self.__lstr_products = [ cmd_cur for cmd_cur in self.graph_commands.func_get_products() ]
         return self.__lstr_products
@@ -87,11 +82,9 @@ class DependencyTree:
         """
         Calculate terminal products if needed and return.
         """
-        
         if self.__lstr_terminal_products is None:
             self.__lstr_terminal_products = [ cmd_cur for cmd_cur in self.graph_commands.func_get_terminal_products() ]
         return self.__lstr_terminal_products
-
 
     # Test
     def __func_update_state_to_start( self ):
@@ -99,7 +92,6 @@ class DependencyTree:
         Updates the internal state of the Dependency Tree and types of files being tracked
         ( eg. Input files, terminal products, intemediaries ) to the underlying graph.
         """
-
         self.lstr_products = self.graph_commands.func_get_products()
         """ History of products added to the pipeline. """
         self.dict_dependencies = self.graph_commands.func_get_dependencies()
@@ -108,21 +100,19 @@ class DependencyTree:
         """ A list of input files. """
         self.__lstr_terminal_products = self.graph_commands.func_get_terminal_vertices()
         """ A list of terminal products for the pipeline ( should never be deleted ). """
-        
+
     # Used in tests
     @property
     def lstr_inputs( self ):
         """
         Calculate input files.
         """
-        
         if self.__lstr_inputs is None:
             # Remake inputs
             self.__lstr_inputs = [ cmd_cur for cmd_cur in self.graph_commands.func_get_input_files() ]
         return self.__lstr_inputs
-        
- 
-    # Tested 
+
+    # Tested
     def __func_add_command( self, cmd_cur ):
         """
         Adds a command and outputs to the dependency tree.
@@ -131,14 +121,11 @@ class DependencyTree:
         DO NOT add during processing through the Tree, add all commands before starting.
         It is best to give commands through the init in a list, adding is taken care of
         automatically in this manner before the Tree is traversed.
-        
         * cmd_cur : Command
                     Command to add to the dependency tree.
-                    
         * Return : Boolean
                    True indicates the command was successfully added.
         """
-        
         # Only allow complete commands with product, dependencies, and commands to be handled.
         if cmd_cur and cmd_cur.func_is_valid():
             # Holds resource clean levels not default
@@ -177,8 +164,8 @@ class DependencyTree:
             # Make sure the resource clean levels are preserved.
             for str_resource_id, i_set_clean in dict_clean_levels.items():
                 self.graph_commands.func_get_vertex(str_resource_id).i_clean = i_set_clean
- 
-            # Indicate the terminal, dependencies, and products need to be recalculated 
+
+            # Indicate the terminal, dependencies, and products need to be recalculated
             self.__lstr_terminal_products = None
             self.__dict_dependencies = None
             self.__lstr_products = None
@@ -188,7 +175,6 @@ class DependencyTree:
             return True
         return False
 
-
     # Tested
     def func_complete_command( self, cmd_cur, f_wait = None, f_test = False ):
         """
@@ -196,19 +182,15 @@ class DependencyTree:
         retains that the command is completed. This helps resolve if dependencies are not longer
         needed to make targets. If a directory is a product, the directory must not be empty
         or it is not considered a completed command.
-        
         * cmd_cur : Command
                     The command which will have products checked for existence
-                                 
         * f_test : Boolean
                    Enables a testing mode. False indicates only logging occurs
-        
         * Return  : Boolean
                     True indicates the command was completed.
-                    This means dependency relationships are removed for the 
+                    This means dependency relationships are removed for the
                     completed command.
         """
-
         # If both products and dependencies exist
         # Remove the dependency relationships for the command
         self.logr_logger.debug( "DependencyTree.func_complete_command: Checking products" )
@@ -233,7 +215,7 @@ class DependencyTree:
             # Update the products
             for rsc_prod in cmd_cur.func_get_children():
                 rsc_prod.str_status = Resource.STR_MADE
-            cmd_cur.str_status = Command.STR_COMPLETE 
+            cmd_cur.str_status = Command.STR_COMPLETE
             return True
 
         # Return false indicating the command state was invalid for completing.
@@ -244,32 +226,26 @@ class DependencyTree:
         cmd_cur.str_status = Command.STR_ERROR
         return False
 
-
     # Tested
     def func_get_commands( self ):
         """
         Returns a breadthwise iterator of the internal commands.
         """
-
         return self.graph_commands.func_get_commands()
-
 
     # Tested
     def func_remove_dependency_relationships( self, cmd_cur):
         """
         Indicates that the dependencies for the command no longer need to be built.
-        
         * cmd_cur : Command
                     Command containing dependencies to indicate they are not needed.
-                    
         * Return : Boolean
                    True indicates all dependencies were indicates to be stale and not needed
         """
-
         # Return false on where there are no dependencies
         if not len( self.dict_dependencies ):
             return False
-        
+
         if cmd_cur.func_is_valid():
             # For every dependency
             # Remove the command from the dependency as an association
@@ -298,31 +274,25 @@ class DependencyTree:
 
     # Tested
     def func_dependencies_are_made( self, cmd_cur ):
-        """ 
+        """
         Check to make sure each dependency exists. These dependencies are expected to be files.
-        
         * cmd_cur : Command
                     Command to check that it's dependencies exist.
-                    
         * Return : Boolean
                    True indicates all dependencies exist.
         """
-
         return self.func_paths_made( cmd_cur.lstr_dependencies )
 
 
-    # Tested 
+    # Tested
     def func_dependency_is_needed( self, cmd_dependency ):
         """
         Checks to see if a dependency is needed to create a product.
-        
         * str_dependency : String
                            Path to dependency to be checked.
-                           
         * Return : Boolean
                    True indicates the dependency is still needed for other commands.
         """
-
         str_dependency = cmd_dependency.str_id
         if str_dependency:
             # Return if the length of the commands associated with the dependency is greater than 1
@@ -339,39 +309,32 @@ class DependencyTree:
                     return True
         return False
 
-
     # Tested
     def func_is_used_intermediate_file( self, rsc_check ):
         """
         Returns if a file is an intermediate file that has already been used
         and is no longer needed.
-        
         * rsc_check : Resource
                    : Resource to check
-                   
         * Return : Boolean
                  : True indicates is an intermediate file that is used.
         """
-
         f_is_product = rsc_check in self.lstr_products
         f_is_terminal = self.func_product_is_terminal( rsc_check )
         f_is_needed = self.func_dependency_is_needed( rsc_check )
         if( f_is_product and ( not f_is_terminal ) and ( not f_is_needed ) ):
             return True
         return False
-        
+
     # Used in testing
     def func_paths_made( self, lstr_files ):
         """
         Check to see if paths are made, could be a folder or a file.
-        
         * lstr_Files : List of strings
                        Paths to files/folders to check and see if they exist.
-                       
         * Return : Boolean
                    True indicates they all exist.
         """
-
         if lstr_files:
             self.logr_logger.info(" ".join( [ "DependencyTree.func_paths_made: Currently at ", os.getcwd() ] ) )
             for rsc_file in lstr_files:
@@ -389,9 +352,8 @@ class DependencyTree:
             self.logr_logger.info( "DependencyTree.func_paths_made: Files were made." )
             return True
         # Return false for bad file names
-        return False 
-    
-    
+        return False
+
     # Tested
     def func_products_are_made( self, cmd_cur, f_wait = True ):
         """
@@ -399,14 +361,11 @@ class DependencyTree:
         This assumes a product may just have been made and could be subject to lag.
         A wait is incorporated into the check, by default 3 attempts occur at progressively
         more wait.
-        
         * cmd_cur : Command
                     Command to check that it's products exist.
-                    
         * Return : Boolean
                    True indicates all products exist.
         """
-
         # Try a tiered approach to checking for products
         # Sometimes products are made but there is a lag on the server / cluster
         # Check and then on failure try in 5 seconds, 15 seconds and 40 seconds then fail.
@@ -416,66 +375,52 @@ class DependencyTree:
             time.sleep( i_wait_in_seconds )
         return False
 
-
     # Tested
     def func_product_is_terminal( self, str_product ):
         """
         Returns if the product is terminal in the commands.
         Terminal here means no command uses the product as a dependency.
-        
         * str_product : String
                         Path to file to check if it is terminal in the dependency tree.
-                        
         * Return : Boolean
                    True indicates that the product is terminal.
         """
-        
         # Handle the case where the dependencies are empty
         return str_product in self.lstr_terminal_products
-    
 
     # Tested
     def func_remove_wait( self ):
         """
         Turn off the wait for looking for products.
         """
-        
         self.li_waits_for_products = [0]
 
-
-    # Tested 
+    # Tested
     def func_show_active_dependencies( self ):
         """
         Show the dependencies that are still active.
-        
         * Return : String
                    A list of dependencies still needed in the pipeline.
         """
-        
-        return ", ".join( sorted( self.dict_dependencies.keys() ) )            
-
+        return ", ".join( sorted( self.dict_dependencies.keys() ) )
 
     # Tested
     def func_get_clean_level( self, str_path ):
-        return self.graph_commands.func_get_vertex( str_path ).i_clean  
-
+        return self.graph_commands.func_get_vertex( str_path ).i_clean
 
     def __str__( self ):
         return "Graph{" + str( len( self.graph_commands ) ) + "}"
-
 
     # Used in testing
     def func_detail( self ):
         """
         String representation of the internal state of the object.
-        
         * Return : String
-                   String representation of the relationship between the 
-                   commands and products/dependents
+                   String representation of the relationship between the
+                   commands and products/dependencies
         """
-       
         return "\n".join([ "Graph{ " + self.graph_commands.func_detail() + "}", 
-                           "Products{ " + str( sorted( [ rsc_product.str_id for rsc_product in self.lstr_products if rsc_product ] ) ) + "}", 
-                           "Dependencies{ " + str( sorted( [ str_dep for str_dep in self.dict_dependencies ] ) ) + "}", 
-                           "Inputs{ " + str( sorted( [ rsc_in.str_id for rsc_in in self.lstr_inputs if rsc_in ] ) ) + "}", 
+                           "Products{ " + str( sorted( [ rsc_product.str_id for rsc_product in self.lstr_products if rsc_product ] ) ) + "}",
+                           "Dependencies{ " + str( sorted( [ str_dep for str_dep in self.dict_dependencies ] ) ) + "}",
+                           "Inputs{ " + str( sorted( [ rsc_in.str_id for rsc_in in self.lstr_inputs if rsc_in ] ) ) + "}",
                            "Terminal_Products{ " + str(sorted([ vtx_product.str_id for vtx_product in self.lstr_terminal_products if vtx_product ])) + "}"] )

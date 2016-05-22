@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2016"
@@ -13,7 +16,7 @@ __status__ = "Development"
 import Arguments
 import sys
 import os
-import ParentScript
+import PipelineRunner
 
 # Methods for dispatching jobs
 C_STR_LOCAL = "local"
@@ -44,28 +47,26 @@ class Runner:
     # TODO Test
     def func_build_arguments(self, args_name_space, dict_args_info):
         """
-        Builds a lit of all the command arguments and values.
+        Builds a list of all the command arguments and values.
         Adds an indicator not to read the config file so that it
         does not happen again (already happened).
         Returns a list of strings that are the arguments an values in order.
         """
 
         lstr_script = []
-
         # Make dict to translate dest to flag
         dict_dest_to_flag = {}
         for str_info_key in dict_args_info:
             if not str_info_key == Arguments.C_STR_POSITIONAL_ARGUMENTS:
                 dict_dest_to_flag[dict_args_info[str_info_key][Arguments.C_STR_VARIABLE_NAME]] = str_info_key
-
         for str_arg_dest, str_arg_value in vars(args_name_space).items():
-            if not str_arg_dest in dict_args_info[Arguments.C_STR_POSITIONAL_ARGUMENTS][Arguments.C_STR_VARIABLE_NAME] + [ParentScript.C_STR_JOB_SYSTEM_DEST ]:
+            if not str_arg_dest in dict_args_info[Arguments.C_STR_POSITIONAL_ARGUMENTS][Arguments.C_STR_VARIABLE_NAME] + [PipelineRunner.C_STR_JOB_SYSTEM_DEST ]:
                 # If the value is boolean
                 # Check the action if it is action_true or action_false
-                # If it is then use the correct flag presence depending 
+                # If it is then use the correct flag presence depending
                 # on the value and the action.
                 cur_str_flag = dict_dest_to_flag[str_arg_dest]
-                if (isinstance(str_arg_value, bool)): 
+                if (isinstance(str_arg_value, bool)):
                     # Handle special cases help
                     if cur_str_flag in ["-h", "--help"]:
                         if str_arg_value:
@@ -79,8 +80,8 @@ class Runner:
         # Add flags and positional arguments
         # Add in no config pipeline otherwise the config file is read again
         # and this, Both cases make code execute again making an inf loop.
-        if not ParentScript.C_STR_NO_PIPELINE_CONFIG_ARG in lstr_script:
-            lstr_script.append(ParentScript.C_STR_NO_PIPELINE_CONFIG_ARG)
+        if not Arguments.C_STR_NO_PIPELINE_CONFIG_ARG in lstr_script:
+            lstr_script.append(Arguments.C_STR_NO_PIPELINE_CONFIG_ARG)
 
         # Add positional arguments
         lstr_script.extend(dict_args_info[Arguments.C_STR_POSITIONAL_ARGUMENTS][Arguments.C_STR_VARIABLE_NAME])
@@ -141,12 +142,12 @@ class LocalRunner(Runner):
     def func_make_run_script(self,
                              str_full_script_name,
                              str_full_pipeline_script,
-                             args_name_space,                             
-                             dict_args_info,                              
-                             str_additional_env_path,                     
-                             str_additional_python_path,                  
-                             str_precommands,                             
-                             str_postcommands,                            
+                             args_name_space,
+                             dict_args_info,
+                             str_additional_env_path,
+                             str_additional_python_path,
+                             str_precommands,
+                             str_postcommands,
                              str_sample_name):
 
         # Start script name with arguments
@@ -155,9 +156,9 @@ class LocalRunner(Runner):
         lstr_script_call.extend(self.func_build_arguments(args_name_space,
                                                           dict_args_info))
         # Make output and error files
-        self.str_log_file = os.path.join(args_name_space.str_file_base, 
+        self.str_log_file = os.path.join(args_name_space.str_out_dir,
                                          str_sample_name + "_job.log")
-        self.str_error_file = os.path.join(args_name_space.str_file_base,
+        self.str_error_file = os.path.join(args_name_space.str_out_dir,
                                            str_sample_name + "_job.err")
         # Make / write script body
         lstr_script_call = [str_token.strip() if str_token.strip() != "" else '" "' for str_token in lstr_script_call]
@@ -170,15 +171,15 @@ class LocalRunner(Runner):
                        "",
                        str_precommands,
                        "",
-                       str_script_call, 
+                       str_script_call,
                        "",
                        str_postcommands]
         # Write to file that is later called on command line
         with open(str_full_script_name, "w") as hndl_write_script:
-            hndl_write_script.write("\n".join(lstr_script)) 
+            hndl_write_script.write("\n".join(lstr_script))
         # Make file executable
         os.chmod(str_full_script_name, 0774)
-        # Return the script file name to call. 
+        # Return the script file name to call.
         return(str_full_script_name)
 
     def func_check_run(self):
@@ -214,7 +215,7 @@ class QSUBRunner(Runner):
 
 
     # TODO Test
-    def func_make_run_script(self, 
+    def func_make_run_script(self,
                              str_full_script_name,
                              args_name_space,
                              dict_args_info,
@@ -239,20 +240,12 @@ class QSUBRunner(Runner):
         lstr_script_call = [self.func_update_command(str_full_script_name,
                                                      args_name_space)]
         lstr_script_call.extend(self.func_build_arguments(args_name_space,
-                                                         
-                                                         
-                                                         
-                                                         
-                                                         
-                                                         
-                                                         
-                                                         
                                                           dict_args_info))
 
         # Make output and error files
-        self.str_log_file = os.path.join(args_name_space.str_file_base, 
+        self.str_log_file = os.path.join(args_name_space.str_out_dir,
                                          str_sample_name + "_job.log")
-        self.str_error_file = os.path.join(args_name_space.str_file_base,
+        self.str_error_file = os.path.join(args_name_space.str_out_dir,
                                            str_sample_name + "_job.err")
 
         # Make / write script body
@@ -273,12 +266,12 @@ class QSUBRunner(Runner):
 
         # Write to file that is later called on command line
         with open(str_full_script_name, "w") as hndl_write_script:
-            hndl_write_script.write("\n".join(lstr_script)) 
+            hndl_write_script.write("\n".join(lstr_script))
 
         # Make file executable
         os.chmod(str_full_script_name, 0774)
 
-        # Return the script file name to call. 
+        # Return the script file name to call.
         return(str_full_script_name)
 
 

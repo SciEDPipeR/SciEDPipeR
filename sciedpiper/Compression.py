@@ -52,7 +52,7 @@ class Compression:
         Initializer
         """
 
-        self.logr_logger = logging.getLogger(__name__) if not logr_cur else logr_cur
+        self.logr_logger = logr_cur if logr_cur else logging.getLogger(__name__)
         """ Logger, uses the default logger. """
 
         self.dict_magic_number = {b"\x1f\x8b\x08": STR_COMPRESSION_GZ,
@@ -215,6 +215,7 @@ class Compression:
                 lstr_compress_files = [os.path.join(str_file_path, str_file_to_compress)
                                        for str_file_to_compress in os.listdir(str_file_path)]
                 str_compressed_dir_name = str_file_path
+
             for str_cur_compress_file in lstr_compress_files:
                 hndl_compressed_dir = tarfile.open(str_cur_compress_file + ".tar." + str_compression_type, str_compression_open_mode)
                 hndl_compressed_dir.add(str_cur_compress_file, arcname=os.path.basename(str_cur_compress_file))
@@ -235,7 +236,7 @@ class Compression:
                             os.remove(str_cur_compress_file)
                     else:
                         if not f_test:
-                            shutil.rmtree(str_cur_compress_file)
+                            shutil.rmtree(str_cur_compress_file, ignore_errors=True)
             else:
                 return None
             return str_compressed_dir_name
@@ -294,9 +295,6 @@ class Compression:
         with open(str_file_path, "rb") as hndl_unknown:
             str_file_start = hndl_unknown.read(self.i_max_length)
             for str_magic_number in self.dict_magic_number:
-                print("********")
-                print(str_file_start)
-                print(str_magic_number)
                 if str_file_start.startswith(str_magic_number):
                     self.logr_logger.info("func_is_compressed: Compressed")
                     return True

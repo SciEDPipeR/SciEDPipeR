@@ -11,10 +11,10 @@ __status__ = "Development"
 
 #import inspect
 import os
-import sciedpiper.Command as Command
-import sciedpiper.ParentScript as ParentScript
+import Command
+import PipelineRunner
 
-class ExampleScript( ParentScript.ParentScript ):
+class ExampleScript( PipelineRunner.PipelineRunner ):
     """
     An example script to run as a test or use as an example.
     This script creates a small directory hierarchy and
@@ -56,7 +56,8 @@ class ExampleScript( ParentScript.ParentScript ):
 
         arg_raw.prog = "ExampleScript.py"
         arg_raw.description = "Shuffled Example Script."
-        arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )        
+        arg_raw.add_argument("-z","--example", dest = "str_new_variable_to_play_with", default = "Hello", help = "An example help text." )
+        return(arg_raw)
 
 
     def func_make_commands( self, args_parsed, cur_pipeline ):
@@ -70,13 +71,13 @@ class ExampleScript( ParentScript.ParentScript ):
         """
 
         # Make directories and check files that need to exist before beginning
-        str_dir_1 = os.path.join( args_parsed.str_file_base, "dir1" )
-        str_dir_2 = os.path.join( args_parsed.str_file_base, "dir2" )
-        str_dir_3 = os.path.join( args_parsed.str_file_base, "dir3" )
+        str_dir_1 = os.path.join( args_parsed.str_out_dir, "dir1" )
+        str_dir_2 = os.path.join( args_parsed.str_out_dir, "dir2" )
+        str_dir_3 = os.path.join( args_parsed.str_out_dir, "dir3" )
         str_dir_4 = os.path.join( str_dir_1, "dir4" )
         str_dir_5 = os.path.join( str_dir_1, "dir5" )
         str_dir_6 = os.path.join( str_dir_2, "dir6" )
-        cur_pipeline.func_mkdirs( [ args_parsed.str_file_base, str_dir_1, str_dir_2, str_dir_3, str_dir_4, str_dir_5, str_dir_6 ] )
+        cur_pipeline.func_mkdirs( [ args_parsed.str_out_dir, str_dir_1, str_dir_2, str_dir_3, str_dir_4, str_dir_5, str_dir_6 ] )
         
         #Make file names and input files
         str_file_1 = os.path.join( str_dir_1, "file1.txt" )

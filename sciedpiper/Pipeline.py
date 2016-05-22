@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 
 __author__ = "Timothy Tickle"
@@ -246,26 +248,6 @@ class Pipeline:
                 else:
                     self.logr_logger.error( "Pipeline.func_copy_move: Did not move output.")
                     return False
-
-    # Tested 2
-    def func_do_bsub( self, str_memory = 8, str_queue = "" ):
-        """
-        Makes each command a bsub command.
-        The commands will not run at once but will run one after the other using bsub.
-
-        * str_memory : String
-                       The max amount of memory a task will use, this ammount will be requested
-
-        * str_queue : String
-                      Which queue to run in.
-        """
-        self.logr_logger.debug( "Pipeline.func_do_bsub: BSUBing files")
-        lstr_bsub_logging = [] if not self.str_log_file else [ "-o ", os.path.splitext( self.str_log_file )[0], ".out ",
-                                                              " -e ", os.path.splitext( self.str_log_file )[0], ".err " ]
-        self.str_prefix_command = "".join( [ "bsub -N " ] +
-                                           lstr_bsub_logging +
-                                           [ "-q ", str_queue, " -K -R \"rusage[mem=", str( str_memory ), "]\" " ] )
-
 
     # Tested
     def func_do_special_command( self, cmd_cur, f_test = False ):
@@ -616,7 +598,7 @@ class Pipeline:
                 # This section is if the time stamp checking is on
                 # Check the time stamps of all parents/dependencies of the current resource
                 # Any issue will cause this command to be reran / invalidating the resource for rerun.
-                if((not i_fuzzy_time is None) or (i_fuzzy_time >= 0)):
+                if((not i_fuzzy_time is None) and (i_fuzzy_time >= 0)):
                     i_parent_time_stamp = self.func_get_file_time_stamp( rsc_parent_dep.str_id )
                     if ( i_parent_time_stamp - i_fuzzy_time ) > i_target_product_time_stamp:
                         self.logr_logger.error( " ".join( [ "Pipeline.func_paths_are_from_valid_run: Parent dependency was older than the target product.",
@@ -678,7 +660,7 @@ class Pipeline:
         lstr_paths_to_remove = cmd_command.lstr_products if f_remove_products else cmd_command.func_get_dependencies_to_clean_level( Resource.CLEAN_NEVER )
         lstr_paths_to_remove = [ rsc_remove.str_id for rsc_remove in lstr_paths_to_remove ]
         # Remove any input file
-        lstr_paths_to_remove = list( set( lstr_paths_to_remove ) - set( dt_dependency_tree.lstr_inputs ) )
+        lstr_paths_to_remove = list( set( lstr_paths_to_remove ) - set( [rsc_file.str_id for rsc_file in dt_dependency_tree.lstr_inputs] ) )
 
         # If testing, indicate what files would be deleted and return
         if f_test:
@@ -725,7 +707,6 @@ class Pipeline:
                     if not dt_dependency_tree.func_is_used_intermediate_file( cur_vertex ):
                         self.logr_logger.info( " ".join( [ "Pipeline.func_remove_paths: Not removing the following path, it is still needed.", str_path ] ) )
                         continue
-
             else:
                 # Remove ok file first to invalidate
                 str_ok = self.func_get_ok_file_path( str_path = str_path )
@@ -790,13 +771,10 @@ class Pipeline:
         f_success = True
 
         # Manages compression in this run
-        cur_compression = Compression.Compression() if str_compression_mode else None
+        cur_compression = Compression.Compression(logr_cur=self.logr_logger) if str_compression_mode else None
 
         # Log the beginning of the pipeline
         self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting pipeline", self.str_name ] ) )
-
-        # Holds dot info if requested
-        lstr_dot = [ "digraph " + self.str_name + " {" ]
 
         # Make sure the output directory is an absolute path
         # Need to work with absolute files so that it can be
@@ -826,6 +804,18 @@ class Pipeline:
                                                           args_pipe = args_original )
             return(True)
 
+        # Make dot file
+        if str_dot_file:
+            self.logr_logger.info(" ".join(["Pipeline.func_run_commands: Not running pipeline. Writing dot to file:", str_dot_file]))
+            lstr_dot = []
+            for cmd_command in lcmd_commands:
+                lstr_dot.extend(cmd_command.func_get_dot_connections())
+            lstr_dot = sorted(list(set(lstr_dot)))
+            lstr_dot = ["digraph " + self.str_name + " {"] + lstr_dot + [ "}" ]
+            with open( str_dot_file, "w" ) as hndl_dot:
+                hndl_dot.write( "\n".join( lstr_dot ) )
+            return(True)
+
         # Manage the wait for checking for products
         # Set the wait for checking for products
         if not li_wait is None:
@@ -845,10 +835,7 @@ class Pipeline:
             lcmd_commands = dt_dependencies.func_get_commands()
         for cmd_command in lcmd_commands:
             # Log the start
-            self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
-            # If requested make / add to dot file
-            if str_dot_file:
-                lstr_dot.extend( cmd_command.func_get_dot_connections() )
+            self.logr_logger.info( " ".join( [ "\n\nPipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
 
             # Do not execute if the products are already made.
             # We do want to clean up if they ask for it.
@@ -873,15 +860,15 @@ class Pipeline:
                 # and that things missing were cleaned.
                 if str_compression_mode and str_compression_mode.lower() == STR_COMPRESSION_AS_YOU_GO.lower():
                     # Record products made, they may have been cleaned so check that they exist
-                    for str_product in cmd_command.lstr_products:
-                        if os.path.exists( str_product ):
-                            sstr_made_dependencies_to_compress.add( str_product )
+                    for rsc_product in cmd_command.lstr_products:
+                        if os.path.exists( rsc_product.str_id ):
+                            sstr_made_dependencies_to_compress.add( rsc_product )
                     # Optionally compress paths if the system is done with the path
                     sstr_removed = set()
                     for str_product_compress in sstr_made_dependencies_to_compress:
                         if not dt_dependencies.func_dependency_is_needed( str_product_compress ):
-                            self.logr_logger.info( "Pipeline.func_run_commands: Compressing " + str_product_compress )
-                            str_compression_success = cur_compression.func_compress( str_file_path=str_product_compress,
+                            self.logr_logger.info( "Pipeline.func_run_commands: Compressing " + str_product_compress.str_id )
+                            str_compression_success = cur_compression.func_compress( str_file_path=str_product_compress.str_id,
                                                            str_output_directory = str_output_dir,
                                                            str_compression_type=str_compression_type,
                                                            str_compression_mode=STR_COMPRESSION_ARCHIVE.lower(),
@@ -960,13 +947,6 @@ class Pipeline:
             # Indicate failure
             if ( not f_success ) and self.f_execute:
                 self.logr_logger.error( "Pipeline.func_run_commands: The last command was not successful. Pipeline run failed." )
-
-        # Complete the dot file and write
-        if str_dot_file:
-            lstr_dot = sorted(list(Set(lstr_dot)))
-            lstr_dot = ["digraph " + self.str_name + " {"] + lstr_dot + [ "}" ]
-            with open( str_dot_file, "w" ) as hndl_dot:
-                hndl_dot.write( "\n".join( lstr_dot ) )
 
         # Log successful completion
         if f_success:

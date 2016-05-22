@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 
 __author__ = "Timothy Tickle"
@@ -33,11 +36,6 @@ C_STR_JOB_DIR = "jobs"
 C_STR_JOB_LOGGER_NAME = "JobRunner.log"
 C_STR_JOB_SYSTEM_DEST = "str_job_system"
 C_STR_LOG_DIR = "logs"
-C_STR_OUTPUT_DIR = "str_file_base"
-C_STR_NO_PIPELINE_CONFIG_ARG = "--no_pipeline_config"
-C_STR_PIPELINE_CONFIG_FILE_ARG = "--pipeline_config_file"
-C_STR_SAMPLE_FILE_ARG = "--sample_file"
-C_STR_SAMPLE_FILE_DEST = "str_sample_file"
 C_STR_SCRIPT_LOG = "str_log_file"
 
 # Keys for alignment return (dicts)
@@ -45,16 +43,7 @@ INDEX_CMD = "cmd"
 INDEX_FILE = "out_file"
 INDEX_FOLDER = "align_folder"
 
-
-# Locked arguments (can not be updated by the pipeline config file.
-# Make sure to include all flags and move argparse to the correct group.
-C_LSTR_LOCKED_ARGS = ["-o",
-                      "--out_dir",
-                      C_STR_SAMPLE_FILE_ARG,
-                      "--concurrent_jobs"]
-
-
-class ParentScript:
+class PipelineRunner:
 
     def __init__(self):
 
@@ -80,6 +69,9 @@ class ParentScript:
         # Set in func_parse_jobs()
         self.str_possible_config_file = None
         self.llstr_sample_data = self.func_parse_jobs()
+
+        # Check version
+        self.version = None
 
         # If a resource config file is given,
         # the pipeline config file must be given
@@ -124,7 +116,7 @@ class ParentScript:
                 : String (file path)
         """
 
-        return os.path.splitext(os.path.basename(str_file))[0] 
+        return os.path.splitext(os.path.basename(str_file))[0]
 
     # TODO Test
     def func_update_file_location(self, str_file, str_new_dir):
@@ -142,7 +134,7 @@ class ParentScript:
                 : String (file path)
         """
 
-        return os.path.join(str_new_dir, os.path.basename(str_file)) 
+        return os.path.join(str_new_dir, os.path.basename(str_file))
 
     # TODO Test
     def func_switch_ext(self, str_file, str_ext):
@@ -157,37 +149,29 @@ class ParentScript:
         * return : Updated path for the file using a new extension.
                  : String (file path)
         """
-
-        return os.path.splitext(str_file)[0] + "." + str_ext
+        if(not str_file) or (not str_ext):
+            return str_file
+        if not (str_ext[0] in ["_", "."]):
+            str_ext = "." + str_ext
+        return os.path.splitext(str_file)[0] + str_ext
 
     # TODO Test
-    def func_create_arguments(self):
+    def func_create_arguments(self, prsr_arguments, f_suppress=True):
         """
-        Create arguments.
+        Creates arguements for pipeline and adds to current argparser.
+        * prsr_arguments : Parser to update.
         * return : Standard set of arguments
                : Argument Parser
         """
-
-        prsr_arguments = argparse.ArgumentParser(
-            prog="custom.py",
-            description="Custom Script",
-            conflict_handler="resolve",
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
         # Built-in functionality
-        grp_builtin = prsr_arguments.add_argument_group("Builtins",
-            "Functionality builtin with the SciEDPipeR engine.")
+        str_builtin_name = "Builtins " + Arguments.C_STR_SCIEDPIPER_ARG_GROUP
+        str_builtin_desc = "".join(["Functionality builtin with the job ",
+                                    "runner engine",
+                                    Arguments.C_STR_SCIEDPIPER_ARG_GROUP])
+        grp_builtin = prsr_arguments.add_argument_group(str_builtin_name,
+                                                        str_builtin_desc)
 
-        grp_builtin.add_argument("-b",
-                                 "--bsub_queue",
-                                 metavar="BSUB_Queue",
-                                 dest="str_bsub_queue",
-                                 default=None,
-                                 help="".join(["If given, each command will ",
-                                               "sequentially be ran on this ",
-                                               "queue with bsub."]))
-        grp_builtin.add_argument("-c",
-                                 "--clean",
+        grp_builtin.add_argument("--clean",
                                  dest="f_clean",
                                  default=False,
                                  action="store_true",
@@ -205,18 +189,15 @@ class ParentScript:
                                                " must be specified; can be ",
                                                "used more than once for ",
                                                "multiple copy locations."]))
-
-        prsr_arguments.add_argument("--dot_file",
-                                    metavar="Dot_file",
-                                    dest="str_dot_path",
-                                    default=None,
-                                    help="".join(["When provided a dot file ",
-                                                  "of the underlying graph ",
-                                                  "will be written to this ",
-                                                  "file."]))
-
-        grp_builtin.add_argument("-g",
-                                 "--log",
+        grp_builtin.add_argument("--dot_file",
+                                 metavar="Dot_file",
+                                 dest="str_dot_path",
+                                 default=None,
+                                 help="".join(["When provided a dot file ",
+                                               "of the underlying graph ",
+                                               "will be written to this ",
+                                               "file."]))
+        grp_builtin.add_argument("--log",
                                  metavar="Optional_logging_file",
                                  dest=C_STR_SCRIPT_LOG,
                                  default=None,
@@ -227,20 +208,8 @@ class ParentScript:
                                  metavar="JSON_out",
                                  dest="str_json_file_out",
                                  default=None,
-                                 help="Write script to a JSON file.")
-        grp_builtin.add_argument("--jobs_file",
-                                 metavar="JOBS_file",
-                                 dest="str_jobs_file",
-                                 default=None,
-                                 help="File with different jobs to run.")
-        grp_builtin.add_argument("-m",
-                                 "--max_bsub_memory",
-                                 metavar="Max_BSUB_Mem",
-                                 dest="str_max_memory",
-                                 default="8",
-                                 help="".join(["The max amount of memory in ",
-                                               "GB requested when running ",
-                                               "bsub commands."]))
+                                 help="".join(["Write script to a JSON file. ",
+                                               "(Does not execute pipeline.)"]))
         grp_builtin.add_argument("--move",
                                  metavar="Move_location",
                                  dest="str_move_dir",
@@ -253,36 +222,26 @@ class ParentScript:
                                                "location(s) and moving to ",
                                                "another is needed. Must ",
                                                "specify output directory."]))
-        grp_builtin.add_argument("-n",
-                                 "--threads",
-                                 metavar="Process_threads",
-                                 dest="i_number_threads",
-                                 type=int,
-                                 default=1,
-                                 help="".join(["The number of threads to use ",
-                                               "for multi-threaded steps."]))
-        grp_builtin.add_argument("-o",
-                                 "--out_dir",
+        grp_builtin.add_argument("--out_dir",
                                  metavar="Output_directory",
-                                 dest=C_STR_OUTPUT_DIR,
+                                 dest=Arguments.C_STR_OUTPUT_DIR,
                                  default="",
                                  help="".join(["The output directory where ",
                                                "results will be placed. If ",
                                                "not given a directory will ",
                                                "be created from sample names ",
                                                "and placed with the samples."]))
-        grp_builtin.add_argument("-t",
-                                 "--test",
+        grp_builtin.add_argument("--test",
                                  dest="f_Test",
                                  default=False,
                                  action="store_true",
                                  help="".join(["Will check the environment ",
                                                "and display commands line but",
                                                " not run."]))
-        grp_builtin.add_argument("--user_ordered_commands",
-                                 dest="f_self_organize",
-                                 action="store_false",
-                                 default=True,
+        grp_builtin.add_argument("--graph_ordered_commands",
+                                 dest="f_graph_organize",
+                                 action="store_true",
+                                 default=False,
                                  help="".join(["Commands are ordered for ",
                                                "execution by dependency and ",
                                                "product relationship by ",
@@ -303,8 +262,7 @@ class ParentScript:
                                                "invalidate the product. A ",
                                                "negative value will be ",
                                                "ignored."]))
-        grp_builtin.add_argument("-u",
-                                 "--update_command",
+        grp_builtin.add_argument("--update_command",
                                  dest="str_update_classpath",
                                  default=None,
                                  help="".join(["Allows a class path to be ",
@@ -340,10 +298,15 @@ class ParentScript:
                                                " wait for 20 seconds."]))
 
         # Job submission associated
-        grp_jobs = prsr_arguments.add_argument_group("Job Submission",
-            "Pipeline parameters specifically for job submission.")
-        grp_jobs.add_argument(C_STR_SAMPLE_FILE_ARG,
-                              dest=C_STR_SAMPLE_FILE_DEST,
+        str_jobs_name = "".join(["Job Submission ",
+                                 Arguments.C_STR_SCIEDPIPER_ARG_GROUP])
+        str_jobs_desc = "".join(["Pipeline parameters specifically for ",
+                                 "job submission ",
+                                 Arguments.C_STR_SCIEDPIPER_ARG_GROUP])
+        grp_jobs = prsr_arguments.add_argument_group(str_jobs_name,
+                                                     str_jobs_desc)
+        grp_jobs.add_argument(Arguments.C_STR_SAMPLE_FILE_ARG,
+                              dest=Arguments.C_STR_SAMPLE_FILE_DEST,
                               default=None,
                               help="".join(["Sample file for multiple job ",
                                             "submission. Tied to the pipeline ",
@@ -381,15 +344,21 @@ class ParentScript:
                                             "to be added to the command."]))
 
         # Config associated
-        grp_config = prsr_arguments.add_argument_group("Pipeline Config",
-            "Pipeline config files change the running of pipelines. Useful when managing envrionments.")
-        grp_config.add_argument(C_STR_NO_PIPELINE_CONFIG_ARG,
+        str_config_name = "".join(["Pipeline Config ",
+                                   Arguments.C_STR_SCIEDPIPER_ARG_GROUP])
+        str_config_desc = "".join(["Pipeline config files change the running ",
+                                   "of pipelines. Useful when managing ",
+                                   "environments.",
+                                   Arguments.C_STR_SCIEDPIPER_ARG_GROUP])
+        grp_config = prsr_arguments.add_argument_group(str_config_name,
+                                                       str_config_desc)
+        grp_config.add_argument(Arguments.C_STR_NO_PIPELINE_CONFIG_ARG,
                                 dest="f_use_pipeline_config",
                                 default=True,
                                 action="store_false",
                                 help="".join(["Use this flag to ignore the ",
                                               "pipeline config file."]))
-        grp_config.add_argument(C_STR_PIPELINE_CONFIG_FILE_ARG,
+        grp_config.add_argument(Arguments.C_STR_PIPELINE_CONFIG_FILE_ARG,
                                 dest="str_pipeline_config_file",
                                 default=None,
                                 help="".join(["The pipeline config file to ",
@@ -406,20 +375,25 @@ class ParentScript:
                                               "pipeline config file."]))
 
         # Experimental functionality
-        grp_experimental = prsr_arguments.add_argument_group("Experimental",
-            "Functionality in process, or not completely genericized.")
-        grp_experimental.add_argument("--wdl",
-                                      dest="str_wdl",
-                                      default=None,
-                                      help="".join(["When used, the pipeline ",
-                                                    "will not run but instead ",
-                                                    "a wdl file will be ",
-                                                    "generated for the ",
-                                                    "workflow, then this ",
-                                                    "argument is used, please ",
-                                                    "pass the file path to ",
-                                                    "which the wdl file should",
-                                                    " be written."]))
+        #str_exp_name = "Builtins " + .ArgumentsC_STR_SCIEDPIPER_ARG_GROUP
+        #str_exp_desc = "".join(["Functionality in process, or not completely ",
+        #                        "genericized. ",
+        #                        Arguments.C_STR_SCIEDPIPER_ARG_GROUP])
+        #grp_experimental = prsr_arguments.add_argument_group(str_exp_name,
+        #                                                     str_exp_desc)
+        # To add back, reomve default in manage arguments section.
+        #grp_experimental.add_argument("--wdl",
+        #                              dest="str_wdl",
+        #                              default=None,
+        #                              help="".join(["When used, the pipeline ",
+        #                                            "will not run but instead ",
+        #                                            "a wdl file will be ",
+        #                                            "generated for the ",
+        #                                            "workflow, then this ",
+        #                                            "argument is used, please ",
+        #                                            "pass the file path to ",
+        #                                            "which the wdl file should",
+        #                                            " be written."]))
 
         return prsr_arguments
 
@@ -427,7 +401,7 @@ class ParentScript:
         """
         This will be overridden by the child of the parent script if there
         is a need to add to the arguments or to change the name of the parser.
-        
+
         * args_raw : Standardized arguments to add to / modify.
                    : Arguments object
         * return : Updated arguments.
@@ -447,9 +421,9 @@ class ParentScript:
 
         # Make logger for all jobs
         logr_job = logging.getLogger(C_STR_JOB_LOGGER_NAME)
-        hdlr_job = logging.FileHandler(filename=os.path.join(self.ns_arguments.str_file_base,
+        hdlr_job = logging.FileHandler(filename=os.path.join(self.ns_arguments.str_out_dir,
                                                              C_STR_JOB_LOGGER_NAME),
-                                       mode="w")
+                                                             mode="w")
         hdlr_job.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
         logr_job.addHandler(hdlr_job)
         logr_job.setLevel(logging.INFO)
@@ -468,13 +442,18 @@ class ParentScript:
         # Update arguments with config file for environemntal options
         ##
         # Allow child object to update arguments
-        prsr_arguments = self.func_create_arguments()
-
-        # If a prsr is returned, write over the old one.
-        # Otherwise do not because it was updated in the function
+        prsr_arguments = argparse.ArgumentParser(
+            prog="custom.py",
+            description="Custom Script",
+            conflict_handler="resolve",
+            formatter_class=Arguments.PipelineDefaultHelpFormatter)
+        #prsr_arguments.add_argument("--sciedpiper",
+        #                            dest="f_see_sciedpiper",
+        #                            action="store_true",
+        #                            default=False,
+        #                            help="".join(["Use to view all SciEDPipeR options"]))
         prsr_return = self.func_update_arguments(prsr_arguments)
-        if prsr_return:
-            prsr_arguments = prsr_return
+        prsr_arguments = self.func_create_arguments(prsr_return)
 
         # Store information about the arguments needed for later functionality
         self.dict_args_info = Arguments.Arguments.func_extract_argument_info(prsr_arguments)
@@ -500,7 +479,7 @@ class ParentScript:
         self.ns_arguments.i_number_jobs = max(self.ns_arguments.i_number_jobs, 1)
 
         # Original output file
-        self.str_orig_output_dir = self.ns_arguments.str_file_base
+        self.str_orig_output_dir = self.ns_arguments.str_out_dir
 
     # TODO Test
     def func_manage_output_dir(self):
@@ -512,7 +491,7 @@ class ParentScript:
         # Make sure the output directory is set
         self.func_set_output_dir()
 
-        ParentScript.func_make_output_dir(self.ns_arguments)
+        PipelineRunner.func_make_output_dir(self.ns_arguments)
 
     # TODO Test
     def func_parse_jobs(self):
@@ -530,7 +509,7 @@ class ParentScript:
         llstr_sample_data = [None]
         if self.ns_arguments.str_sample_file:
             with open(self.ns_arguments.str_sample_file, "r") as hndl_samples:
-                llstr_sample_data = [lstr_row for lstr_row in csv.reader(hndl_samples, delimiter = "\t")]
+                llstr_sample_data = [lstr_row for lstr_row in csv.reader(hndl_samples, delimiter = b"\t")]
 
         # Turn on Job running
         if len(llstr_sample_data) > 1 and self.ns_arguments.i_number_jobs > 1:
@@ -546,7 +525,7 @@ class ParentScript:
         if self.ns_arguments.str_pipeline_config_file:
             self.str_possible_config_file = os.path.realpath(self.ns_arguments.str_pipeline_config_file)
         else:
-            self.str_possible_config_file = os.path.splitext(os.path.realpath(sys.argv[0]))[0] + C_STR_CONFIG_EXTENSION 
+            self.str_possible_config_file = os.path.splitext(os.path.realpath(sys.argv[0]))[0] + C_STR_CONFIG_EXTENSION
         if self.ns_arguments.str_sample_file and (not os.path.exists(self.str_possible_config_file)):
             self.logr_job.error("All jobs with sample files need pipeline config files.")
             exit(997)
@@ -557,7 +536,6 @@ class ParentScript:
     def func_run_pipeline(self):
         """
         Runs housekeeping code before the pipeline is ran.
-        
         This is the function that is called by children objects to run.
         """
         if self.f_is_multi_job:
@@ -569,40 +547,40 @@ class ParentScript:
     def func_run_jobs_locally(self):
         # Run for each sample line (passing None once if no sample was given)
         if not self.llstr_sample_data:
-            self.logr_job.error("".join(["ParentScript.func_run_jobs_locally::",
+            self.logr_job.error("".join(["PipelineRunner.func_run_jobs_locally::",
                                          " No job found."]))
             exit(998)
 
         f_error_occured = False
         for lstr_sample_data in self.llstr_sample_data:
             str_current_job = "= " + lstr_sample_data[0] if lstr_sample_data else ""
-            self.logr_job.info("".join(["ParentScript.func_run_jobs_locally::",
+            self.logr_job.info("".join(["PipelineRunner.func_run_jobs_locally::",
                                         " Start Running job ",
                                         str_current_job]))
             # Run a sample
 #            try:
             f_return = self.func_run_sample(lstr_sample_data)
             if f_return:
-                self.logr_job.info("".join(["ParentScript.func_run_jobs",
+                self.logr_job.info("".join(["PipelineRunner.func_run_jobs",
                                             "_locally:: Ran WITHOUT error,",
                                             " job",
                                             str_current_job]))
             else:
-                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+                self.logr_job.info("".join(["PipelineRunner.func_run_jobs_",
                                             "locally:: An ERROR occured ",
                                             "while running job",
                                             str_current_job]))
-            self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+            self.logr_job.info("".join(["PipelineRunner.func_run_jobs_",
                                         "locally:: End Running job",
                                         str_current_job]))
 
             f_error_occured = f_error_occured or (not f_return)
 #            except Exception as e:
 #                f_error_occured = True
-#                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+#                self.logr_job.info("".join(["PipelineRunner.func_run_jobs_",
 #                                            "locally:: Serious error occured ",
 #                                            "for job", str_current_job]))
-#                self.logr_job.info("".join(["ParentScript.func_run_jobs_",
+#                self.logr_job.info("".join(["PipelineRunner.func_run_jobs_",
 #                                            "locally:: Exception for job",
 #                                            str_current_job,
 #                                            "\n" + str(e)]))
@@ -618,12 +596,11 @@ class ParentScript:
         - the creation of commands in the child object.
         - the creation of directories.
         - checking that files exist.
-        
+
         The commands will then be ran after this method.
         The pipeline object is given here so that one can update
         the pipeline if needed. Please do not run the pipeline here.
         Please do not add the commands to the pipeline.
-        
         * args_parsed: Current arguments from command line already parsed
                      : Parsed Arguments
         * cur_pipeline: Pipeline to run the commands in case
@@ -643,7 +620,7 @@ class ParentScript:
                          str_postcommands,
                          str_sample_name):
 
-        str_full_script_name = os.path.join(self.ns_arguments.str_file_base,
+        str_full_script_name = os.path.join(self.ns_arguments.str_out_dir,
                                             os.path.basename(str_updated_script_path))
         str_full_script_name = os.path.splitext(str_full_script_name)[0]+".sh"
         return(self.dspr_cur.func_make_run_script(str_full_script_name,
@@ -665,10 +642,10 @@ class ParentScript:
         """
 
         ## Output dir related
-        if(not hasattr(self.ns_arguments, C_STR_OUTPUT_DIR) or
-           not self.ns_arguments.str_file_base):
-            self.ns_arguments.str_file_base = os.getcwd()
-        self.ns_arguments.str_file_base = os.path.abspath(self.ns_arguments.str_file_base)
+        if(not hasattr(self.ns_arguments, Arguments.C_STR_OUTPUT_DIR) or
+           not self.ns_arguments.str_out_dir):
+            self.ns_arguments.str_out_dir = os.getcwd()
+        self.ns_arguments.str_out_dir = os.path.abspath(self.ns_arguments.str_out_dir)
 
     # TODO Test
     @classmethod
@@ -683,12 +660,12 @@ class ParentScript:
                  : File path (String)
         """
         # If an output / project folder is indicated.
-        if hasattr(ns_arguments, C_STR_OUTPUT_DIR):
+        if hasattr(ns_arguments, Arguments.C_STR_OUTPUT_DIR):
             # Make the output directory if it does not exist
-            if(ns_arguments.str_file_base and 
-               not os.path.isdir(ns_arguments.str_file_base)):
-                os.mkdir(ns_arguments.str_file_base)
-            return ns_arguments.str_file_base
+            if(ns_arguments.str_out_dir and
+               not os.path.isdir(ns_arguments.str_out_dir)):
+                os.mkdir(ns_arguments.str_out_dir)
+            return ns_arguments.str_out_dir
         return None
 
     # TODO Test
@@ -697,11 +674,11 @@ class ParentScript:
         Takes the sample info (which may have sample names as well as sample
         metadata) and check the potential config file. Certain updates will
         require a bash script to be made, for most updates we try to do this
-        way so a record of the command is kept. 
+        way so a record of the command is kept.
         """
         str_script_to_run = None
         # Read in the config file and check to see if there are updates
-        self.ns_arguments.str_file_base = self.str_orig_output_dir
+        self.ns_arguments.str_out_dir = self.str_orig_output_dir
         str_additional_env_path = None
         str_additional_python_path = None
         str_updated_script_path = None
@@ -712,7 +689,7 @@ class ParentScript:
             self.ns_arguments = cur_config_manager.func_update_arguments(args_parsed=self.ns_arguments,
                                                                          dict_args_info=self.dict_args_info,
                                                                          lstr_sample_arguments = lstr_sample_info,
-                                                                         lstr_locked_arguments = C_LSTR_LOCKED_ARGS)
+                                                                         lstr_locked_arguments = Arguments.C_LSTR_LOCKED_ARGS)
             str_additional_env_path = cur_config_manager.func_update_env_path()
             str_additional_python_path = cur_config_manager.func_update_python_path()
             str_updated_script_path = cur_config_manager.func_update_script_path(sys.argv[0])
@@ -720,21 +697,21 @@ class ParentScript:
             str_postcommands = cur_config_manager.func_get_postcommands()
         # Make a bash script
         ## Make output directory
-        ParentScript.func_make_output_dir(self.ns_arguments)
+        PipelineRunner.func_make_output_dir(self.ns_arguments)
         ## Make the script in the output directory
         str_script_to_run = None
         if(str_additional_env_path or
            str_additional_python_path or
            str_updated_script_path or
-           str_precommands or 
+           str_precommands or
            str_postcommands):
             str_script_to_run = self.func_make_script(str_additional_env_path = str_additional_env_path,
                                                       str_additional_python_path = str_additional_python_path,
                                                       str_updated_script_path = str_updated_script_path,
-                                                      str_precommands = str_precommands, 
+                                                      str_precommands = str_precommands,
                                                       str_postcommands = str_postcommands,
                                                       str_sample_name = lstr_sample_info[0] if lstr_sample_info else self.func_base_file(self.prog))
-        # Return script to run. 
+        # Return script to run.
         return(str_script_to_run)
 
     # TODO Test
@@ -754,7 +731,7 @@ class ParentScript:
 
     # TODO Test
     def func_run_sample(self, lstr_sample_info):
-        # str_cmd is None indicates a bash script was not made and the raw
+        # str_script is None indicates a bash script was not made and the raw
         # command can be run. This is a case of running a pipeline locally
         # without sample.txt files or config files that update aspects of the
         # pipeline that would require a script to encapsulate those changes,
@@ -762,65 +739,71 @@ class ParentScript:
         # Also a dispatch command outside of local dispatching will also
         # require a script to be ran,
 
-        # Check config file
-        str_cmd = self.func_update_command(lstr_sample_info)
-        if str_cmd:
-            return(Commandline.Commandline().func_CMD(str_cmd,
+        # Check to see if a script needs to be made and ran.
+        # Happens on certain proccessing requirements
+        # like updating environmental variables with pipeline
+        # config files.
+        str_script = self.func_update_command(lstr_sample_info)
+        if str_script:
+            return(Commandline.Commandline().func_CMD(str_script,
                                                       f_use_bash=True))
-        elif str_cmd is None:
-            # Handle time stamp
-            if (not self.ns_arguments.i_time_stamp_diff is None):
-                self.ns_arguments.i_time_stamp_diff = max(self.ns_arguments.i_time_stamp_diff, 0)
-
+        elif str_script is None:
             # Holds the commands to run
             lcmd_commands = []
 
             ## Output dir related
             # If the output dir is not specified then move and copy functions are disabled
             f_archive = True
-            if(not hasattr(self.ns_arguments, C_STR_OUTPUT_DIR)
-               or not self.ns_arguments.str_file_base):
+            if(not hasattr(self.ns_arguments, Arguments.C_STR_OUTPUT_DIR)
+               or not self.ns_arguments.str_out_dir):
                 f_archive = False
 
             ## Make output directory
-            ParentScript.func_make_output_dir(self.ns_arguments)
+            PipelineRunner.func_make_output_dir(self.ns_arguments)
 
             # Make pipeline object and indicate Log file
-            pline_cur = Pipeline.Pipeline(str_name=self.prog, 
-                                          str_log_to_file=self.ns_arguments.str_log_file if hasattr(self.ns_arguments, "str_log_file") else os.path.join(self.ns_arguments.str_file_base, "custom_log.txt"), 
+            pline_cur = Pipeline.Pipeline(str_name=self.prog,
+                                          str_log_to_file=self.ns_arguments.str_log_file if hasattr(self.ns_arguments, "str_log_file") else os.path.join(self.ns_arguments.str_out_dir, "custom_log.txt"),
                                           str_update_source_path=self.ns_arguments.str_update_classpath if hasattr(self.ns_arguments, "str_update_classpath") else None)
             # Update the logger with the arguments
-            pline_cur.logr_logger.info("ParentScript.func_run_sample:: The call to the pipeline was: " + " ".join(["\n"] + sys.argv + ["\n"]))
-            pline_cur.logr_logger.info("ParentScript.func_run_sample:: This run was started with the following arguments.\n" +
-                                    "\n".join([str(str_namespace_key) + " = " + str(str_namespace_value)
-                                    for str_namespace_key, str_namespace_value in vars(self.ns_arguments).items()] + ["\n"]))
+            if self.version:
+                str_version_log = "".join(["PipelineRunner.func_run_sample:: ",
+                                           "Pipeline version:",
+                                           str(self.version), "\n",
+                                           "PipelineRunner.func_run_sample:: ",
+                                           "The call to the pipeline was: ",
+                                           " ".join(["\n"] + sys.argv + ["\n"]),
+                                           "PipelineRunner.func_run_sample:: ",
+                                           "This run was started with the ",
+                                           "following arg.\n"])
+                str_args_log = "\n".join([str(str_namespace_key) + " = " + str(str_namespace_value)
+                                          for str_namespace_key, str_namespace_value in vars(self.ns_arguments).items()] + ["\n"])
+                pline_cur.logr_logger.info(str_version_log)
+                pline_cur.logr_logger.info(str_args_log)
             # Put pipeline in test mode if needed.
             if hasattr(self.ns_arguments, "f_Test") and self.ns_arguments.f_Test:
                 pline_cur.func_test_mode()
             # Turn off archiving if output directory was not given
             if hasattr(self.ns_arguments, "f_archive") and not f_archive:
-                pline_cur.logr_logger.warning("ParentScript.func_run_sample:: Turning off archiving, please specify an output directory if you want this feature enabled.")
+                pline_cur.logr_logger.warning("PipelineRunner.func_run_sample:: Turning off archiving, please specify an output directory if you want this feature enabled.")
                 pline_cur.f_archive = False
-            # Make commands bsub if indicated
-            if hasattr(self.ns_arguments, "str_bsub_gueue") and self.ns_arguments.str_bsub_queue:
-                pline_cur.func_do_bsub(str_memory = self.ns_arguments.str_max_memory, str_queue = self.ns_arguments.str_bsub_queue)
             # Run the user based pipeline
             # If the commands are not existent (parsed from JSON)
             # then build them from script
             # Where variables are being used.
-            if self.ns_arguments.str_wdl:
-                # If WDL is being output, switch the values of the arguments
-                # with the name of the argument allowing us to track them,
-                import inspect
-                import copy
-                ns_wdl_arguments = copy.deepcopy(self.ns_arguments)
-                lstr_members = [member[0] for member in inspect.getmembers(ns_wdl_arguments)
-                                 if not (member[0].startswith("_") or member[0].endswith("_") or inspect.isroutine(member))]
-                for str_member in lstr_members:
-                    setattr(ns_wdl_arguments, str_member, "${"+str_member+"}")
-                lcmd_commands = self.func_make_commands(args_parsed = ns_wdl_arguments, cur_pipeline = pline_cur)
-            else:
-                lcmd_commands = self.func_make_commands(args_parsed = self.ns_arguments, cur_pipeline = pline_cur)
+            #if self.ns_arguments.str_wdl:
+            #    # If WDL is being output, switch the values of the arguments
+            #    # with the name of the argument allowing us to track them,
+            #    import inspect
+            #    import copy
+            #    ns_wdl_arguments = copy.deepcopy(self.ns_arguments)
+            #    lstr_members = [member[0] for member in inspect.getmembers(ns_wdl_arguments)
+            #                     if not (member[0].startswith("_") or member[0].endswith("_") or inspect.isroutine(member))]
+            #    for str_member in lstr_members:
+            #        setattr(ns_wdl_arguments, str_member, "${"+str_member+"}".encode('utf-8'))
+            #    lcmd_commands = self.func_make_commands(args_parsed = ns_wdl_arguments, cur_pipeline = pline_cur)
+            #else:
+            lcmd_commands = self.func_make_commands(args_parsed = self.ns_arguments, cur_pipeline = pline_cur)
 
             # Write JSON file
             if hasattr(self.ns_arguments, "str_json_file_out") and self.ns_arguments.str_json_file_out:
@@ -830,6 +813,10 @@ class ParentScript:
                                                               f_pretty=True)
                 pline_cur.logr_logger.info("Writing JSON file to: " + self.ns_arguments.str_json_file_out)
                 return(True)
+
+            # Move into output directory
+            os.chdir(self.ns_arguments.str_out_dir)
+
             # Run commands
             if not hasattr(self.ns_arguments, "lstr_copy"):
                 setattr(self.ns_arguments, "lstr_copy", None)
@@ -841,17 +828,19 @@ class ParentScript:
                 setattr(self.ns_arguments, "f_clean", False)
             if not hasattr(self.ns_arguments, "i_time_stamp_diff"):
                 setattr(self.ns_arguments, "i_time_stamp_diff", None)
-            return(pline_cur.func_run_commands(lcmd_commands = lcmd_commands, 
-                                               str_output_dir = self.ns_arguments.str_file_base,
+            return(pline_cur.func_run_commands(lcmd_commands = lcmd_commands,
+                                               str_output_dir = self.ns_arguments.str_out_dir,
                                                f_clean = self.ns_arguments.f_clean,
-                                               f_self_organize_commands = self.ns_arguments.f_self_organize,
+                                               f_self_organize_commands = self.ns_arguments.f_graph_organize,
                                                li_wait = [int(str_wait) for str_wait in self.ns_arguments.lstr_wait.split(",")],
                                                lstr_copy = self.ns_arguments.lstr_copy if self.ns_arguments.lstr_copy else None,
                                                str_move = self.ns_arguments.str_move_dir if self.ns_arguments.str_move_dir else None,
                                                str_compression_mode = self.ns_arguments.str_compress,
                                                i_time_stamp_wiggle = self.ns_arguments.i_time_stamp_diff,
-                                               str_wdl = self.ns_arguments.str_wdl,
-                                               args_original = (self.ns_arguments if self.ns_arguments.str_wdl else None)))
+                                               #str_wdl = self.ns_arguments.str_wdl,
+                                               str_dot_file = self.ns_arguments.str_dot_path,
+                                               args_original = None ))
+                                               #args_original = (self.ns_arguments if self.ns_arguments.str_wdl else None)))
 
     # TODO Test
     def func_run_many_jobs(self):
@@ -860,15 +849,15 @@ class ParentScript:
         """
 
         try:
-            pool = multiprocessing.Pool() 
+            pool = multiprocessing.Pool()
             lrslt_success = pool.map_async(func_run_job,
                                            self.func_get_job_commands())
             lf_success = [f_success for f_success in lrslt_success.get()]
         except Exception as e:
             f_error_occured = True
-            self.logr_job.info("".join(["ParentScript.func_run_many_jobs:: ",
+            self.logr_job.info("".join(["PipelineRunner.func_run_many_jobs:: ",
                                         "Serious error occured for job"]))
-            self.logr_job.info("ParentScript.func_run_many_jobs:: \n" + str(e))
+            self.logr_job.info("PipelineRunner.func_run_many_jobs:: \n" + str(e))
 
 
 # TODO Test

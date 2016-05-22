@@ -14,7 +14,7 @@ import argparse
 import Arguments
 import collections
 import ConfigParser
-import ParentScript
+import PipelineRunner
 import os
 import sys
 
@@ -68,7 +68,7 @@ class ConfigManager(object):
 
     # Tested
     def func_normalize_argument(self, str_argument, dict_args_normalized):
-        """ 
+        """
         Takes an argument (short or long form) and normalizes the argument to
         one of the possible arguments. If the argument is not found, an
         exception (NameError) is raised. If the argument is found, a normalized
@@ -183,26 +183,26 @@ class ConfigManager(object):
             # Update the output directory with the sample name.
             # Update any argument with the output directory in it to
             # the new output directory
-            ParentScript.ParentScript.func_make_output_dir(args_parsed)
-            str_new_output_dir = os.path.join(args_parsed.str_file_base,lstr_sample_arguments[0])
+            PipelineRunner.PipelineRunner.func_make_output_dir(args_parsed)
+            str_new_output_dir = os.path.join(args_parsed.str_out_dir,lstr_sample_arguments[0])
             if hasattr(args_parsed,
-                       ParentScript.C_STR_SCRIPT_LOG):
-                str_log_file = getattr(args_parsed, ParentScript.C_STR_SCRIPT_LOG)
-                if(str_log_file.startswith(args_parsed.str_file_base)):
-                    str_log_dir = os.path.join(args_parsed.str_file_base,ParentScript.C_STR_LOG_DIR)
+                       PipelineRunner.C_STR_SCRIPT_LOG):
+                str_log_file = getattr(args_parsed, PipelineRunner.C_STR_SCRIPT_LOG)
+                if(str_log_file.startswith(args_parsed.str_out_dir)):
+                    str_log_dir = os.path.join(args_parsed.str_out_dir,PipelineRunner.C_STR_LOG_DIR)
                     if not os.path.isdir(str_log_dir):
                         os.mkdir(str_log_dir)
                     setattr(args_parsed,
-                            ParentScript.C_STR_SCRIPT_LOG,
+                            PipelineRunner.C_STR_SCRIPT_LOG,
                             os.path.join(str_log_dir,lstr_sample_arguments[0]+".log"))
             setattr(args_parsed,
-                    ParentScript.C_STR_OUTPUT_DIR,
+                    Arguments.C_STR_OUTPUT_DIR,
                     str_new_output_dir)
 
             # Remove the sample file from the args incase a script is made
             # This will otherwise make an inf loop
             setattr(args_parsed,
-                    ParentScript.C_STR_SAMPLE_FILE_DEST,
+                    Arguments.C_STR_SAMPLE_FILE_DEST,
                     None)
 
         # Stop if arguments were updated multiple times.
