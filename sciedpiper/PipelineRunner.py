@@ -814,9 +814,6 @@ class PipelineRunner:
                 pline_cur.logr_logger.info("Writing JSON file to: " + self.ns_arguments.str_json_file_out)
                 return(True)
 
-            # Move into output directory
-            os.chdir(self.ns_arguments.str_out_dir)
-
             # Run commands
             if not hasattr(self.ns_arguments, "lstr_copy"):
                 setattr(self.ns_arguments, "lstr_copy", None)
