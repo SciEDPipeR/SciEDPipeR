@@ -482,6 +482,9 @@ class Pipeline:
         * lstr_paths : Paths for which all dirs will be made.
                      : List of paths
         """
+        if not self.f_execute:
+            return
+
         if not lstr_paths:
             return
 
@@ -699,9 +702,6 @@ class Pipeline:
             if not f_remove_products:
                 cur_vertex = dt_dependency_tree.graph_commands.func_get_vertex( str_path )
                 i_clean_level = cur_vertex.i_clean
-#                 if i_clean_level is None:
-#                     self.logr_logger.error( " ".join( [ "Pipeline.func_remove_paths: Could not find the clean level for this file so could not delete. File =", str_path ] ) )
-#                     continue
 
                 if i_clean_level == Resource.CLEAN_AS_TEMP:
                     if not dt_dependency_tree.func_is_used_intermediate_file( cur_vertex ):
@@ -787,9 +787,6 @@ class Pipeline:
             # Update the command with a path if needed.
             self.func_update_command_path( cmd_command, self.dict_update_path )
 
-            if str_wdl is None:
-                # Make all the directories needed for the commands
-                self.func_make_all_needed_dirs( [ rsc_product.str_id for rsc_product in cmd_command.lstr_products ] )
         # Load up the commands and build the dependency tree
         # This skips special commands
         dt_dependencies = DependencyTree.DependencyTree( [ cmd_cur for cmd_cur in lcmd_commands
@@ -890,8 +887,17 @@ class Pipeline:
                 # Deleting the paths for those products (if they exist)
                 # This starts the command with a clear slate.
                 # Remove products
-                self.func_remove_paths( cmd_command = cmd_command, str_output_directory = str_output_dir,
-                                        dt_dependency_tree = dt_dependencies, f_remove_products = True, f_test = not self.f_execute )
+                self.func_remove_paths(cmd_command=cmd_command,
+                                       str_output_directory=str_output_dir,
+                                       dt_dependency_tree=dt_dependencies,
+                                       f_remove_products=True,
+                                       f_test=not self.f_execute)
+
+                # Make directories needed for this command
+                self.func_make_all_needed_dirs([rsc_product.str_id
+                                                for rsc_product
+                                                in cmd_command.lstr_products])
+
                 # Add bsub prefix if needed to the command.
                 str_executed_command = "".join( [ self.str_prefix_command, cmd_command.str_id ] )
                 self.logr_logger.info( "".join( [ "Pipeline.func_run_commands: start command line: ", str_executed_command ] ) )
