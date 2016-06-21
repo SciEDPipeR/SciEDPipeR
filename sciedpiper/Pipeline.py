@@ -492,7 +492,10 @@ class Pipeline:
             if not str_file:
                 continue
             try:
-                os.makedirs( os.path.dirname( str_file ) )
+                if(os.path.splitext(str_file)[1]==''):
+                    self.func_mkdirs([str_file])
+                else:
+                    self.func_mkdirs([os.path.dirname(str_file)])
             except OSError:
                 pass
 
