@@ -171,6 +171,14 @@ class PipelineRunner:
         grp_builtin = prsr_arguments.add_argument_group(str_builtin_name,
                                                         str_builtin_desc)
 
+        grp_builtin.add_argument("--mem_benchmark",
+                                 default=None,
+                                 type=int,
+                                 help="".join(["The amount of seconds wait",
+                                               " between polling commands ",
+                                               "when benchmarking memory. "
+                                               "By default turned off. "])
+
         grp_builtin.add_argument("--clean",
                                  dest="f_clean",
                                  default=False,
@@ -803,7 +811,8 @@ class PipelineRunner:
             #        setattr(ns_wdl_arguments, str_member, "${"+str_member+"}".encode('utf-8'))
             #    lcmd_commands = self.func_make_commands(args_parsed = ns_wdl_arguments, cur_pipeline = pline_cur)
             #else:
-            lcmd_commands = self.func_make_commands(args_parsed = self.ns_arguments, cur_pipeline = pline_cur)
+            lcmd_commands = self.func_make_commands(args_parsed=self.ns_arguments,
+                                                    cur_pipeline=pline_cur)
 
             # Write JSON file
             if hasattr(self.ns_arguments, "str_json_file_out") and self.ns_arguments.str_json_file_out:
@@ -825,18 +834,19 @@ class PipelineRunner:
                 setattr(self.ns_arguments, "f_clean", False)
             if not hasattr(self.ns_arguments, "i_time_stamp_diff"):
                 setattr(self.ns_arguments, "i_time_stamp_diff", None)
-            return(pline_cur.func_run_commands(lcmd_commands = lcmd_commands,
-                                               str_output_dir = self.ns_arguments.str_out_dir,
-                                               f_clean = self.ns_arguments.f_clean,
-                                               f_self_organize_commands = self.ns_arguments.f_graph_organize,
-                                               li_wait = [int(str_wait) for str_wait in self.ns_arguments.lstr_wait.split(",")],
-                                               lstr_copy = self.ns_arguments.lstr_copy if self.ns_arguments.lstr_copy else None,
-                                               str_move = self.ns_arguments.str_move_dir if self.ns_arguments.str_move_dir else None,
-                                               str_compression_mode = self.ns_arguments.str_compress,
-                                               i_time_stamp_wiggle = self.ns_arguments.i_time_stamp_diff,
-                                               #str_wdl = self.ns_arguments.str_wdl,
-                                               str_dot_file = self.ns_arguments.str_dot_path,
-                                               args_original = None ))
+            return(pline_cur.func_run_commands(lcmd_commands=lcmd_commands,
+                                               str_output_dir=self.ns_arguments.str_out_dir,
+                                               f_clean=self.ns_arguments.f_clean,
+                                               f_self_organize_commands=self.ns_arguments.f_graph_organize,
+                                               li_wait=[int(str_wait) for str_wait in self.ns_arguments.lstr_wait.split(",")],
+                                               lstr_copy=self.ns_arguments.lstr_copy if self.ns_arguments.lstr_copy else None,
+                                               str_move=self.ns_arguments.str_move_dir if self.ns_arguments.str_move_dir else None,
+                                               str_compression_mode=self.ns_arguments.str_compress,
+                                               i_time_stamp_wiggle=self.ns_arguments.i_time_stamp_diff,
+                                               #str_wdl=self.ns_arguments.str_wdl,
+                                               str_dot_file=self.ns_arguments.str_dot_path,
+                                               i_benchmark_secs=self.ns_arguments.i_mem_benchmark,
+                                               args_original=None ))
                                                #args_original = (self.ns_arguments if self.ns_arguments.str_wdl else None)))
 
     # TODO Test

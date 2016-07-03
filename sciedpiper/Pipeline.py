@@ -734,10 +734,10 @@ class Pipeline:
 
 
     # Tested
-    def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, f_self_organize_commands = True,
-                           li_wait = None, lstr_copy = None, str_move = None, str_compression_mode = None,
-                           str_compression_type = "gz", i_time_stamp_wiggle = None, str_dot_file = None,
-                           str_wdl = None, args_original = None ):
+    def func_run_commands( self, lcmd_commands, str_output_dir, f_clean = False, f_self_organize_commands=True,
+                           li_wait=None, lstr_copy=None, str_move=None, str_compression_mode=None,
+                           str_compression_type="gz", i_time_stamp_wiggle=None, str_dot_file=None,
+                           str_wdl=None, args_original=None, i_benchmark_secs=None ):
         """
         Runs all commands in serial and logs the time each took.
         Will NOT stop on error but will attempt all commands.
@@ -761,6 +761,9 @@ class Pipeline:
 
         * i_time_stamp_wiggle : int or None to turn off
                                 Time stamps must be more than this difference in order to be evaluated, otherwise they pass.
+
+        * i_benchmark_secs : Number seconds to wait between benchmarking memory. If None, benchmarking is not performed.
+                           : int (secs) or None (default, turns off functionality)
 
         * Return : Boolean
                    True indicates no error occurred
@@ -904,7 +907,10 @@ class Pipeline:
                 # Add bsub prefix if needed to the command.
                 str_executed_command = "".join( [ self.str_prefix_command, cmd_command.str_id ] )
                 self.logr_logger.info( "".join( [ "Pipeline.func_run_commands: start command line: ", str_executed_command ] ) )
-                f_success = f_success and self.cmdl_execute.func_CMD( str_executed_command, f_use_bash = self.f_use_bash, f_test = not self.f_execute )
+                f_success = f_success and self.cmdl_execute.func_CMD(str_executed_command,
+                                                                     f_use_bash=self.f_use_bash,
+                                                                     f_test=not self.f_execute,
+                                                                     i_secs=i_benchmark_secs)
                 self.logr_logger.info( " ".join( [ "Pipeline.func_run_commands: end commandline." ] ) )
                 # If the command is successful, indicate it is complete and potentially clean up stale dependencies
                 if f_success:

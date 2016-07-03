@@ -1,5 +1,10 @@
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 """
 Runs the tests suites.
 Test suites should be turned on here to run.
@@ -15,6 +20,7 @@ __status__="Development"
 
 
 import ArgumentsTester
+import BenchmarkingTester
 import CommandlineTester
 import CommandTester
 import CompressionTester
@@ -22,7 +28,7 @@ import ConfigManagerTester
 import DependencyGraphTester
 import DependencyTreeTester
 ##import Dispatcher
-import FunctionalTester
+#import FunctionalTester
 import GraphTester
 import JSONManagerTester
 import PipelineTester
@@ -33,6 +39,7 @@ import unittest
 # Calls all unit tests as a regression suite.
 suite=unittest.TestSuite()
 suite.addTest(ArgumentsTester.suite())
+suite.addTest(BenchmarkingTester.suite())
 suite.addTest(CommandlineTester.suite())
 suite.addTest(CommandTester.suite()) # Running
 suite.addTest(CompressionTester.suite())
