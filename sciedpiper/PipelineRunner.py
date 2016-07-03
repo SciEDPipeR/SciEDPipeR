@@ -173,11 +173,12 @@ class PipelineRunner:
 
         grp_builtin.add_argument("--mem_benchmark",
                                  default=None,
+                                 dest="i_mem_benchmark",
                                  type=int,
                                  help="".join(["The amount of seconds wait",
                                                " between polling commands ",
-                                               "when benchmarking memory. "
-                                               "By default turned off. "])
+                                               "when benchmarking memory. ",
+                                               "By default turned off. "]))
 
         grp_builtin.add_argument("--clean",
                                  dest="f_clean",

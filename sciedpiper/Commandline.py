@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 """
 Functions involving sending commands to the commandline.
@@ -9,6 +11,7 @@ import Benchmarking
 import logging
 import os
 import subprocess as sp
+import time
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2014"
@@ -51,7 +54,7 @@ class Commandline:
         * f_use_bash : Boolean
                      : If true, sends the command through using
                        BASH not SH (Bourne) or default shell (windows)
-                     : Although the False is _I believe_ is not specific 
+                     : Although the False is _I believe_ is not specific
                        to an OS, True is.
 	      * f_test : Boolean
 	                 If true, the commands will not run but will be logged.
@@ -88,11 +91,12 @@ class Commandline:
 
             # If seconds are given, record memory usage within those
             # seconds.
+            str_out = " "
             if i_secs:
                 ld_max_mem = [-1,-1,-1]
                 while(i_return_code is None):
                     ld_mem_info = Benchmarking.func_memory(str_pid)
-                    ld_max_mem = [max(info) for info 
+                    ld_max_mem = [max(info) for info
                                   in zip(ld_mem_info,ld_max_mem)]
                     time.sleep(i_secs)
                     i_return_code = subp_cur.poll()
@@ -102,16 +106,12 @@ class Commandline:
                                         b'operating systems.'])
                 else:
                     str_mem = b''.join([b'Memory: '+Benchmarking.func_human_readable(ld_max_mem[0]),
-                                        b'Resident Memory: '+Benchmarking.func_human_readable(ld_max_mem[1]),
-                                        b'Stack Size: '+Benchmarking.func_human_readable(ld_max_mem[2])])
+                                        b' Resident Memory: '+Benchmarking.func_human_readable(ld_max_mem[1]),
+                                        b' Stack Size: '+Benchmarking.func_human_readable(ld_max_mem[2])])
                 self.logr_cur.info(b'Memory benchmark::'+str_mem)
             else:
                 str_out, str_err = subp_cur.communicate()
                 i_return_code = subp_cur.returncode
-
-            # Change str_out to a true value incase it is returned.
-            if str_out == "":
-                str_out = " "
 
             # 0 indicates success
             # On Stdout == true return a true string (stdout or 1 blank space)

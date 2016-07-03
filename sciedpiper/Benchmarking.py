@@ -46,7 +46,7 @@ def func_get_process_file(str_pid):
               File to read process information from.
     """
 
-    return(os.sep.join([b'proc', str(str_pid), b'status']))
+    return(os.sep + os.sep.join([b'proc', str(str_pid), b'status']))
 
 
 # Tested 6/19/2016
@@ -72,7 +72,7 @@ def func_human_readable(i_amount, str_measurement=c_STR_B):
     # Set to bytes.
     i_units = c_LSTR_SIZES.index(str_measurement.lower())
     if i_units < 0:
-        return(str(i_amount)) 
+        return(str(i_amount))
     else:
         i_amount = i_amount * (1024 ** i_units)
 

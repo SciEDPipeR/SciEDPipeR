@@ -14,6 +14,7 @@ __email__ = "ttickle@broadinstitute.org"
 __status__ = "Development"
 
 
+import Benchmarking
 import Command
 import Commandline
 import Compression
@@ -839,6 +840,18 @@ class Pipeline:
         for cmd_command in lcmd_commands:
             # Log the start
             self.logr_logger.info( " ".join( [ "\n\nPipeline.func_run_commands: Starting", str( cmd_command.str_id ) ] ) )
+
+            # Benchmark sciedpiper memory use.
+            ld_mem_info = Benchmarking.func_memory(str(os.getpid()))
+            if(-1 in ld_mem_info):
+                str_mem = b''.join([b'SciEDPipeR Memory benchmarking is only ',
+                                    b'compatible with Linux ',
+                                    b'operating systems.'])
+            else:
+                str_mem = b''.join([b'SciEDPipeR Memory: '+Benchmarking.func_human_readable(ld_mem_info[0]),
+                                    b' SciEDPipeR Resident Memory: '+Benchmarking.func_human_readable(ld_mem_info[1]),
+                                    b' SciEDPipeR Stack Size: '+Benchmarking.func_human_readable(ld_mem_info[2])])
+            self.logr_logger.info(b'SciEDPipeR Memory benchmark::'+str_mem)
 
             # Do not execute if the products are already made.
             # We do want to clean up if they ask for it.
