@@ -12,7 +12,6 @@ setup(
     maintainer_email="timothyltickle@gmail.com",
     name="SciEDPipeR",
     packages=["sciedpiper"],
-    scripts=["bin/ExampleScript.py"],
     url="https://github.com/SciEDPipeR/SciEDPipeR",
     version="0.1.0"
 )
