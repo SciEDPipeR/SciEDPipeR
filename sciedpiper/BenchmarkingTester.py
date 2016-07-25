@@ -146,7 +146,9 @@ class BenchmarkingTester(ParentPipelineTester.ParentPipelineTester):
     def test_func_get_process_file(self):
         """ Testing func_get_process file. """
         i_pid = 1
-        str_answer = os.path.sep.join([b'proc', str(i_pid), b'status'])
+        str_answer = os.path.sep + os.path.sep.join([b'proc',
+                                                     str(i_pid),
+                                                     b'status'])
         str_result = Benchmarking.func_get_process_file(i_pid)
         self.func_test_equals(str_answer,str_result)
 
