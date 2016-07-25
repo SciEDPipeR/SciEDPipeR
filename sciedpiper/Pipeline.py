@@ -524,7 +524,9 @@ class Pipeline:
         # Execute mode
         try:
             for str_dir in lstr_directory_paths:
-                if not os.path.exists( str_dir ):
+                if not str_dir:
+                    self.logr_logger.info( "".join( [ "Pipeline.func_mkdirs: Skipping creating directory \"", str_dir, "\"" ] ) )
+                elif not os.path.exists( str_dir ):
                     os.makedirs( str_dir )
                     self.logr_logger.info( " ".join( [ "Pipeline.func_mkdirs: Created directory", str_dir ] ) )
                 else:
@@ -545,7 +547,10 @@ class Pipeline:
                         : Path to file.
         * return : float
         """
-        return os.path.getmtime(str_file_path)
+        if os.path.exists(str_file_path):
+            return(os.path.getmtime(str_file_path))
+        else:
+            return(os.path.getmtime(self.func_get_ok_file_path(str_file_path)))
 
 
     # Tested, could test more (products)
@@ -587,12 +592,16 @@ class Pipeline:
         # 2b. If time stamping is on (a float value given ) make sure all parents are older than the children.
         # If the state of the parents is not trustworthy delete the ok file for all resources in the command and then return false
         for rsc_file in cmd_command.lstr_dependencies if f_dependencies else cmd_command.lstr_products:
+            rsc_file_ok = self.func_get_ok_file_path(rsc_file.str_id)
             # Check that the command has ran successfully
-            if not os.path.exists(self.func_get_ok_file_path(rsc_file.str_id)):
+            if not os.path.exists(rsc_file_ok):
                 self.logr_logger.info( "Pipeline.func_paths_are_from_valid_run: Not yet created without error. PATH=" + rsc_file.str_id )
                 f_return_valid = False
                 continue
-            i_target_product_time_stamp = self.func_get_file_time_stamp( rsc_file.str_id )
+            # Get the time stamp for the product file
+            # If it does not exist use the timestamp from the ok file.
+            # The ok file should exist at this point.
+            i_target_product_time_stamp = self.func_get_file_time_stamp(rsc_file.str_id)
             # Make sure each parent / dependency has an ok file.
             for rsc_parent_dep in rsc_file.func_get_dependencies():
                 if((not os.path.exists(self.func_get_ok_file_path(rsc_parent_dep.str_id))) and
@@ -606,7 +615,7 @@ class Pipeline:
                 # Check the time stamps of all parents/dependencies of the current resource
                 # Any issue will cause this command to be reran / invalidating the resource for rerun.
                 if((not i_fuzzy_time is None) and (i_fuzzy_time >= 0)):
-                    i_parent_time_stamp = self.func_get_file_time_stamp( rsc_parent_dep.str_id )
+                    i_parent_time_stamp = self.func_get_file_time_stamp(rsc_parent_dep.str_id)
                     if ( i_parent_time_stamp - i_fuzzy_time ) > i_target_product_time_stamp:
                         self.logr_logger.error( " ".join( [ "Pipeline.func_paths_are_from_valid_run: Parent dependency was older than the target product.",
                                                              "Remaking products.",
@@ -770,7 +779,7 @@ class Pipeline:
                    True indicates no error occurred
         """
         # Check incoming parameters
-        if (not lcmd_commands) or (not len(lcmd_commands)) or (not str_output_dir):
+        if (not lcmd_commands) or (not len(lcmd_commands)):# or (not str_output_dir):
             self.logr_logger.error(" ".join(["Pipeline.func_run_commands: Bad incoming command list"]))
             return False
 
@@ -787,6 +796,8 @@ class Pipeline:
         # Need to work with absolute files so that it can be
         # Identified that the input files are in the output directory
         str_current_path_for_abs_paths = os.getcwd()
+        if not str_output_dir:
+            str_output_dir = str_current_path_for_abs_paths
         if not str_output_dir[ 0 ] == os.path.sep:
             str_output_dir = os.path.join( str_current_path_for_abs_paths, str_output_dir )
         # Update the paths of commands before the dependency tree is made, otherwise they will not match the current state of the commands
