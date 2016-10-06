@@ -154,12 +154,12 @@ class DependencyTree:
                 i_new_clean = vtx_product.i_clean
                 if not vtx_product.str_id in dict_clean_levels:
                     dict_clean_levels[ vtx_product.str_id ] = i_new_clean
-                i_stored_clean = dict_clean_levels[ vtx_dependency.str_id ]
+                i_stored_clean = dict_clean_levels[ vtx_product.str_id ]
                 if i_new_clean != Resource.CLEAN_DEFAULT:
                     if i_stored_clean == Resource.CLEAN_DEFAULT:
-                        dict_clean_levels[ vtx_poduct.str_id ] = i_new_clean
+                        dict_clean_levels[ vtx_product.str_id ] = i_new_clean
                     else:
-                        dict_clean_levels[ vtx_dependency.str_id ] = min( i_new_clean, i_stored_clean )
+                        dict_clean_levels[ vtx_product.str_id ] = min( i_new_clean, i_stored_clean )
 
             # Make sure the resource clean levels are preserved.
             for str_resource_id, i_set_clean in dict_clean_levels.items():
